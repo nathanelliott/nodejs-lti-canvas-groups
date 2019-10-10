@@ -51,13 +51,16 @@ app.get('/application', (req, res, next) => {
 });
 
 app.get('/groups', (request, result, next) => {
+  request.session.userId = 1234;
+  request.session.canvasCourseId = 1234;
+  
   if (request.session.userId && request.session.canvasCourseId) {
     const groupData = canvasApi.getCourseGroups(request.session.canvasCourseId);
 
     return result.render('groups', {
       fullname: req.session.fullname,
       userId: req.session.userId,
-      courseId: req.session.courseId,
+      courseId: req.session.canvasCourseId,
       contextTitle: req.session.contextTitle,
       apiData: groupData,
       rawApiData: JSON.stringify(groupData)
