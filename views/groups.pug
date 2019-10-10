@@ -18,4 +18,9 @@ html(lang='en')
           h1 Canvas Group Management
           h2 #{fullname}
           p.lead Listing groups for Course #{contextTitle}, Id #{courseId}, where your userId is #{userId}.
-          pre API data: #{rawApiData}
+
+          ul
+            each value, index in apiData
+              li= value.id + ': ' + value.name
+
+          p(style='white-space: pre-wrap;') API data: #{rawApiData}
