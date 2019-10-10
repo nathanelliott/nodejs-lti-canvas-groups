@@ -1,5 +1,5 @@
 {
-  "name": "nodejs-lti-provider",
-  "description": "Example Node.js LTI provider",
-  "repository": "https://github.com/js-kyle/nodejs-lti-provider"
+  "name": "nodejs-lti-canvas-groups",
+  "description": "LTI Application for listing group members in Canvas",
+  "repository": "https://github.com/ChalmersLibrary/nodejs-lti-canvas-groups"
 }
