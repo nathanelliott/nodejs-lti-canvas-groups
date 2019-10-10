@@ -69,7 +69,7 @@ exports.handleLaunch = (req, res, next) => {
           req.session.canvasEnrollmentState = provider.body.custom_canvas_enrollment_state;
           req.session.rawProvider = JSON.stringify(provider);
 
-          return res.redirect(301, '/application');
+          return res.redirect(301, '/groups');
         });
       } else {
         return next(err);

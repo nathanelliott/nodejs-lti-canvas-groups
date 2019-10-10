@@ -5,7 +5,7 @@ const request = require('request');
 const apiPath = "https://chalmers.instructure.com/api/v1";
 const apiBearerToken = process.env.canvasApiAccessToken;
 
-var getCourseGroups = (courseId) => {
+exports.getCourseGroups = (courseId) => {
   request.get({
     url: apiPath + "/courses/" + courseId + "/groups",
     json: true,
