@@ -58,7 +58,7 @@ app.get('/groups', (request, result, next) => {
   if (request.session.userId && request.session.canvasCourseId) {
     canvasApi.getCourseGroups(request.session.canvasCourseId, function(error, data) {
       if (error) {
-        next(new Error(error));
+        next(error);
       }
       else {
         return result.render('groups', {
