@@ -1,7 +1,7 @@
 {
-  "name": "nodejs-lti-provider",
+  "name": "nodejs-lti-canvas-groups",
   "version": "1.0.0",
-  "description": "Example Node.js LTI provider",
+  "description": "LTI Application for listing group members in Canvas. Forked from example Node.js LTI provider by Kyle Martin.",
   "main": "app.js",
   "scripts": {
     "start": "node app",
@@ -11,7 +11,7 @@
     "node": "10.14.1",
     "npm": "6.9.0"
   },
-  "author": "Kyle Martin",
+  "author": "Rolf Johansson",
   "license": "MIT",
   "dependencies": {
     "body-parser": "^1.19.0",

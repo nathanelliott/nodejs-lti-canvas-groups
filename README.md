@@ -1,28 +1,16 @@
 
 <h1 align="center">
   <br>
-  nodejs-lti-provider
+  nodejs-lti-canvas-groups
   <br>
 </h1>
 
-<h4 align="center">A minimal LTI provider example using Node.js.</h4>
-<p align="center">
-    <img alt="GitHub" src="https://img.shields.io/github/license/js-kyle/nodejs-lti-provider.svg">
-</p>
-
-A working demo of this application can be found at https://nodejs-lti-provider.herokuapp.com, or, you can deploy your own
-
-<a href="https://heroku.com/deploy">
-  <img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy">
-</a>
+<h4 align="center">A LTI Application for working with Canvas groups, using Node.js.</h4>
 
 ## Overview
 
-This project is a minimal example of an LTI provider application. It contains:
-
-- a launch URL to process incoming launch messages from an LTI consumer, generally an LMS
-- an in memory session store, to track the user once logged in
-- an example page which can only be seen by a logged in user
+This project is forked from https://github.com/js-kyle/nodejs-lti-provider which is the template for a minimal LTI provider
+application written in Node.js by Kyle Martin.
 
 **Note: This project does not include security and production best practices, and is intended for demo of LTI flow only.**
 
