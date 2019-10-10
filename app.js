@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const express = require('express');
 const session = require('express-session');
 const lti = require('./lti');
+const canvasApi = require('./canvas');
 
 const port = process.env.PORT || 3000;
 
@@ -32,17 +33,40 @@ app.get('/', (req, res, next) => {
 
 app.get('/application', (req, res, next) => {
   if (req.session.userId) {
-    console.log(req.session);
     return res.render('index', {
       email: req.session.email,
       username: req.session.username,
+      fullname: req.session.fullname,
       ltiConsumer: req.session.ltiConsumer,
       userId: req.session.userId,
-      isTutor: req.session.isTutor,
-      context_id: req.session.context_id,
-      sessionData: JSON.stringify(req.session.raw_data)
+      isInstructor: req.session.isInstructor,
+      contextId: req.session.contextId,
+      rawProvider: req.session.rawProvider,
+      rawSession: JSON.stringify(req.session)
     })
-  } else {
+  }
+  else {
+    next(new Error('Session invalid. Please login via LTI to use this application.'));
+  }
+});
+
+app.get('/groups', (request, result, next) => {
+  if (request.session.userId && request.session.canvasCourseId) {
+    const groupData = canvasApi.getCourseGroups(request.session.canvasCourseId);
+    
+    return result.render('groups', {
+      mail: req.session.email,
+      username: req.session.username,
+      fullname: req.session.fullname,
+      ltiConsumer: req.session.ltiConsumer,
+      userId: req.session.userId,
+      isInstructor: req.session.isInstructor,
+      contextId: req.session.contextId,
+      apiData: groupData,
+      rawApiData: JSON.stringify(groupData)
+    })
+  }
+  else {
     next(new Error('Session invalid. Please login via LTI to use this application.'));
   }
 });
