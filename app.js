@@ -32,6 +32,7 @@ app.get('/', (req, res, next) => {
 
 app.get('/application', (req, res, next) => {
   if (req.session.userId) {
+    console.log(req.session);
     return res.render('index', {
       email: req.session.email,
       username: req.session.username,
