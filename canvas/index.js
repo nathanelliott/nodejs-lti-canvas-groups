@@ -5,9 +5,9 @@ const request = require('request');
 const apiPath = "https://chalmers.instructure.com/api/v1";
 const apiBearerToken = process.env.canvasApiAccessToken;
 
-getCourseGroups = (courseId) => {
+var getCourseGroups = (courseId) => {
   request.get({
-    url: apiPath + "/courses/" + courseid + "/groups",
+    url: apiPath + "/courses/" + courseId + "/groups",
     json: true,
     headers: {
       "User-Agent": "Chalmers/Azure/Request",
@@ -22,7 +22,8 @@ getCourseGroups = (courseId) => {
 
       let err = new Error("Non-OK status code returned from API.");
       err.status = 500;
-      return callback(err);
+
+      return new Error(err);
     }
     else {
       console.log("OK, data: " + JSON.stringify(data));
