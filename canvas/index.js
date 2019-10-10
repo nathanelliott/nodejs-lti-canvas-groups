@@ -8,8 +8,11 @@ const apiBearerToken = process.env.canvasApiAccessToken;
 exports.getGroupMembers = (groupId, callback) => {
 }
 
+exports.getCourseEnrollments = (courseId, callback) => {
+} 
+
 exports.getCourseGroups = (courseId, callback) => {
-  console.log("GET " + apiPath + "/courses/" + courseId + "/groups WITH BEARER " + apiBearerToken);
+  console.log("GET " + apiPath + "/courses/" + courseId + "/groups");
 
   request.get({
     url: apiPath + "/courses/" + courseId + "/groups",
