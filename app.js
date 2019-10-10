@@ -40,7 +40,7 @@ app.get('/application', (req, res, next) => {
       userId: req.session.userId,
       isTutor: req.session.isTutor,
       context_id: req.session.context_id,
-      sessionData: JSON.stringify(req.session)
+      sessionData: JSON.stringify(req.session.raw_data)
     })
   } else {
     next(new Error('Session invalid. Please login via LTI to use this application.'));

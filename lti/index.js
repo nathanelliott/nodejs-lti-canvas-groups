@@ -55,6 +55,7 @@ exports.handleLaunch = (req, res, next) => {
           req.session.ltiConsumer = provider.body.tool_consumer_instance_guid;
           req.session.isTutor = provider.instructor === true;
           req.session.context_id = provider.context_id;
+          req.session.raw_data = JSON.stringify(provider);
 
           return res.redirect(301, '/application');
         });
