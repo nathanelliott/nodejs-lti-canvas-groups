@@ -51,20 +51,26 @@ app.get('/application', (req, res, next) => {
 });
 
 app.get('/groups', (request, result, next) => {
-  request.session.userId = 1234;
-  request.session.canvasCourseId = 1234;
-  
-  if (request.session.userId && request.session.canvasCourseId) {
-    const groupData = canvasApi.getCourseGroups(request.session.canvasCourseId);
+  /* request.session.userId = 1234;
+  request.session.canvasCourseId = 1508;
+  request.session.contextTitle = "LOCAL_TEST_COURSE"; */
 
-    return result.render('groups', {
-      fullname: req.session.fullname,
-      userId: req.session.userId,
-      courseId: req.session.canvasCourseId,
-      contextTitle: req.session.contextTitle,
-      apiData: groupData,
-      rawApiData: JSON.stringify(groupData)
-    })
+  if (request.session.userId && request.session.canvasCourseId) {
+    canvasApi.getCourseGroups(request.session.canvasCourseId, function(error, data) {
+      if (error) {
+        next(new Error(error));
+      }
+      else {
+        return result.render('groups', {
+          fullname: request.session.fullname,
+          userId: request.session.userId,
+          courseId: request.session.canvasCourseId,
+          contextTitle: request.session.contextTitle,
+          apiData: data,
+          rawApiData: JSON.stringify(data)
+        });
+      }
+    });
   }
   else {
     next(new Error('Session invalid. Please login via LTI to use this application.'));
