@@ -39,7 +39,8 @@ app.get('/application', (req, res, next) => {
       ltiConsumer: req.session.ltiConsumer,
       userId: req.session.userId,
       isTutor: req.session.isTutor,
-      context_id: req.session.context_id
+      context_id: req.session.context_id,
+      sessionData: req.session
     })
   } else {
     next(new Error('Session invalid. Please login via LTI to use this application.'));
