@@ -4,9 +4,11 @@ const request = require('request');
 
 const apiPath = "https://chalmers.instructure.com/api/v1";
 const apiBearerToken = process.env.canvasApiAccessToken;
-// const apiBearerToken = "12523~O2QZInqgwc9UDpz52Ca61KrlNWndlVmmkBg8DflcF0VoHL12hlljWD5aVDQJT3Vl";
 
-exports.getCourseGroups =  (courseId, callback) => {
+exports.getGroupMembers = (groupId, callback) => {
+}
+
+exports.getCourseGroups = (courseId, callback) => {
   console.log("GET " + apiPath + "/courses/" + courseId + "/groups WITH BEARER " + apiBearerToken);
 
   request.get({
