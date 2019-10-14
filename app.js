@@ -60,9 +60,9 @@ app.get('/application', (req, res, next) => {
 });
 
 app.get('/groups', async (request, result, next) => {
-  request.session.userId = 1234;
+  /* request.session.userId = 1234;
   request.session.canvasCourseId = 1508;
-  request.session.contextTitle = "LOCAL_TEST_COURSE";
+  request.session.contextTitle = "LOCAL_TEST_COURSE"; */
 
   var hrstart = process.hrtime();
   var groupsWithMembers = new Array();
