@@ -13,8 +13,11 @@ const port = process.env.PORT || 3000;
 const app = express();
 
 // secure express server
-app.use(helmet());
-app.disable('x-powered-by');
+app.use(helmet({
+  frameguard: false
+}));
+
+app.disable('X-Powered-By');
 
 // set view engine
 app.set('view engine', 'pug');
