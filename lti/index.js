@@ -19,7 +19,7 @@ if (consumerKeys) {
       "secret": consumerKey.split(':')[1] 
     });
 
-    console.log("Added Consumer: " + secret.consumerKey);
+    console.log("Added Consumer: " + consumerKey.split(':')[0]);
   });
 }
 
