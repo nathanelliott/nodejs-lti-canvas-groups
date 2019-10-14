@@ -3,6 +3,7 @@
 const bodyParser = require('body-parser');
 const express = require('express');
 const session = require('express-session');
+const helmet = require('helmet');
 const lti = require('./lti');
 const canvasApi = require('./canvas');
 
@@ -11,11 +12,17 @@ const port = process.env.PORT || 3000;
 // this express server should be secured/hardened for production use
 const app = express();
 
+// secure express server
+app.use(helmet());
+app.disable('x-powered-by');
+
+// set view engine
 app.set('view engine', 'pug');
 
 // memory store shouldn't be used in production
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'dev',
+  secret: process.env.SESSION_SECRET || 'c8Vbe1',
+  name: 'ltiSession',
   resave: false,
   saveUninitialized: true,
 }));
@@ -24,7 +31,6 @@ app.use(session({
 app.use(bodyParser.urlencoded({extended: false}));
 
 app.set('json spaces', 2);
-
 app.enable('trust proxy');
 
 app.get('/', (req, res, next) => {
@@ -50,31 +56,82 @@ app.get('/application', (req, res, next) => {
   }
 });
 
-app.get('/groups', (request, result, next) => {
-  /* request.session.userId = 1234;
+app.get('/groups', async (request, result, next) => {
+  request.session.userId = 1234;
   request.session.canvasCourseId = 1508;
-  request.session.contextTitle = "LOCAL_TEST_COURSE"; */
+  request.session.contextTitle = "LOCAL_TEST_COURSE";
 
+  var hrstart = process.hrtime();
+  var groupsWithMembers = new Array();
+  
   if (request.session.userId && request.session.canvasCourseId) {
-    canvasApi.getCourseGroups(request.session.canvasCourseId, function(error, data) {
-      if (error) {
-        next(error);
-      }
-      else {
-        return result.render('groups', {
-          fullname: request.session.fullname,
-          userId: request.session.userId,
-          courseId: request.session.canvasCourseId,
-          contextTitle: request.session.contextTitle,
-          apiData: data,
-          rawApiData: JSON.stringify(data)
+    console.log("___canvasApi.getCourseGroups()");
+
+    // Get data about each group in this course.
+    await canvasApi.getCourseGroups(request.session.canvasCourseId).then(async function (groupsData) {
+      for (const group of groupsData) {
+        var membersWithDetails = new Array();
+
+        console.log("___canvasApi.getGroupMembers()");
+
+        // Get data about each member in the group.
+        await canvasApi.getGroupMembers(group.id).then(async function (membersData) {
+          for (const member of membersData) {
+            console.log("___canvasApi.getUser()");
+
+            // Get more data like name about each member.
+            await canvasApi.getUser(member.user_id).then(async function (user) {
+              membersWithDetails.push({
+                userId: member.user_id,
+                workflowState: member.workflow_state,
+                isModerator: member.moderator,
+                name: user.name,
+                sortableName: user.sortable_name,
+                avatarUrl: user.avatar_url
+              });
+            }).catch(function (error) {
+              next(error);
+            });
+          }
+        }).catch(function (error) {
+          next (error);
+        });
+
+        groupsWithMembers.push({ 
+          id: group.id,
+          name: group.name,
+          description: group.description,
+          category_id: group.group_category_id,
+          members: membersWithDetails
         });
       }
+    }).catch(function(error) {
+      next (error);
     });
+
+    console.log("___DATA=" + JSON.stringify(groupsWithMembers));
+
+    // Measure time it took to process.
+    var hrend = process.hrtime(hrstart);
+
+    let data = {
+      fullname: request.session.fullname,
+      userId: request.session.userId,
+      courseId: request.session.canvasCourseId,
+      contextTitle: request.session.contextTitle,
+      groups: groupsWithMembers,
+      rawGroups: JSON.stringify(groupsWithMembers),
+      statistics: {
+        running_s: hrend[0],
+        running_ms: (hrend[1] / 1000000)
+      }
+    };
+
+    return result.render('groups', data);
   }
   else {
-    next(new Error('Session invalid. Please login via LTI to use this application.'));
-  }
+    next(new Error('The session is invalid. Please login via LTI to use this application.'));
+  }  
 });
 
 app.post('/launch_lti', lti.handleLaunch);

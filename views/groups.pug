@@ -19,8 +19,14 @@ html(lang='en')
           h2 #{fullname}
           p.lead Listing groups for Course #{contextTitle}, Id #{courseId}, where your userId is #{userId}.
 
-          ul
-            each value, index in apiData
-              li= value.id + ': ' + value.name
+          ol
+            each group, index in groups
+              li= group.id + ': ' + group.name
+              ul
+                  each member, index in group.members
+                    li= member.userId + ": " + member.name 
 
-          p(style='white-space: pre-wrap;') API data: #{rawApiData}
+          p(style='white-space: pre-wrap;') API data: #{rawGroups}
+
+          p
+            small Running time: #{statistics.running_s}s, #{statistics.running_ms}ms
