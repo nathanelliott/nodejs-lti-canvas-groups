@@ -1,18 +1,29 @@
 'use strict';
+
 const lti = require('ims-lti');
+
 // MemoryStore shouldn't be used in production. Timestamps must be valid within a 5 minute grace period.
 const nonceStore = new lti.Stores.MemoryStore();
+
 // secrets should be stored securely in a production app
-const secrets = {
-  demo: 'xzc342AScx',
-  demo2: 'dh43fvL-ew'
-};
+var secrets = [];
+const consumerKeys = process.env.ltiConsumerKeys;
+
+if (consumerKeys) {
+  consumerKeys.split(',').forEach(consumerKey => {
+    secrets.push({ 
+      "consumerKey": consumerKey.split(':')[0], 
+      "secret": consumerKey.split(':')[1] 
+    });
+  });
+}
 
 const getSecret = (consumerKey, callback) => {
-  const secret = secrets[consumerKey];
-  if (secret) {
-    return callback(null, secret);
-  }
+  secrets.forEach(secret => {
+    if (secret.consumerKey == consumerKey) {
+      return callback(null, secret.secret);
+    }
+  });
 
   let err = new Error(`Unknown consumer ${consumerKey}`);
   err.status = 403;
