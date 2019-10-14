@@ -2,6 +2,9 @@
 
 const lti = require('ims-lti');
 
+/* LTI Consumer Keys and Secrets go into Azure Configuration Key "ltiConsumerKeys", */
+/* with format "consumer:secret[,consumer2:secret2]".                               */
+
 // MemoryStore shouldn't be used in production. Timestamps must be valid within a 5 minute grace period.
 const nonceStore = new lti.Stores.MemoryStore();
 
@@ -15,11 +18,15 @@ if (consumerKeys) {
       "consumerKey": consumerKey.split(':')[0], 
       "secret": consumerKey.split(':')[1] 
     });
+
+    console.log("Added Consumer: " + secret.consumerKey);
   });
 }
 
 const getSecret = (consumerKey, callback) => {
   secrets.forEach(secret => {
+    console.log("Checking for consumer " + consumerKey + " in " + secret.consumerKey);
+
     if (secret.consumerKey == consumerKey) {
       return callback(null, secret.secret);
     }

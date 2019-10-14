@@ -5,9 +5,11 @@ const request = require('request');
 /* This module handles communication between LTI Application and Canvas, using Canvas API V1. */
 /* It requires an API Token, which can be generated from inside Canvas settings.              */
 /* This token should be put in Azure Application Settings Key "canvasApiAccessToken".         */
+/* The Uri to the Canvas API for your installation goes into Key "canvasApiPath".             */
 
-const apiPath = "https://chalmers.instructure.com/api/v1";
+const apiPath = process.env.canvasApiPath;
 const apiBearerToken = process.env.canvasApiAccessToken;
+
 var userCache = [];
 
 // Get groups for a specified course.
