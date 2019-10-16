@@ -25,9 +25,11 @@ if (consumerKeys) {
 
 const getSecret = (consumerKey, callback) => {
   secrets.forEach(secret => {
-    console.log("Checking for consumer " + consumerKey + " in " + secret.consumerKey);
+    console.log("Checking for consumer '" + consumerKey + "' in '" + secret.consumerKey + "'.");
 
     if (secret.consumerKey == consumerKey) {
+      console.log("Found a match, returning to callback with secret.");
+
       return callback(null, secret.secret);
     }
   });
