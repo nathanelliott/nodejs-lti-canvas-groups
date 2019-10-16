@@ -1,13 +1,16 @@
 'use strict';
 
 const lti = require('ims-lti');
+const NodeCache = require('node-cache');
+const nodeCacheNonceStore = require('../node-cache-nonce');
 
 /* LTI Consumer Keys and Secrets go into Azure Configuration Key "ltiConsumerKeys", */
 /* with format "consumer:secret[,consumer2:secret2]".                               */
 
 // MemoryStore shouldn't be used in production. Timestamps must be valid within a 5 minute grace period.
 // const nonceStore = new lti.Stores.MemoryStore();
-const nonceStore = new lti.Stores.NonceStore();
+const myCache = new NodeCache();
+const nonceStore = new nodeCacheNonceStore(myCache);
 
 // secrets should be stored securely in a production app
 var secrets = [];
@@ -65,6 +68,7 @@ exports.handleLaunch = (req, res, next) => {
 
     console.log("Provider object: " + JSON.stringify(provider));
 
+    
     provider.valid_request(req, (err, isValid) => {
       if (err) {
         return next(err);
