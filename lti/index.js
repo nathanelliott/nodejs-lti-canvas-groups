@@ -6,13 +6,14 @@ const lti = require('ims-lti');
 /* with format "consumer:secret[,consumer2:secret2]".                               */
 
 // MemoryStore shouldn't be used in production. Timestamps must be valid within a 5 minute grace period.
-const nonceStore = new lti.Stores.MemoryStore();
+// const nonceStore = new lti.Stores.MemoryStore();
+const nonceStore = new lti.Stores.NonceStore();
 
 // secrets should be stored securely in a production app
 var secrets = [];
 const consumerKeys = process.env.ltiConsumerKeys;
 
-if (consumerKeys) {
+if (consumerKeys && secrets.length == 0) {
   consumerKeys.split(',').forEach(consumerKey => {
     secrets.push({ 
       "consumerKey": consumerKey.split(':')[0], 
@@ -59,8 +60,11 @@ exports.handleLaunch = (req, res, next) => {
       return next(err);
     }
 
+    console.log("Setting up provider for consumer " + consumerKeys);
     const provider = new lti.Provider(consumerKey, consumerSecret, nonceStore, lti.HMAC_SHA1);
 
+    console.log("Provider object: " + JSON.stringify(provider));
+    
     provider.valid_request(req, (err, isValid) => {
       if (err) {
         return next(err);
