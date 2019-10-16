@@ -3,11 +3,13 @@
 const bodyParser = require('body-parser');
 const express = require('express');
 const session = require('express-session');
+const FileStore = require('session-file-store')(session);
 const helmet = require('helmet');
 const lti = require('./lti');
 const canvasApi = require('./canvas');
 
 const port = process.env.PORT || 3000;
+const fileStoreOptions = {};
 
 // this express server should be secured/hardened for production use
 const app = express();
@@ -24,10 +26,11 @@ app.set('view engine', 'pug');
 
 // memory store shouldn't be used in production
 app.use(session({
+  store: new FileStore(fileStoreOptions),
   secret: process.env.SESSION_SECRET || 'c8Vbe1',
   name: 'ltiSession',
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: true
 }));
 
 // parse application/x-www-form-urlencoded
