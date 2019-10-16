@@ -60,11 +60,11 @@ exports.handleLaunch = (req, res, next) => {
       return next(err);
     }
 
-    console.log("Setting up provider for consumer " + consumerKeys);
+    console.log("Setting up provider for consumer " + consumerKey);
     const provider = new lti.Provider(consumerKey, consumerSecret, nonceStore, lti.HMAC_SHA1);
 
     console.log("Provider object: " + JSON.stringify(provider));
-    
+
     provider.valid_request(req, (err, isValid) => {
       if (err) {
         return next(err);
