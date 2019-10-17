@@ -18,16 +18,16 @@ const CACHE_CHECK_EXPIRE = 30 * 60;
 /* and make load time bearable for the user.                                            */
 
 const courseGroupsCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkperiod: CACHE_CHECK_EXPIRE });
-const courseGroupCategoriesCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkperiod: CACHE_CHECK_EXPIRE });
+const groupCategoriesCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkperiod: CACHE_CHECK_EXPIRE });
 const categoryGroupsCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkperiod: CACHE_CHECK_EXPIRE });
 const memberCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkperiod: CACHE_CHECK_EXPIRE });
 const userCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkperiod: CACHE_CHECK_EXPIRE });
 
-courseGroupCategoriesCache.on('expired', function(key) {
-  console.log("[Cache] Expired NodeCache entry for courseGroupCategoriesCache key '" + key + "'.");
-});
 courseGroupsCache.on('expired', function(key) {
   console.log("[Cache] Expired NodeCache entry for courseGroupsCache key '" + key + "'.");
+});
+groupCategoriesCache.on('expired', function(key) {
+  console.log("[Cache] Expired NodeCache entry for groupCategoriesCache key '" + key + "'.");
 });
 categoryGroupsCache.on('expired', function(key) {
   console.log("[Cache] Expired NodeCache entry for categoryGroupsCache key '" + key + "'.");
