@@ -1,6 +1,6 @@
 'use strict';
 
-const package = require('./package.json');
+const pkg = require('./package.json');
 const bodyParser = require('body-parser');
 const express = require('express');
 const session = require('express-session');
@@ -67,11 +67,11 @@ app.get('/groups', async (request, result, next) => {
   if (request.session.userId && request.session.canvasCourseId) {
     try {
       const data = await canvasApi.compileGroupsData(request.session.canvasCourseId, request.session);
-      data.statistics.name = package.name;
-      data.statistics.version = package.version;
+      data.statistics.name = pkg.name;
+      data.statistics.version = pkg.version;
       
       console.log("[JSON Result] " + JSON.stringify(data));
-      
+
       return result.render('groups', data);  
     }
     catch (error) {
