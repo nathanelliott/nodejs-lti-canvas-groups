@@ -25,7 +25,8 @@ const userCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkp
 // Get groups for a specified course.
 exports.getCourseGroups = async (courseId) => new Promise(function(resolve, reject) {
   try {
-    data = courseGroupsCache.get(courseId, true);
+    data = await courseGroupsCache.get(courseId, true);
+
     console.log("[Cache] Using found courseGroupsCache entry for courseId " + courseId + ".");
     resolve(data);
   }
@@ -42,7 +43,7 @@ exports.getCourseGroups = async (courseId) => new Promise(function(resolve, reje
     }, 
     (error, result, data) => {
       if (error) {
-        console.log("Error: " + error);
+        console.log("[API] Error: " + error);
   
         let err = new Error("Error from API.");
         err.status = 500;
@@ -50,7 +51,7 @@ exports.getCourseGroups = async (courseId) => new Promise(function(resolve, reje
         reject(err);
       }
       else if (result.statusCode !== 200) {
-        console.log("Status: " + result.statusCode);
+        console.log("[API] Status: " + result.statusCode);
   
         let err = new Error("Non-OK status code returned from API.");
         err.status = result.statusCode;
@@ -72,7 +73,7 @@ exports.getCourseGroups = async (courseId) => new Promise(function(resolve, reje
 
 // Get members for a specified group.
 exports.getGroupMembers = async (groupId) => new Promise(function(resolve, reject) {
-  console.log("GET " + apiPath + "/groups/" + groupId + "/memberships");
+  console.log("[API] GET " + apiPath + "/groups/" + groupId + "/memberships");
 
   request.get({
     url: apiPath + "/groups/" + groupId + "/memberships",
@@ -84,7 +85,7 @@ exports.getGroupMembers = async (groupId) => new Promise(function(resolve, rejec
   }, 
   (error, result, data) => {
     if (error) {
-      console.log("Error: " + error);
+      console.log("[API] Error: " + error);
 
       let err = new Error("Error from API.");
       err.status = 500;
@@ -92,7 +93,7 @@ exports.getGroupMembers = async (groupId) => new Promise(function(resolve, rejec
       reject(err);
     }
     else if (result.statusCode !== 200) {
-      console.log("Status: " + result.statusCode);
+      console.log("[API] Status: " + result.statusCode);
 
       let err = new Error("Non-OK status code returned from API.");
       err.status = result.statusCode;
@@ -100,8 +101,6 @@ exports.getGroupMembers = async (groupId) => new Promise(function(resolve, rejec
       reject(err);
     }
     else {
-      console.log("OK, data: " + JSON.stringify(data));
-
       resolve(data);
     }
   });
@@ -110,12 +109,13 @@ exports.getGroupMembers = async (groupId) => new Promise(function(resolve, rejec
 // Get details about a specified user.
 exports.getUser = async (userId) => new Promise(function(resolve, reject) {
   try {
-    data = userCache.get(userId, true);
+    data = await userCache.get(userId, true);
+    
     console.log("[Cache] Using found NodeCache entry for userId " + userId + ".");
     resolve(data);
   }
   catch {
-    console.log("GET " + apiPath + "/users/" + userId);
+    console.log("[API] GET " + apiPath + "/users/" + userId);
   
     request.get({
       url: apiPath + "/users/" + userId,
@@ -127,7 +127,7 @@ exports.getUser = async (userId) => new Promise(function(resolve, reject) {
     }, 
     (error, result, data) => {
       if (error) {
-        console.log("Error: " + error);
+        console.log("[API] Error: " + error);
   
         let err = new Error("Error from API.");
         err.status = 500;
@@ -135,7 +135,7 @@ exports.getUser = async (userId) => new Promise(function(resolve, reject) {
         reject(err);
       }
       else if (result.statusCode !== 200) {
-        console.log("Status: " + result.statusCode);
+        console.log("[API] Status: " + result.statusCode);
   
         let err = new Error("Non-OK status code returned from API.");
         err.status = result.statusCode;
