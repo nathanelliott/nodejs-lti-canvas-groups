@@ -25,10 +25,10 @@ const userCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkp
 // Get groups for a specified course.
 exports.getCourseGroups = async (courseId) => new Promise(function(resolve, reject) {
   try {
-    data = await courseGroupsCache.get(courseId, true);
+    const cachedData = await courseGroupsCache.get(courseId, true);
 
     console.log("[Cache] Using found courseGroupsCache entry for courseId " + courseId + ".");
-    resolve(data);
+    resolve(cachedData);
   }
   catch (err) {
     console.log("[API] GET " + apiPath + "/courses/" + courseId + "/groups");
@@ -109,10 +109,10 @@ exports.getGroupMembers = async (groupId) => new Promise(function(resolve, rejec
 // Get details about a specified user.
 exports.getUser = async (userId) => new Promise(function(resolve, reject) {
   try {
-    data = await userCache.get(userId, true);
-    
+    const cachedData = userCache.get(userId, true);
+
     console.log("[Cache] Using found NodeCache entry for userId " + userId + ".");
-    resolve(data);
+    resolve(cachedData);
   }
   catch {
     console.log("[API] GET " + apiPath + "/users/" + userId);
