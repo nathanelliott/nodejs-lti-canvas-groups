@@ -18,21 +18,21 @@ html(lang='en')
           h1 Group Management
           
           each category in course.categories
-            h2 #{category.name}
-
-            each group in category.groups
-                h3 #{group.name}
-                table(style='width=100%; margin-bottom:24px;')
+            h2 #{name}
+            each group in groups
+                h3 #{name}
+                table(style='width=100%;')
                     thead
-                        tr
-                            th Namn
-                            th E-post
+                    tr
+                        th Id
+                        th Name
+                        th Email
                     tbody
-
-                        each member in group.members
-                            tr
-                                td #{member.sortableName}
-                                td #{member.email}
+                    each member in members
+                        tr
+                            td #{userId}
+                            td #{name}
+                            td #{email}
 
           p
             small Running time: #{statistics.running_s}s, #{statistics.running_ms}ms

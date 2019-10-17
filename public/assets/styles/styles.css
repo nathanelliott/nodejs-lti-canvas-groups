@@ -11,21 +11,3 @@ h1, h2, h3 {
 pre {
     white-space: pre-wrap;
 }
-
-table, td, th {  
-    border: 1px solid #ddd;
-    text-align: left;
-}
-  
-table {
-    border-collapse: collapse;
-    width: 100%;
-}
-  
-th, td {
-    padding: 15px;
-}
-
-th {
-    background-color: rgb(220,220,220);
-}
