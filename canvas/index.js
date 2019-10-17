@@ -39,6 +39,178 @@ userCache.on('expired', function(key) {
   console.log("[Cache] Expired NodeCache entry for userCachekey '" + key + "'.");
 });
 
+// Compile category groups data for CSV export
+exports.compileCategoryGroupsData = async (categoryId) => new Promise(async function(resolve, reject) {
+  var hrstart = process.hrtime();
+  var categoriesWithGroups = new Array();
+  var groupsWithMembers = new Array();
+
+  console.log("[API] GetCategoryGroups()");
+
+  // Get data about each group in this category.
+  await canvasApi.getCategoryGroups(category.id).then(async function (groupsData) {
+    for (const group of groupsData) {
+      var membersWithDetails = new Array();
+
+      console.log("[API] GetGroupMembers()");
+
+      // Get data about each member in the group.
+      await canvasApi.getGroupMembers(group.id).then(async function (membersData) {
+        for (const member of membersData) {
+          console.log("[API] GetUser()");
+
+          // Get more data like name about each member.
+          await canvasApi.getUser(member.user_id).then(async function (user) {
+            membersWithDetails.push({
+              userId: member.user_id,
+              workflowState: member.workflow_state,
+              isModerator: member.moderator,
+              name: user.name,
+              sortableName: user.sortable_name,
+              email: user.email,
+              avatarUrl: user.avatar_url
+            });
+          })
+          .catch(function (error) {
+            reject(error);
+          });
+        }
+      })
+      .catch(function (error) {
+        reject(error);
+      });
+
+      groupsWithMembers.push({ 
+        id: group.id,
+        name: group.name,
+        description: group.description,
+        category_id: group.group_category_id,
+        members: membersWithDetails
+      });
+    }
+  })
+  .catch(function(error) {
+    reject(error);
+  });
+
+  categoriesWithGroups.push({
+    id: category.id,
+    name: category.name,
+    groups: groupsWithMembers
+  });
+
+  // Measure time it took to process.
+  var hrend = process.hrtime(hrstart);
+
+  // Compile JSON that returns to view.
+  let data = {
+    user: {
+      fullname: request.session.fullname,
+      id: request.session.userId
+    },
+    categories: categoriesWithGroups,
+    statistics: {
+      running_s: hrend[0],
+      running_ms: (hrend[1] / 1000000)
+    }
+  };
+
+  resolve(data);
+});
+
+// Compile groups data
+exports.compileGroupsData = async (canvasCourseId) => new Promise(async function(resolve, reject) {
+  var hrstart = process.hrtime();
+  var categoriesWithGroups = new Array();
+
+  console.log("[API] GetGroupCategories()");
+
+  await canvasApi.getGroupCategories(canvasCourseId).then(async function (categoriesData) {
+    for (const category of categoriesData) {
+      var groupsWithMembers = new Array();
+
+      console.log("[API] GetCategoryGroups()");
+
+      // Get data about each group in this category.
+      await canvasApi.getCategoryGroups(category.id).then(async function (groupsData) {
+        for (const group of groupsData) {
+          var membersWithDetails = new Array();
+  
+          console.log("[API] GetGroupMembers()");
+  
+          // Get data about each member in the group.
+          await canvasApi.getGroupMembers(group.id).then(async function (membersData) {
+            for (const member of membersData) {
+              console.log("[API] GetUser()");
+  
+              // Get more data like name about each member.
+              await canvasApi.getUser(member.user_id).then(async function (user) {
+                membersWithDetails.push({
+                  userId: member.user_id,
+                  workflowState: member.workflow_state,
+                  isModerator: member.moderator,
+                  name: user.name,
+                  sortableName: user.sortable_name,
+                  email: user.email,
+                  avatarUrl: user.avatar_url
+                });
+              })
+              .catch(function (error) {
+                reject(error);
+              });
+            }
+          })
+          .catch(function (error) {
+            reject(error);
+          });
+  
+          groupsWithMembers.push({ 
+            id: group.id,
+            name: group.name,
+            description: group.description,
+            category_id: group.group_category_id,
+            members: membersWithDetails
+          });
+        }
+      })
+      .catch(function(error) {
+        reject(error);
+      });
+
+      categoriesWithGroups.push({
+        id: category.id,
+        name: category.name,
+        groups: groupsWithMembers
+      });
+    }
+  })
+  .catch(function(error) {
+    reject(error);   
+  });
+
+  // Measure time it took to process.
+  var hrend = process.hrtime(hrstart);
+
+  // Compile JSON that returns to view.
+  let data = {
+    user: {
+      fullname: request.session.fullname,
+      id: request.session.userId
+    },
+    course: {
+      id: request.session.canvasCourseId,
+      contextTitle: request.session.contextTitle,
+      categories: categoriesWithGroups
+    },
+    statistics: {
+      running_s: hrend[0],
+      running_ms: (hrend[1] / 1000000)
+    }
+  };
+
+  resolve(data);
+});
+
 // Get groups for a specified course.
 exports.getCourseGroups = async (courseId) => new Promise(function(resolve, reject) {
   try {
