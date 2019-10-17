@@ -15,17 +15,17 @@ var secrets = [];
 
 const getSecret = (consumerKey, callback) => {
   if (consumerKeys && secrets.length == 0) {
-    consumerKeys.split(',').forEach(consumerKey => {
+    for (const key of consumerKeys.split(',')) {
       secrets.push({ 
-        "consumerKey": consumerKey.split(':')[0], 
-        "secret": consumerKey.split(':')[1] 
+        "consumerKey": key.split(':')[0], 
+        "secret": key.split(':')[1] 
       });
 
-      console.log("Added consumer key for '" + consumerKey.split(':')[0]) + "'.";
-    });
+      console.log("Added consumer key for '" + key.split(':')[0] + "'.");
+    }
   }
 
-  secrets.forEach(secret => {
+  for (const secret of secrets) {
     console.log("Checking for consumer '" + consumerKey + "'.");
 
     if (secret.consumerKey == consumerKey) {
@@ -33,7 +33,7 @@ const getSecret = (consumerKey, callback) => {
 
       return callback(null, secret.secret);
     }
-  });
+  }
 
   let err = new Error("Unknown consumer '${consumerKey}', consumerKeys: '" + consumerKeys + "', secrets: '" + JSON.stringify(secrets) + "'.");
   err.status = 403;
