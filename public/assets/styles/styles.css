@@ -20,10 +20,11 @@ table, td, th {
 table {
     border-collapse: collapse;
     width: 100%;
+    margin-bottom: 16px;
 }
   
 th, td {
-    padding: 15px;
+    padding: 8px;
 }
 
 th {
