@@ -132,8 +132,6 @@ app.get('/groups', async (request, result, next) => {
       next (error);   
     });
 
-    console.log("[JSON Result] " + JSON.stringify(groupsWithMembers));
-
     // Measure time it took to process.
     var hrend = process.hrtime(hrstart);
 
@@ -153,6 +151,8 @@ app.get('/groups', async (request, result, next) => {
         running_ms: (hrend[1] / 1000000)
       }
     };
+
+    console.log("[JSON Result] " + JSON.stringify(data));
 
     return result.render('groups', data);
   }
