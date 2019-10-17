@@ -18,7 +18,6 @@ const CACHE_CHECK_EXPIRE = 30 * 60;
 /* and make load time bearable for the user.                                            */
 
 const courseGroupsCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkperiod: CACHE_CHECK_EXPIRE });
-const groupCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkperiod: CACHE_CHECK_EXPIRE });
 const memberCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkperiod: CACHE_CHECK_EXPIRE });
 const userCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkperiod: CACHE_CHECK_EXPIRE });
 
@@ -26,8 +25,8 @@ const userCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkp
 exports.getCourseGroups = async (courseId) => new Promise(function(resolve, reject) {
   try {
     const cachedData = courseGroupsCache.get(courseId, true);
-
     console.log("[Cache] Using found courseGroupsCache entry for courseId " + courseId + ".");
+    console.log("[Cache] Statistics: " + JSON.stringify(courseGroupsCache.getStats()));
     resolve(cachedData);
   }
   catch (err) {
@@ -73,37 +72,51 @@ exports.getCourseGroups = async (courseId) => new Promise(function(resolve, reje
 
 // Get members for a specified group.
 exports.getGroupMembers = async (groupId) => new Promise(function(resolve, reject) {
-  console.log("[API] GET " + apiPath + "/groups/" + groupId + "/memberships");
+  try {
+    const cachedData = memberCache.get(groupId, true);
+    console.log("[Cache] Using found memberCache entry for groupId " + groupId + ".");
+    console.log("[Cache] Statistics: " + JSON.stringify(memberCache.getStats()));
+    resolve(cachedData);
+  }
+  catch {
+    console.log("[API] GET " + apiPath + "/groups/" + groupId + "/memberships");
 
-  request.get({
-    url: apiPath + "/groups/" + groupId + "/memberships",
-    json: true,
-    headers: {
-      "User-Agent": "Chalmers/Azure/Request",
-      "Authorization": "Bearer " + apiBearerToken
-    }
-  }, 
-  (error, result, data) => {
-    if (error) {
-      console.log("[API] Error: " + error);
+    request.get({
+      url: apiPath + "/groups/" + groupId + "/memberships",
+      json: true,
+      headers: {
+        "User-Agent": "Chalmers/Azure/Request",
+        "Authorization": "Bearer " + apiBearerToken
+      }
+    }, 
+    (error, result, data) => {
+      if (error) {
+        console.log("[API] Error: " + error);
+  
+        let err = new Error("Error from API.");
+        err.status = 500;
+  
+        reject(err);
+      }
+      else if (result.statusCode !== 200) {
+        console.log("[API] Status: " + result.statusCode);
+  
+        let err = new Error("Non-OK status code returned from API.");
+        err.status = result.statusCode;
+  
+        reject(err);
+      }
+      else {
+        memberCache.set(groupId, data);
 
-      let err = new Error("Error from API.");
-      err.status = 500;
+        console.log("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(data));
+        console.log("[Cache] Statistics: " + JSON.stringify(memberCache.getStats()));
+        console.log("[Cache] Keys: " + memberCache.keys());
 
-      reject(err);
-    }
-    else if (result.statusCode !== 200) {
-      console.log("[API] Status: " + result.statusCode);
-
-      let err = new Error("Non-OK status code returned from API.");
-      err.status = result.statusCode;
-
-      reject(err);
-    }
-    else {
-      resolve(data);
-    }
-  });
+        resolve(data);
+      }
+    });
+  }
 });
 
 // Get details about a specified user.
