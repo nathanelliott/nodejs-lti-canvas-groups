@@ -71,9 +71,13 @@ exports.handleLaunch = (req, res, next) => {
     
     provider.valid_request(req, (err, isValid) => {
       if (err) {
+        console.log("In valid_request, err is true: " + err);
+
         return next(err);
       }
       if (isValid) {
+        console.log("The request is valid.");
+
         req.session.regenerate(err => {
           if (err) next(err);
           req.session.email = provider.body.lis_person_contact_email_primary;
@@ -97,9 +101,14 @@ exports.handleLaunch = (req, res, next) => {
           req.session.canvasEnrollmentState = provider.body.custom_canvas_enrollment_state;
           req.session.rawProvider = JSON.stringify(provider);
 
+          console.log("Provider object: " + JSON.stringify(provider));
+          console.log("Redirecting 301 to /groups.");
+
           return res.redirect(301, '/groups');
         });
       } else {
+        console.log("The request is NOT valid.");
+
         return next(err);
       }
     });
