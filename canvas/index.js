@@ -48,19 +48,19 @@ exports.compileCategoryGroupsData = async (categoryId) => new Promise(async func
   console.log("[API] GetCategoryGroups()");
 
   // Get data about each group in this category.
-  await canvasApi.getCategoryGroups(category.id).then(async function (groupsData) {
+  await getCategoryGroups(category.id).then(async function (groupsData) {
     for (const group of groupsData) {
       var membersWithDetails = new Array();
 
       console.log("[API] GetGroupMembers()");
 
       // Get data about each member in the group.
-      await canvasApi.getGroupMembers(group.id).then(async function (membersData) {
+      await getGroupMembers(group.id).then(async function (membersData) {
         for (const member of membersData) {
           console.log("[API] GetUser()");
 
           // Get more data like name about each member.
-          await canvasApi.getUser(member.user_id).then(async function (user) {
+          await getUser(member.user_id).then(async function (user) {
             membersWithDetails.push({
               userId: member.user_id,
               workflowState: member.workflow_state,
@@ -125,26 +125,26 @@ exports.compileGroupsData = async (canvasCourseId) => new Promise(async function
 
   console.log("[API] GetGroupCategories()");
 
-  await canvasApi.getGroupCategories(canvasCourseId).then(async function (categoriesData) {
+  await getGroupCategories(canvasCourseId).then(async function (categoriesData) {
     for (const category of categoriesData) {
       var groupsWithMembers = new Array();
 
       console.log("[API] GetCategoryGroups()");
 
       // Get data about each group in this category.
-      await canvasApi.getCategoryGroups(category.id).then(async function (groupsData) {
+      await getCategoryGroups(category.id).then(async function (groupsData) {
         for (const group of groupsData) {
           var membersWithDetails = new Array();
   
           console.log("[API] GetGroupMembers()");
   
           // Get data about each member in the group.
-          await canvasApi.getGroupMembers(group.id).then(async function (membersData) {
+          await getGroupMembers(group.id).then(async function (membersData) {
             for (const member of membersData) {
               console.log("[API] GetUser()");
   
               // Get more data like name about each member.
-              await canvasApi.getUser(member.user_id).then(async function (user) {
+              await getUser(member.user_id).then(async function (user) {
                 membersWithDetails.push({
                   userId: member.user_id,
                   workflowState: member.workflow_state,
