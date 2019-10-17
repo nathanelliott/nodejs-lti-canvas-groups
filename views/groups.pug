@@ -22,9 +22,9 @@ html(lang='en')
             table
                 thead
                 tr
-                    th Grupp
-                    th Person
-                    th E-post
+                    th Group
+                    th Student
+                    th Email address
                 tbody
 
                 each group in category.groups
@@ -35,8 +35,7 @@ html(lang='en')
                             td #{member.email}
 
             div(class='button-bar')
-                button(type='button' class='btn btn-primary btn-sm' onclick='downloadCsv(' + category.id + ');') Ladda ner CSV till Excel
+                button(type='button' class='btn btn-primary btn-sm' onclick='downloadCsv(' + category.id + ');') Download CSV for Excel
 
           p
-            small #{statistics.name} #{statistics.version}.
-            small #{statistics.running_s}s, #{statistics.running_ms}ms.
+            small #{statistics.name} #{statistics.version} <!-- render time #{statistics.running_s}s, #{statistics.running_ms}ms. -->
