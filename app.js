@@ -89,13 +89,15 @@ app.get('/csv/category/:id', async (request, result, next) => {
       result.setHeader("Content-Disposition", "attachment; filename=canvas-groups-" + id + ".csv");
       result.set("Content-Type", "text/csv");
 
-      const csvData = "Grupp\tPerson\tE-post\r\n";
+      let csvData = "Grupp\tPerson\tE-post\r\n";
 
-      for (const group of data.categories.groups) {
+      for (const group of data.categories[0].groups) {
         for (const member of group.members) {
           csvData = csvData + group.name + "\t" + member.sortableName + "\t" + member.email + "\r\n";
         }
       }
+
+      console.log("Returning: " + csvData);
 
       return result.status(200).end(csvData);
     }
