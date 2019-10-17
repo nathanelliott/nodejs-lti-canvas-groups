@@ -94,8 +94,7 @@ exports.compileCategoryGroupsData = async (categoryId, session) => new Promise(a
   });
 
   categoriesWithGroups.push({
-    id: category.id,
-    name: category.name,
+    id: categoryId,
     groups: groupsWithMembers
   });
 
