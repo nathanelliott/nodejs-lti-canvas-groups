@@ -30,3 +30,7 @@ th, td {
 th {
     background-color: #ddd;
 }
+
+.button-bar {
+    margin-bottom: 32px;
+}
