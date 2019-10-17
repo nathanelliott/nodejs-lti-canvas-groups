@@ -89,6 +89,7 @@ app.get('/groups', async (request, result, next) => {
                 isModerator: member.moderator,
                 name: user.name,
                 sortableName: user.sortable_name,
+                email: user.email,
                 avatarUrl: user.avatar_url
               });
             })
