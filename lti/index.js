@@ -26,19 +26,13 @@ const getSecret = (consumerKey, callback) => {
   }
 
   for (const secret of secrets) {
-    console.log("Checking for consumer '" + consumerKey + "'.");
-
     if (secret.consumerKey == consumerKey) {
-      console.log("Found a match, returning to callback with secret.");
-
       return callback(null, secret.secret);
     }
   }
 
-  let err = new Error("Unknown consumer '${consumerKey}', consumerKeys: '" + consumerKeys + "', secrets: '" + JSON.stringify(secrets) + "'.");
+  let err = new Error("Unknown consumer '" + consumerKey + "'.");
   err.status = 403;
-
-  console.log("Error, consumerKeys: '" + consumerKeys + "', secrets: '" + JSON.stringify(secrets) + "'.");
 
   return callback(err);
 };
@@ -62,21 +56,13 @@ exports.handleLaunch = (req, res, next) => {
       return next(err);
     }
 
-    console.log("Setting up provider for consumer " + consumerKey);
     const provider = new lti.Provider(consumerKey, consumerSecret, nonceStore, lti.HMAC_SHA1);
-
-    console.log("Provider object: " + JSON.stringify(provider));
-
     
     provider.valid_request(req, (err, isValid) => {
       if (err) {
-        console.log("In valid_request, err is true: " + err);
-
         return next(err);
       }
       if (isValid) {
-        console.log("The request is valid.");
-
         req.session.regenerate(err => {
           if (err) next(err);
           req.session.email = provider.body.lis_person_contact_email_primary;
