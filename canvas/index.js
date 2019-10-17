@@ -104,16 +104,16 @@ exports.getGroupMembers = async (groupId) => new Promise(function(resolve, rejec
 });
 
 // Get details about a specified user.
-exports.getUser = async (userID) => new Promise(function(resolve, reject) {
+exports.getUser = async (userId) => new Promise(function(resolve, reject) {
   try {
     data = userCache.get(userId);
     console.log("Using found NodeCache entry for userId " + userId + ".");
   }
   catch {
-    console.log("GET " + apiPath + "/users/" + userID);
+    console.log("GET " + apiPath + "/users/" + userId);
   
     request.get({
-      url: apiPath + "/users/" + userID,
+      url: apiPath + "/users/" + userId,
       json: true,
       headers: {
         "User-Agent": "Chalmers/Azure/Request",
