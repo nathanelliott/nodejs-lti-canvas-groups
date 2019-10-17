@@ -48,7 +48,7 @@ exports.compileCategoryGroupsData = async (categoryId, session) => new Promise(a
   console.log("[API] GetCategoryGroups()");
 
   // Get data about each group in this category.
-  await exports.getCategoryGroups(category.id).then(async function (groupsData) {
+  await exports.getCategoryGroups(categoryId).then(async function (groupsData) {
     for (const group of groupsData) {
       var membersWithDetails = new Array();
 
