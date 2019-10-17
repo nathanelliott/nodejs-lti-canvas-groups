@@ -21,7 +21,7 @@ html(lang='en')
             h2 #{category.name}
 
             each group in category.groups
-                h3 #{name}
+                h3 #{group.name}
 
                 table
                     thead
@@ -29,10 +29,11 @@ html(lang='en')
                         th Namn
                         th E-post
                     tbody
+
                     each member in group.members
                         tr
-                            td #{sortableName}
-                            td #{email}
+                            td #{member.sortableName}
+                            td #{member.email}
 
           p
             small Running time: #{statistics.running_s}s, #{statistics.running_ms}ms
