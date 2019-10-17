@@ -111,14 +111,6 @@ exports.getUser = async (userID) => new Promise(function(resolve, reject) {
   }
   catch {
     console.log("GET " + apiPath + "/users/" + userID);
-
-    userCache.forEach(entry => {
-      if (entry.id == userID) {
-        console.log("___getUser(): CACHE HIT!");
-  
-        resolve(entry);
-      }
-    });
   
     request.get({
       url: apiPath + "/users/" + userID,
