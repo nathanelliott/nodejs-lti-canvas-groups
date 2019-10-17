@@ -25,9 +25,8 @@ const userCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkp
 // Get groups for a specified course.
 exports.getCourseGroups = async (courseId) => new Promise(function(resolve, reject) {
   try {
+    data = courseGroupsCache.get(courseId, true);
     console.log("[Cache] Using found courseGroupsCache entry for courseId " + courseId + ".");
-
-    data = courseGroupsCache.get(courseId);
     resolve(data);
   }
   catch (err) {
@@ -111,9 +110,8 @@ exports.getGroupMembers = async (groupId) => new Promise(function(resolve, rejec
 // Get details about a specified user.
 exports.getUser = async (userId) => new Promise(function(resolve, reject) {
   try {
+    data = userCache.get(userId, true);
     console.log("[Cache] Using found NodeCache entry for userId " + userId + ".");
-
-    data = userCache.get(userId);
     resolve(data);
   }
   catch {
@@ -148,7 +146,7 @@ exports.getUser = async (userId) => new Promise(function(resolve, reject) {
         userCache.set(userId, data);
 
         console.log("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(data));
-        console.log("[Cache] Statistics: " + userCache.getStats());
+        console.log("[Cache] Statistics: " + JSON.stringify(userCache.getStats()));
         console.log("[Cache] Keys: " + userCache.keys());
   
         resolve(data);
