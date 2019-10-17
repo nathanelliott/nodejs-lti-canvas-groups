@@ -35,7 +35,8 @@ html(lang='en')
                             td #{member.email}
 
             div(class='button-bar')
-                button(type='button' class='btn btn-primary btn-sm' onclick='downloadCsv(' + category.id + ');') Ladda ner CSV-fil
+                button(type='button' class='btn btn-primary btn-sm' onclick='downloadCsv(' + category.id + ');') Ladda ner CSV till Excel
 
           p
-            small Running time: #{statistics.running_s}s, #{statistics.running_ms}ms
+            small #{statistics.name} #{statistics.version}.
+            small #{statistics.running_s}s, #{statistics.running_ms}ms.

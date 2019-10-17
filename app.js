@@ -1,5 +1,6 @@
 'use strict';
 
+const package = require('./package.json');
 const bodyParser = require('body-parser');
 const express = require('express');
 const session = require('express-session');
@@ -66,7 +67,11 @@ app.get('/groups', async (request, result, next) => {
   if (request.session.userId && request.session.canvasCourseId) {
     try {
       const data = await canvasApi.compileGroupsData(request.session.canvasCourseId, request.session);
-      console.log("[JSON Result] " + JSON.stringify(data));  
+      data.statistics.name = package.name;
+      data.statistics.version = package.version;
+      
+      console.log("[JSON Result] " + JSON.stringify(data));
+      
       return result.render('groups', data);  
     }
     catch (error) {
@@ -86,7 +91,7 @@ app.get('/csv/category/:id', async (request, result, next) => {
   
       console.log("[JSON Result] " + JSON.stringify(data));
   
-      result.setHeader("Content-Disposition", "attachment; filename=canvas-groups-" + id + ".csv");
+      result.setHeader("Content-Disposition", "attachment; filename=canvas-groups-category-" + id + ".csv");
       result.set("Content-Type", "text/csv");
 
       let csvData = "Grupp\tPerson\tE-post\r\n";
