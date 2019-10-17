@@ -11,7 +11,7 @@ const NodeCache = require('node-cache');
 const apiPath = process.env.canvasApiPath;
 const apiBearerToken = process.env.canvasApiAccessToken;
 
-const CACHE_TTL = 5 * 60;
+const CACHE_TTL = 15 * 60;
 const CACHE_CHECK_EXPIRE = 30 * 60;
 
 /* Cache the results of API calls for a shorter period, to ease the load on API servers */
@@ -20,6 +20,16 @@ const CACHE_CHECK_EXPIRE = 30 * 60;
 const courseGroupsCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkperiod: CACHE_CHECK_EXPIRE });
 const memberCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkperiod: CACHE_CHECK_EXPIRE });
 const userCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkperiod: CACHE_CHECK_EXPIRE });
+
+courseGroupsCache.on('expired', function(key) {
+  console.log("[Cache] Expired courseGroupsCache entry for key '" + key + "'.");
+});
+memberCache.on('expired', function(key) {
+  console.log("[Cache] Expired memberCache entry for key '" + key + "'.");
+});
+userCache.on('expired', function(key) {
+  console.log("[Cache] Expired userCache entry for key '" + key + "'.");
+});
 
 // Get groups for a specified course.
 exports.getCourseGroups = async (courseId) => new Promise(function(resolve, reject) {
