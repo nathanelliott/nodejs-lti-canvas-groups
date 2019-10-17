@@ -30,12 +30,12 @@ const getSecret = (consumerKey, callback) => {
 
     if (secret.consumerKey == consumerKey) {
       console.log("Found a match, returning to callback with secret.");
-      
+
       return callback(null, secret.secret);
     }
   });
 
-  let err = new Error(`Unknown consumer ${consumerKey}`);
+  let err = new Error("Unknown consumer '${consumerKey}', consumerKeys: '" + consumerKeys + "', secrets: '" + JSON.stringify(secrets) + "'.");
   err.status = 403;
 
   console.log("Error, consumerKeys: '" + consumerKeys + "', secrets: '" + JSON.stringify(secrets) + "'.");
