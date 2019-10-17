@@ -25,11 +25,13 @@ const userCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkp
 // Get groups for a specified course.
 exports.getCourseGroups = async (courseId) => new Promise(function(resolve, reject) {
   try {
-    data = courseGroupsCache.get(courseId);
     console.log("[Cache] Using found courseGroupsCache entry for courseId " + courseId + ".");
+
+    data = courseGroupsCache.get(courseId);
+    resolve(data);
   }
   catch (err) {
-    console.log("GET " + apiPath + "/courses/" + courseId + "/groups");
+    console.log("[API] GET " + apiPath + "/courses/" + courseId + "/groups");
 
     request.get({
       url: apiPath + "/courses/" + courseId + "/groups",
@@ -58,7 +60,10 @@ exports.getCourseGroups = async (courseId) => new Promise(function(resolve, reje
       }
       else {
         courseGroupsCache.set(courseId, data);
+
         console.log("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(data));
+        console.log("[Cache] Statistics: " + JSON.stringify(courseGroupsCache.getStats()));
+        console.log("[Cache] Keys: " + courseGroupsCache.keys());
 
         resolve(data);
       }
@@ -106,8 +111,10 @@ exports.getGroupMembers = async (groupId) => new Promise(function(resolve, rejec
 // Get details about a specified user.
 exports.getUser = async (userId) => new Promise(function(resolve, reject) {
   try {
-    data = userCache.get(userId);
     console.log("[Cache] Using found NodeCache entry for userId " + userId + ".");
+
+    data = userCache.get(userId);
+    resolve(data);
   }
   catch {
     console.log("GET " + apiPath + "/users/" + userId);
@@ -139,7 +146,7 @@ exports.getUser = async (userId) => new Promise(function(resolve, reject) {
       }
       else {
         userCache.set(userId, data);
-        
+
         console.log("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(data));
         console.log("[Cache] Statistics: " + userCache.getStats());
         console.log("[Cache] Keys: " + userCache.keys());
