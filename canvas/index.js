@@ -29,7 +29,7 @@ exports.getCourseGroups = async (courseId) => new Promise(function(resolve, reje
     console.log("Using found courseGroupsCache entry for courseId " + courseId + ".");
   } 
   catch (err) {
-    console.log("No courseGroupsCache entry for courseId " + courseId + ", GET " + apiPath + "/courses/" + courseId + "/groups");
+    console.log("GET " + apiPath + "/courses/" + courseId + "/groups");
 
     request.get({
       url: apiPath + "/courses/" + courseId + "/groups",
@@ -58,8 +58,8 @@ exports.getCourseGroups = async (courseId) => new Promise(function(resolve, reje
       }
       else {
         courseGroupsCache.set(courseId, data);
-        console.log("OK, data: " + JSON.stringify(data));
-        
+        console.log("OK, data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(data));
+
         resolve(data);
       }
     });
@@ -105,46 +105,52 @@ exports.getGroupMembers = async (groupId) => new Promise(function(resolve, rejec
 
 // Get details about a specified user.
 exports.getUser = async (userID) => new Promise(function(resolve, reject) {
-  console.log("GET " + apiPath + "/users/" + userID);
+  try {
+    data = userCache.get(userId);
+    console.log("Using found NodeCache entry for userId " + userId + ".");
+  }
+  catch {
+    console.log("GET " + apiPath + "/users/" + userID);
 
-  userCache.forEach(entry => {
-    if (entry.id == userID) {
-      console.log("___getUser(): CACHE HIT!");
-
-      resolve(entry);
-    }
-  });
-
-  request.get({
-    url: apiPath + "/users/" + userID,
-    json: true,
-    headers: {
-      "User-Agent": "Chalmers/Azure/Request",
-      "Authorization": "Bearer " + apiBearerToken
-    }
-  }, 
-  (error, result, data) => {
-    if (error) {
-      console.log("Error: " + error);
-
-      let err = new Error("Error from API.");
-      err.status = 500;
-
-      reject(err);
-    }
-    else if (result.statusCode !== 200) {
-      console.log("Status: " + result.statusCode);
-
-      let err = new Error("Non-OK status code returned from API.");
-      err.status = result.statusCode;
-
-      reject(err);
-    }
-    else {
-      console.log("OK, data: " + JSON.stringify(data));
-      userCache.push(data);
-
-      resolve(data);
-    }
-  });
+    userCache.forEach(entry => {
+      if (entry.id == userID) {
+        console.log("___getUser(): CACHE HIT!");
+  
+        resolve(entry);
+      }
+    });
+  
+    request.get({
+      url: apiPath + "/users/" + userID,
+      json: true,
+      headers: {
+        "User-Agent": "Chalmers/Azure/Request",
+        "Authorization": "Bearer " + apiBearerToken
+      }
+    }, 
+    (error, result, data) => {
+      if (error) {
+        console.log("Error: " + error);
+  
+        let err = new Error("Error from API.");
+        err.status = 500;
+  
+        reject(err);
+      }
+      else if (result.statusCode !== 200) {
+        console.log("Status: " + result.statusCode);
+  
+        let err = new Error("Non-OK status code returned from API.");
+        err.status = result.statusCode;
+  
+        reject(err);
+      }
+      else {
+        console.log("OK, data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(data));
+        userCache.set(userId, data);
+  
+        resolve(data);
+      }
+    });
+  }
 });
