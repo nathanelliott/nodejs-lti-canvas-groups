@@ -64,10 +64,14 @@ app.get('/application', (req, res, next) => {
 
 app.get('/groups', async (request, result, next) => { 
   if (request.session.userId && request.session.canvasCourseId) {
-    const data = await canvasApi.compileGroupsData(request.session.canvasCourseId);
-    console.log("[JSON Result] " + JSON.stringify(data));
-
-    return result.render('groups', data);
+    try {
+      const data = await canvasApi.compileGroupsData(request.session.canvasCourseId, request.session);
+      console.log("[JSON Result] " + JSON.stringify(data));  
+      return result.render('groups', data);  
+    }
+    catch (error) {
+      next(new Error(error));
+    }
   }
   else {
     next(new Error('The session is invalid. Please login via LTI to use this application.'));
@@ -76,15 +80,19 @@ app.get('/groups', async (request, result, next) => {
 
 app.get('/csv/category/:id', async function (request, result) {
   if (request.session.userId && request.session.canvasCourseId) {
-    const id = request.params.id;
-    const data = await canvasApi.compileCategoryGroupsData(id);
+    try {
+      const id = request.params.id;
+      const data = await canvasApi.compileCategoryGroupsData(id, request.session);
   
-    console.log("[JSON Result] " + JSON.stringify(data));
-
-    result.setHeader("Content-Disposition", "attachment; filename=canvas-groups-" + id + ".csv");
-    result.set("Content-Type", "text/csv");
-
-    return result.status(200).end(JSON.stringify(data));
+      console.log("[JSON Result] " + JSON.stringify(data));
+  
+      result.setHeader("Content-Disposition", "attachment; filename=canvas-groups-" + id + ".csv");
+      result.set("Content-Type", "text/csv");
+      return result.status(200).end(JSON.stringify(data));
+    }
+    catch (error) {
+      next(new Error(error));
+    }
   }
   else {
     next(new Error('The session is invalid. Please login via LTI to use this application.'));

@@ -40,7 +40,7 @@ userCache.on('expired', function(key) {
 });
 
 // Compile category groups data for CSV export
-exports.compileCategoryGroupsData = async (categoryId) => new Promise(async function(resolve, reject) {
+exports.compileCategoryGroupsData = async (categoryId, session) => new Promise(async function(resolve, reject) {
   var hrstart = process.hrtime();
   var categoriesWithGroups = new Array();
   var groupsWithMembers = new Array();
@@ -105,8 +105,8 @@ exports.compileCategoryGroupsData = async (categoryId) => new Promise(async func
   // Compile JSON that returns to view.
   let data = {
     user: {
-      fullname: request.session.fullname,
-      id: request.session.userId
+      fullname: session.fullname,
+      id: session.userId
     },
     categories: categoriesWithGroups,
     statistics: {
@@ -119,7 +119,7 @@ exports.compileCategoryGroupsData = async (categoryId) => new Promise(async func
 });
 
 // Compile groups data
-exports.compileGroupsData = async (canvasCourseId) => new Promise(async function(resolve, reject) {
+exports.compileGroupsData = async (canvasCourseId, session) => new Promise(async function(resolve, reject) {
   var hrstart = process.hrtime();
   var categoriesWithGroups = new Array();
 
@@ -194,12 +194,12 @@ exports.compileGroupsData = async (canvasCourseId) => new Promise(async function
   // Compile JSON that returns to view.
   let data = {
     user: {
-      fullname: request.session.fullname,
-      id: request.session.userId
+      fullname: session.fullname,
+      id: session.userId
     },
     course: {
-      id: request.session.canvasCourseId,
-      contextTitle: request.session.contextTitle,
+      id: session.canvasCourseId,
+      contextTitle: session.contextTitle,
       categories: categoriesWithGroups
     },
     statistics: {
