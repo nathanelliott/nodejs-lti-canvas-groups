@@ -26,7 +26,7 @@ app.set('view engine', 'pug');
 
 // memory store shouldn't be used in production
 app.use(session({
-  store: new FileStore(fileStoreOptions),
+  // store: new FileStore(fileStoreOptions),
   secret: process.env.SESSION_SECRET || 'c8Vbe1',
   name: 'ltiSession',
   resave: false,
@@ -63,10 +63,6 @@ app.get('/application', (req, res, next) => {
 });
 
 app.get('/groups', async (request, result, next) => {
-  /* request.session.userId = 1234;
-  request.session.canvasCourseId = 1508;
-  request.session.contextTitle = "LOCAL_TEST_COURSE"; */
-
   var hrstart = process.hrtime();
   var groupsWithMembers = new Array();
   
