@@ -15,25 +15,27 @@ html(lang='en')
     .container
       .row
         .col-lg-12.text-left
-          h1 Group Management
+          h1 Grupphantering
           
           each category in course.categories
             h2 #{category.name}
 
-            each group in category.groups
-                h3 #{group.name}
+            table
+                thead
+                tr
+                    th Grupp
+                    th Person
+                    th E-post
+                tbody
 
-                table
-                    thead
-                    tr
-                        th Namn
-                        th E-post
-                    tbody
-
+                each group in category.groups
                     each member in group.members
                         tr
+                            td #{group.name}
                             td #{member.sortableName}
                             td #{member.email}
+
+            button(type='button' class='c-btn-blue c-btn-circle c-btn-uppercase' value="Ladda ner som CSV" onclick='downloadCsv(' + category.id + ')')
 
           p
             small Running time: #{statistics.running_s}s, #{statistics.running_ms}ms
