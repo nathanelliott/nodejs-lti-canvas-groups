@@ -65,7 +65,7 @@ app.get('/application', (req, res, next) => {
 app.get('/groups', async (request, result, next) => {
   var hrstart = process.hrtime();
   var categoriesWithGroups = new Array();
-  
+
   if (request.session.userId && request.session.canvasCourseId) {
     console.log("[API] GetGroupCategories()");
 

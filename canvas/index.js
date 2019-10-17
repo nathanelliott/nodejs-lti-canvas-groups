@@ -8,8 +8,8 @@ const NodeCache = require('node-cache');
 /* This token should be put in Azure Application Settings Key "canvasApiAccessToken".         */
 /* The Uri to the Canvas API for your installation goes into Key "canvasApiPath".             */
 
-const apiPath = process.env.canvasApiPath;
-const apiBearerToken = process.env.canvasApiAccessToken;
+const apiPath = "https://chalmers.instructure.com/api/v1";
+const apiBearerToken = "12523~khCHS1CYlhdQFvfZB3I4YVDJzncPkqf3Gw3HwR4JQqZE4dajI4dR36QjDLpFfnrn";
 
 const CACHE_TTL = 15 * 60;
 const CACHE_CHECK_EXPIRE = 30 * 60;
