@@ -176,7 +176,7 @@ exports.getCategoryGroups = async (categoryId) => new Promise(function(resolve, 
         reject(err);
       }
       else {
-        categoryGroupsCache.set(courseId, data);
+        categoryGroupsCache.set(categoryId, data);
 
         console.log("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(data));
         console.log("[Cache] Statistics: " + JSON.stringify(categoryGroupsCache.getStats()));
