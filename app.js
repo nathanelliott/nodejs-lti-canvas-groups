@@ -26,7 +26,7 @@ app.set('view engine', 'pug');
 
 // memory store shouldn't be used in production
 app.use(session({
-  // store: new FileStore(fileStoreOptions),
+  store: new FileStore(fileStoreOptions),
   secret: process.env.SESSION_SECRET || 'c8Vbe1',
   name: 'ltiSession',
   resave: false,
