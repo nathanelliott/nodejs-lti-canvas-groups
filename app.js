@@ -78,7 +78,7 @@ app.get('/groups', async (request, result, next) => {
   }
 });
 
-app.get('/csv/category/:id', async function (request, result) {
+app.get('/csv/category/:id', async (request, result, next) => {
   if (request.session.userId && request.session.canvasCourseId) {
     try {
       const id = request.params.id;
