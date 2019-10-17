@@ -4,42 +4,41 @@ const lti = require('ims-lti');
 const NodeCache = require('node-cache');
 const nodeCacheNonceStore = require('../node-cache-nonce');
 
-/* LTI Consumer Keys and Secrets go into Azure Configuration Key "ltiConsumerKeys", */
-/* with format "consumer:secret[,consumer2:secret2]".                               */
-
-// MemoryStore shouldn't be used in production. Timestamps must be valid within a 5 minute grace period.
-// const nonceStore = new lti.Stores.MemoryStore();
 const myCache = new NodeCache();
 const nonceStore = new nodeCacheNonceStore(myCache);
 
-// secrets should be stored securely in a production app
-var secrets = [];
+/* LTI Consumer Keys and Secrets go into Azure Configuration Key "ltiConsumerKeys", */
+/* with format "consumer:secret[,consumer2:secret2]".                               */
+
 const consumerKeys = process.env.ltiConsumerKeys;
-
-if (consumerKeys && secrets.length == 0) {
-  consumerKeys.split(',').forEach(consumerKey => {
-    secrets.push({ 
-      "consumerKey": consumerKey.split(':')[0], 
-      "secret": consumerKey.split(':')[1] 
-    });
-
-    console.log("Added Consumer: " + consumerKey.split(':')[0]);
-  });
-}
+var secrets = [];
 
 const getSecret = (consumerKey, callback) => {
+  if (consumerKeys && secrets.length == 0) {
+    consumerKeys.split(',').forEach(consumerKey => {
+      secrets.push({ 
+        "consumerKey": consumerKey.split(':')[0], 
+        "secret": consumerKey.split(':')[1] 
+      });
+
+      console.log("Added consumer key for '" + consumerKey.split(':')[0]) + "'.";
+    });
+  }
+
   secrets.forEach(secret => {
-    console.log("Checking for consumer '" + consumerKey + "' in '" + secret.consumerKey + "'.");
+    console.log("Checking for consumer '" + consumerKey + "'.");
 
     if (secret.consumerKey == consumerKey) {
       console.log("Found a match, returning to callback with secret.");
-
+      
       return callback(null, secret.secret);
     }
   });
 
   let err = new Error(`Unknown consumer ${consumerKey}`);
   err.status = 403;
+
+  console.log("Error, consumerKeys: '" + consumerKeys + "', secrets: '" + JSON.stringify(secrets) + "'.");
 
   return callback(err);
 };
