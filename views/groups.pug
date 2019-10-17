@@ -18,20 +18,20 @@ html(lang='en')
           h1 Group Management
           
           each category in course.categories
-            h2 #{name}
-            each group in groups
+            h2 #{category.name}
+
+            each group in category.groups
                 h3 #{name}
-                table(style='width=100%;')
+
+                table
                     thead
                     tr
-                        th Id
-                        th Name
-                        th Email
+                        th Namn
+                        th E-post
                     tbody
-                    each member in members
+                    each member in group.members
                         tr
-                            td #{userId}
-                            td #{name}
+                            td #{sortableName}
                             td #{email}
 
           p
