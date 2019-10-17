@@ -22,20 +22,20 @@ const memberCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, chec
 const userCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkperiod: CACHE_CHECK_EXPIRE });
 
 courseGroupsCache.on('expired', function(key) {
-  console.log("[Cache] Expired courseGroupsCache entry for key '" + key + "'.");
+  console.log("[Cache] Expired NodeCache entry for courseGroupsCache key '" + key + "'.");
 });
 memberCache.on('expired', function(key) {
-  console.log("[Cache] Expired memberCache entry for key '" + key + "'.");
+  console.log("[Cache] Expired NodeCache entry for memberCache key '" + key + "'.");
 });
 userCache.on('expired', function(key) {
-  console.log("[Cache] Expired userCache entry for key '" + key + "'.");
+  console.log("[Cache] Expired NodeCache entry for userCachekey '" + key + "'.");
 });
 
 // Get groups for a specified course.
 exports.getCourseGroups = async (courseId) => new Promise(function(resolve, reject) {
   try {
     const cachedData = courseGroupsCache.get(courseId, true);
-    console.log("[Cache] Using found courseGroupsCache entry for courseId " + courseId + ".");
+    console.log("[Cache] Using found NodeCache entry for courseId " + courseId + ".");
     console.log("[Cache] Statistics: " + JSON.stringify(courseGroupsCache.getStats()));
     resolve(cachedData);
   }
@@ -84,7 +84,7 @@ exports.getCourseGroups = async (courseId) => new Promise(function(resolve, reje
 exports.getGroupMembers = async (groupId) => new Promise(function(resolve, reject) {
   try {
     const cachedData = memberCache.get(groupId, true);
-    console.log("[Cache] Using found memberCache entry for groupId " + groupId + ".");
+    console.log("[Cache] Using found NodeCache entry for groupId " + groupId + ".");
     console.log("[Cache] Statistics: " + JSON.stringify(memberCache.getStats()));
     resolve(cachedData);
   }

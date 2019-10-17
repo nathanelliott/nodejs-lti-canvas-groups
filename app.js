@@ -67,19 +67,19 @@ app.get('/groups', async (request, result, next) => {
   var groupsWithMembers = new Array();
   
   if (request.session.userId && request.session.canvasCourseId) {
-    console.log("___canvasApi.getCourseGroups()");
+    console.log("[API] GetCourseGroups()");
 
     // Get data about each group in this course.
     await canvasApi.getCourseGroups(request.session.canvasCourseId).then(async function (groupsData) {
       for (const group of groupsData) {
         var membersWithDetails = new Array();
 
-        console.log("___canvasApi.getGroupMembers()");
+        console.log("[API] GetGroupMembers()");
 
         // Get data about each member in the group.
         await canvasApi.getGroupMembers(group.id).then(async function (membersData) {
           for (const member of membersData) {
-            console.log("___canvasApi.getUser()");
+            console.log("[API] GetUser()");
 
             // Get more data like name about each member.
             await canvasApi.getUser(member.user_id).then(async function (user) {
@@ -91,11 +91,13 @@ app.get('/groups', async (request, result, next) => {
                 sortableName: user.sortable_name,
                 avatarUrl: user.avatar_url
               });
-            }).catch(function (error) {
+            })
+            .catch(function (error) {
               next(error);
             });
           }
-        }).catch(function (error) {
+        })
+        .catch(function (error) {
           next (error);
         });
 
@@ -107,11 +109,12 @@ app.get('/groups', async (request, result, next) => {
           members: membersWithDetails
         });
       }
-    }).catch(function(error) {
+    })
+    .catch(function(error) {
       next (error);
     });
 
-    console.log("___DATA=" + JSON.stringify(groupsWithMembers));
+    console.log("[JSON Result] " + JSON.stringify(groupsWithMembers));
 
     // Measure time it took to process.
     var hrend = process.hrtime(hrstart);
