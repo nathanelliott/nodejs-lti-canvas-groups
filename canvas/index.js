@@ -10,8 +10,7 @@ const NodeCache = require('node-cache');
 
 const apiPath = process.env.canvasApiPath;
 const apiBearerToken = process.env.canvasApiAccessToken;
-
-const CACHE_TTL = 15 * 60;
+const CACHE_TTL = (parseInt(process.env.canvasApiCacheSecondsTTL) > 0 ? parseInt(process.env.canvasApiCacheSecondsTTL) : 5) * 60;
 const CACHE_CHECK_EXPIRE = 30 * 60;
 
 /* Cache the results of API calls for a shorter period, to ease the load on API servers */
@@ -105,6 +104,7 @@ exports.compileCategoryGroupsData = async (categoryId, session) => new Promise(a
   let data = {
     user: {
       fullname: session.fullname,
+      email: session.email,
       id: session.userId
     },
     categories: categoriesWithGroups,
