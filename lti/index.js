@@ -65,12 +65,12 @@ exports.handleLaunch = (req, res, next) => {
       if (isValid) {
         req.session.regenerate(err => {
           if (err) next(err);
-          req.session.email = provider.body.lis_person_contact_email_primary;
           req.session.contextId = provider.context_id;
           req.session.contextTitle = provider.context_title;
           req.session.userId = provider.userId;
           req.session.username = provider.username;
-          req.session.fullname = provider.lis_person_name_family;
+          req.session.fullname = provider.body.lis_person_name_full;
+          req.session.email = provider.body.lis_person_contact_email_primary;
           req.session.ltiConsumer = provider.body.tool_consumer_instance_guid;
           req.session.isInstructor = provider.instructor === true;
           req.session.isAdmin = provider.admin === true;
