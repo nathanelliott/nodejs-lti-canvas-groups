@@ -10,7 +10,7 @@ const NodeCache = require('node-cache');
 
 const apiPath = process.env.canvasApiPath;
 const apiBearerToken = process.env.canvasApiAccessToken;
-const CACHE_TTL = (parseInt(process.env.canvasApiCacheSecondsTTL) > 0 ? parseInt(process.env.canvasApiCacheSecondsTTL) : 5) * 60;
+const CACHE_TTL = (parseInt(process.env.canvasApiCacheSecondsTTL) > 0 ? parseInt(process.env.canvasApiCacheSecondsTTL) : 5 * 60);
 const CACHE_CHECK_EXPIRE = 30 * 60;
 
 /* Cache the results of API calls for a shorter period, to ease the load on API servers */
@@ -412,8 +412,9 @@ exports.getGroupMembers = async (groupId) => new Promise(function(resolve, rejec
 exports.getUser = async (userId) => new Promise(function(resolve, reject) {
   try {
     const cachedData = userCache.get(userId, true);
+    const cachedDataTime = new Date(1000*Math.round(userCache.getTtl(userId)/1000));
 
-    console.log("[Cache] Using found NodeCache entry for userId " + userId + ".");
+    console.log("[Cache] Using found NodeCache entry for userId " + userId + ", TTL is " + cachedDataTime.getUTCMinutes + ":" + cachedDataTime.getUTCSeconds);
     resolve(cachedData);
   }
   catch {
