@@ -90,7 +90,7 @@ exports.cacheStat = async () => new Promise(async function (resolve, reject) {
   resolve(true);
 });
 
-// Compile category groups data for CSV export
+// Compile category groups data for CSV export.
 exports.compileCategoryGroupsData = async (categoryId, session) => new Promise(async function(resolve, reject) {
   var hrstart = process.hrtime();
   var categoriesWithGroups = new Array();
@@ -159,7 +159,7 @@ exports.compileCategoryGroupsData = async (categoryId, session) => new Promise(a
   resolve(data);
 });
 
-// Compile groups data
+// Compile groups data for web view.
 exports.compileGroupsData = async (canvasCourseId, session) => new Promise(async function(resolve, reject) {
   var hrstart = process.hrtime();
   var categoriesWithGroups = new Array();
@@ -530,7 +530,7 @@ exports.getGroupUsers = async (groupId) => new Promise(async function(resolve, r
   }
 });
 
-// Get members for a specified group.
+// Get memberships data for a specified group.
 exports.getGroupMembers = async (groupId) => new Promise(async function(resolve, reject) {
   try {
     const cachedData = memberCache.get(groupId);
@@ -602,7 +602,7 @@ exports.getGroupMembers = async (groupId) => new Promise(async function(resolve,
   }
 });
 
-// Get details about a specified user.
+// Get details about one specified user.
 exports.getUser = async (userId) => new Promise(async function(resolve, reject) {
   try {
     const cachedData = userCache.get(userId);
