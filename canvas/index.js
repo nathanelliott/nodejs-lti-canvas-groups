@@ -16,6 +16,7 @@ const apiBearerToken = process.env.canvasApiAccessToken; */
 
 const CACHE_TTL = (parseInt(process.env.canvasApiCacheSecondsTTL) > 0 ? parseInt(process.env.canvasApiCacheSecondsTTL) : 180);
 const CACHE_CHECK_EXPIRE = 200;
+const API_PER_PAGE = 50;
 
 /* Cache the results of API calls for a shorter period, to ease the load on API servers */
 /* and make load time bearable for the user.                                            */
@@ -248,7 +249,7 @@ exports.compileGroupsData = async (canvasCourseId, session) => new Promise(async
 // Get groups for a specified course.
 exports.getCourseGroups = async (courseId) => new Promise(async function(resolve, reject) {
   try {
-    const cachedData = courseGroupsCache.get(courseId, true);
+    const cachedData = courseGroupsCache.get(courseId);
 
     console.log("[Cache] Using found NodeCache entry for courseId " + courseId + ".");
     console.log("[Cache] Statistics: " + JSON.stringify(courseGroupsCache.getStats()));
@@ -256,7 +257,7 @@ exports.getCourseGroups = async (courseId) => new Promise(async function(resolve
     resolve(cachedData);
   }
   catch (err) {
-    var thisApiPath = apiPath + "/courses/" + courseId + "/groups";
+    var thisApiPath = apiPath + "/courses/" + courseId + "/groups?per_page=" + API_PER_PAGE;
     var apiData = [];
     var returnedApiData = [];
 
@@ -274,14 +275,11 @@ exports.getCourseGroups = async (courseId) => new Promise(async function(resolve
         const data = response.data;
         apiData.push(data);
 
-        if (response.headers["Link"]) {
-          console.log("[Debug] Link header.");
-
-          var link = LinkHeader.parse(response.headers["Link"]);
+        if (response.headers["link"]) {
+          var link = LinkHeader.parse(response.headers["link"]);
 
           if (link.has("rel", "next")) {
             thisApiPath = link.get("rel", "next")[0].uri;
-            console.log("[Debug] Link rel next = '" + thisApiPath +"'.");
           }
           else {
             thisApiPath = false;
@@ -330,7 +328,7 @@ exports.getGroupCategories = async (courseId) => new Promise(async function(reso
     resolve(cachedData);
   }
   catch {
-    var thisApiPath = apiPath + "/courses/" + courseId + "/group_categories";
+    var thisApiPath = apiPath + "/courses/" + courseId + "/group_categories?per_page=" + API_PER_PAGE;
     var apiData = new Array();
     var returnedApiData = new Array();
 
@@ -348,14 +346,11 @@ exports.getGroupCategories = async (courseId) => new Promise(async function(reso
         const data = response.data;
         apiData.push(data);
 
-        if (response.headers["Link"]) {
-          console.log("[Debug] Link header.");
-
-          var link = LinkHeader.parse(response.headers["Link"]);
+        if (response.headers["link"]) {
+          var link = LinkHeader.parse(response.headers["link"]);
 
           if (link.has("rel", "next")) {
             thisApiPath = link.get("rel", "next")[0].uri;
-            console.log("[Debug] Link rel next = '" + thisApiPath +"'.");
           }
           else {
             thisApiPath = false;
@@ -396,7 +391,7 @@ exports.getGroupCategories = async (courseId) => new Promise(async function(reso
 // Get groups for a specified category.
 exports.getCategoryGroups = async (categoryId) => new Promise(async function(resolve, reject) {
   try {
-    const cachedData = categoryGroupsCache.get(categoryId, true);
+    const cachedData = categoryGroupsCache.get(categoryId);
 
     console.log("[Cache] Using found NodeCache entry for categoryId " + categoryId + ".");
     console.log("[Cache] Statistics: " + JSON.stringify(categoryGroupsCache.getStats()));
@@ -404,7 +399,7 @@ exports.getCategoryGroups = async (categoryId) => new Promise(async function(res
     resolve(cachedData);
   }
   catch {
-    var thisApiPath = apiPath + "/group_categories/" + categoryId + "/groups";
+    var thisApiPath = apiPath + "/group_categories/" + categoryId + "/groups?per_page=" + API_PER_PAGE;
     var apiData = [];
     var returnedApiData = [];
 
@@ -423,8 +418,8 @@ exports.getCategoryGroups = async (categoryId) => new Promise(async function(res
         const data = response.data;
         apiData.push(data);
 
-        if (response.headers["Link"]) {
-          var link = LinkHeader.parse(response.headers["Link"]);
+        if (response.headers["link"]) {
+          var link = LinkHeader.parse(response.headers["link"]);
 
           if (link.has("rel", "next")) {
             thisApiPath = link.get("rel", "next")[0].uri;
@@ -468,7 +463,7 @@ exports.getCategoryGroups = async (categoryId) => new Promise(async function(res
 // Get users (not members) for a specified group.
 exports.getGroupUsers = async (groupId) => new Promise(async function(resolve, reject) {
   try {
-    const cachedData = groupUsersCache.get(groupId, true);
+    const cachedData = groupUsersCache.get(groupId);
 
     console.log("[Cache] Using found NodeCache entry for groupId " + groupId + ".");
     console.log("[Cache] Statistics: " + JSON.stringify(groupUsersCache.getStats()));
@@ -476,7 +471,7 @@ exports.getGroupUsers = async (groupId) => new Promise(async function(resolve, r
     resolve(cachedData);
   }
   catch {
-    var thisApiPath = apiPath + "/groups/" + groupId + "/users?include[]=avatar_url&include[]=email&per_page=3";
+    var thisApiPath = apiPath + "/groups/" + groupId + "/users?include[]=avatar_url&include[]=email&per_page=" + API_PER_PAGE;
     var apiData = [];
     var returnedApiData = [];
 
@@ -495,20 +490,11 @@ exports.getGroupUsers = async (groupId) => new Promise(async function(resolve, r
         const data = response.data;
         apiData.push(data);
 
-        /* console.log("data=" + JSON.stringify(response.data));
-        console.log("status=" + JSON.stringify(response.status));
-        console.log("statusText=" + JSON.stringify(response.statusText));
-        console.log("headers=" + JSON.stringify(response.headers));
-        console.log("config=" + JSON.stringify(response.config)); */
-
         if (response.headers["link"]) {
-          console.log("[Debug] Link header.");
-
           var link = LinkHeader.parse(response.headers["link"]);
 
           if (link.has("rel", "next")) {
             thisApiPath = link.get("rel", "next")[0].uri;
-            console.log("[Debug] Link rel next = '" + thisApiPath +"'.");
           }
           else {
             thisApiPath = false;
@@ -549,7 +535,7 @@ exports.getGroupUsers = async (groupId) => new Promise(async function(resolve, r
 // Get members for a specified group.
 exports.getGroupMembers = async (groupId) => new Promise(async function(resolve, reject) {
   try {
-    const cachedData = memberCache.get(groupId, true);
+    const cachedData = memberCache.get(groupId);
 
     console.log("[Cache] Using found NodeCache entry for groupId " + groupId + ".");
     console.log("[Cache] Statistics: " + JSON.stringify(memberCache.getStats()));
@@ -557,7 +543,7 @@ exports.getGroupMembers = async (groupId) => new Promise(async function(resolve,
     resolve(cachedData);
   }
   catch {
-    var thisApiPath = apiPath + "/groups/" + groupId + "/memberships?per_page=3";
+    var thisApiPath = apiPath + "/groups/" + groupId + "/memberships?per_page=" + API_PER_PAGE;
     var apiData = [];
     var returnedApiData = [];
 
@@ -576,14 +562,11 @@ exports.getGroupMembers = async (groupId) => new Promise(async function(resolve,
         const data = response.data;
         apiData.push(data);
 
-        if (response.headers["Link"]) {
-          console.log("[Debug] Link header.");
-
-          var link = LinkHeader.parse(response.headers["Link"]);
+        if (response.headers["link"]) {
+          var link = LinkHeader.parse(response.headers["link"]);
 
           if (link.has("rel", "next")) {
             thisApiPath = link.get("rel", "next")[0].uri;
-            console.log("[Debug] Link rel next = '" + thisApiPath +"'.");
           }
           else {
             thisApiPath = false;
@@ -624,7 +607,7 @@ exports.getGroupMembers = async (groupId) => new Promise(async function(resolve,
 // Get details about a specified user.
 exports.getUser = async (userId) => new Promise(async function(resolve, reject) {
   try {
-    const cachedData = userCache.get(userId, true);
+    const cachedData = userCache.get(userId);
     console.log("[Cache] Using found NodeCache entry for userId " + userId + ".");
     resolve(cachedData);
   }
@@ -647,14 +630,11 @@ exports.getUser = async (userId) => new Promise(async function(resolve, reject) 
         const data = response.data;
         apiData.push(data);
 
-        if (response.headers["Link"]) {
-          console.log("[Debug] Link header.");
-
-          var link = LinkHeader.parse(response.headers["Link"]);
+        if (response.headers["link"]) {
+          var link = LinkHeader.parse(response.headers["link"]);
 
           if (link.has("rel", "next")) {
             thisApiPath = link.get("rel", "next")[0].uri;
-            console.log("[Debug] Link rel next = '" + thisApiPath +"'.");
           }
           else {
             thisApiPath = false;
