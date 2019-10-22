@@ -64,10 +64,6 @@ app.get('/application', (req, res, next) => {
 });
 
 app.get('/groups', async (request, result, next) => { 
-  request.session.userId = 1234;
-  request.session.canvasCourseId = 1508;
-  request.session.contextTitle = "LOCAL_TEST_COURSE";
-
   if (request.session.userId && request.session.canvasCourseId) {
     try {
       const data = await canvasApi.compileGroupsData(request.session.canvasCourseId, request.session);

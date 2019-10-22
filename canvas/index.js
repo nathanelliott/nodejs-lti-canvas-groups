@@ -9,10 +9,8 @@ const axios = require('axios');
 /* This token should be put in Azure Application Settings Key "canvasApiAccessToken".         */
 /* The Uri to the Canvas API for your installation goes into Key "canvasApiPath".             */
 
-const apiPath = "https://chalmers.test.instructure.com/api/v1";
-const apiBearerToken = "12523~khCHS1CYlhdQFvfZB3I4YVDJzncPkqf3Gw3HwR4JQqZE4dajI4dR36QjDLpFfnrn";
-/* const apiPath = process.env.canvasApiPath;
-const apiBearerToken = process.env.canvasApiAccessToken; */
+const apiPath = process.env.canvasApiPath;
+const apiBearerToken = process.env.canvasApiAccessToken;
 
 const CACHE_TTL = (parseInt(process.env.canvasApiCacheSecondsTTL) > 0 ? parseInt(process.env.canvasApiCacheSecondsTTL) : 180);
 const CACHE_CHECK_EXPIRE = 200;
