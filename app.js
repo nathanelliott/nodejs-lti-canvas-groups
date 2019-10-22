@@ -64,6 +64,10 @@ app.get('/application', (req, res, next) => {
 });
 
 app.get('/groups', async (request, result, next) => { 
+  request.session.userId = 1234;
+  request.session.canvasCourseId = 1508;
+  request.session.contextTitle = "LOCAL_TEST_COURSE";
+
   if (request.session.userId && request.session.canvasCourseId) {
     try {
       const data = await canvasApi.compileGroupsData(request.session.canvasCourseId, request.session);
@@ -97,8 +101,8 @@ app.get('/csv/category/:id', async (request, result, next) => {
       let csvData = "Group\tStudent\tEmail address\r\n";
 
       for (const group of data.categories[0].groups) {
-        for (const member of group.members) {
-          csvData = csvData + group.name + "\t" + member.sortableName + "\t" + member.email + "\r\n";
+        for (const user of group.users) {
+          csvData = csvData + group.name + "\t" + user.sortableName + "\t" + user.email + "\r\n";
         }
       }
 

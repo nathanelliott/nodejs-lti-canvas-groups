@@ -1,26 +1,59 @@
 'use strict';
 
-const request = require('request');
+const LinkHeader = require('http-link-header');
 const NodeCache = require('node-cache');
+const axios = require('axios');
 
 /* This module handles communication between LTI Application and Canvas, using Canvas API V1. */
 /* It requires an API Token, which can be generated from inside Canvas settings.              */
 /* This token should be put in Azure Application Settings Key "canvasApiAccessToken".         */
 /* The Uri to the Canvas API for your installation goes into Key "canvasApiPath".             */
 
-const apiPath = process.env.canvasApiPath;
-const apiBearerToken = process.env.canvasApiAccessToken;
-const CACHE_TTL = (parseInt(process.env.canvasApiCacheSecondsTTL) > 0 ? parseInt(process.env.canvasApiCacheSecondsTTL) : 5 * 60);
-const CACHE_CHECK_EXPIRE = 30 * 60;
+const apiPath = "https://chalmers.test.instructure.com/api/v1";
+const apiBearerToken = "12523~khCHS1CYlhdQFvfZB3I4YVDJzncPkqf3Gw3HwR4JQqZE4dajI4dR36QjDLpFfnrn";
+/* const apiPath = process.env.canvasApiPath;
+const apiBearerToken = process.env.canvasApiAccessToken; */
+
+const CACHE_TTL = (parseInt(process.env.canvasApiCacheSecondsTTL) > 0 ? parseInt(process.env.canvasApiCacheSecondsTTL) : 180);
+const CACHE_CHECK_EXPIRE = 200;
 
 /* Cache the results of API calls for a shorter period, to ease the load on API servers */
 /* and make load time bearable for the user.                                            */
 
 const courseGroupsCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkperiod: CACHE_CHECK_EXPIRE });
 const groupCategoriesCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkperiod: CACHE_CHECK_EXPIRE });
+const groupUsersCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkperiod: CACHE_CHECK_EXPIRE });
 const categoryGroupsCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkperiod: CACHE_CHECK_EXPIRE });
 const memberCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkperiod: CACHE_CHECK_EXPIRE });
 const userCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkperiod: CACHE_CHECK_EXPIRE });
+
+const caches = [
+  {
+    name: "courseGroupsCache",
+    bucket: courseGroupsCache
+  },
+  {
+    name: "groupCategoriesCache",
+    bucket: groupCategoriesCache
+  },
+  {
+    name: "groupUsersCache",
+    bucket: groupUsersCache
+  },
+  {
+    name: "categoryGroupsCache",
+    bucket: categoryGroupsCache
+  },
+  {
+    name: "memberCache",
+    bucket: memberCache
+  }
+  ,
+  {
+    name: "userCache",
+    bucket: userCache
+  }
+];
 
 courseGroupsCache.on('expired', function(key) {
   console.log("[Cache] Expired NodeCache entry for courseGroupsCache key '" + key + "'.");
@@ -38,40 +71,50 @@ userCache.on('expired', function(key) {
   console.log("[Cache] Expired NodeCache entry for userCachekey '" + key + "'.");
 });
 
+exports.cacheStat = async () => new Promise(async function (resolve, reject) {
+  for (const cache of caches) {
+    console.log("[Stats] Cache keys and TTL for " + cache.name + ":");
+
+    cache.bucket.keys(function(err, keys){
+      if (!err) {
+        for (const key of keys) {
+          const TTL_MS = cache.bucket.getTtl(key);
+          console.log("[Stats] Key: '" + key + "', TTL: " + TTL_MS + " ms, expires at " + new Date(TTL_MS).toLocaleTimeString());
+        }
+      }
+      else {
+        reject(false);
+      }
+    });
+  }
+
+  resolve(true);
+});
+
 // Compile category groups data for CSV export
 exports.compileCategoryGroupsData = async (categoryId, session) => new Promise(async function(resolve, reject) {
   var hrstart = process.hrtime();
   var categoriesWithGroups = new Array();
-  var groupsWithMembers = new Array();
+  var groupsWithUsers = new Array();
 
   console.log("[API] GetCategoryGroups()");
 
   // Get data about each group in this category.
   await exports.getCategoryGroups(categoryId).then(async function (groupsData) {
     for (const group of groupsData) {
-      var membersWithDetails = new Array();
+      var usersWithDetails = new Array();
 
-      console.log("[API] GetGroupMembers()");
+      console.log("[API] GetGroupUsers()");
 
-      // Get data about each member in the group.
-      await exports.getGroupMembers(group.id).then(async function (membersData) {
-        for (const member of membersData) {
-          console.log("[API] GetUser()");
-
-          // Get more data like name about each member.
-          await exports.getUser(member.user_id).then(async function (user) {
-            membersWithDetails.push({
-              userId: member.user_id,
-              workflowState: member.workflow_state,
-              isModerator: member.moderator,
-              name: user.name,
-              sortableName: user.sortable_name,
-              email: user.email,
-              avatarUrl: user.avatar_url
-            });
-          })
-          .catch(function (error) {
-            reject(error);
+      // Get data about each user in the group.
+      await exports.getGroupUsers(group.id).then(async function (usersData) {
+        for (const user of usersData) {
+          usersWithDetails.push({
+            userId: user.id,
+            name: user.name,
+            sortableName: user.sortable_name,
+            email: user.email,
+            avatarUrl: user.avatar_url
           });
         }
       })
@@ -79,12 +122,12 @@ exports.compileCategoryGroupsData = async (categoryId, session) => new Promise(a
         reject(error);
       });
 
-      groupsWithMembers.push({ 
+      groupsWithUsers.push({ 
         id: group.id,
         name: group.name,
         description: group.description,
         category_id: group.group_category_id,
-        members: membersWithDetails
+        user: usersWithDetails
       });
     }
   })
@@ -94,7 +137,7 @@ exports.compileCategoryGroupsData = async (categoryId, session) => new Promise(a
 
   categoriesWithGroups.push({
     id: categoryId,
-    groups: groupsWithMembers
+    groups: groupsWithUsers
   });
 
   // Measure time it took to process.
@@ -126,36 +169,26 @@ exports.compileGroupsData = async (canvasCourseId, session) => new Promise(async
 
   await exports.getGroupCategories(canvasCourseId).then(async function (categoriesData) {
     for (const category of categoriesData) {
-      var groupsWithMembers = new Array();
+      var groupsWithUsers = new Array();
 
       console.log("[API] GetCategoryGroups()");
 
       // Get data about each group in this category.
       await exports.getCategoryGroups(category.id).then(async function (groupsData) {
         for (const group of groupsData) {
-          var membersWithDetails = new Array();
+          var usersWithDetails = new Array();
   
-          console.log("[API] GetGroupMembers()");
+          console.log("[API] GetGroupUsers()");
   
-          // Get data about each member in the group.
-          await exports.getGroupMembers(group.id).then(async function (membersData) {
-            for (const member of membersData) {
-              console.log("[API] GetUser()");
-  
-              // Get more data like name about each member.
-              await exports.getUser(member.user_id).then(async function (user) {
-                membersWithDetails.push({
-                  userId: member.user_id,
-                  workflowState: member.workflow_state,
-                  isModerator: member.moderator,
-                  name: user.name,
-                  sortableName: user.sortable_name,
-                  email: user.email,
-                  avatarUrl: user.avatar_url
-                });
-              })
-              .catch(function (error) {
-                reject(error);
+          // Get data about each user in the group.
+          await exports.getGroupUsers(group.id).then(async function (usersData) {
+            for (const user of usersData) {
+              usersWithDetails.push({
+                userId: user.id,
+                name: user.name,
+                sortableName: user.sortable_name,
+                email: user.email,
+                avatarUrl: user.avatar_url
               });
             }
           })
@@ -163,12 +196,12 @@ exports.compileGroupsData = async (canvasCourseId, session) => new Promise(async
             reject(error);
           });
   
-          groupsWithMembers.push({ 
+          groupsWithUsers.push({ 
             id: group.id,
             name: group.name,
             description: group.description,
             category_id: group.group_category_id,
-            members: membersWithDetails
+            users: usersWithDetails
           });
         }
       })
@@ -179,7 +212,7 @@ exports.compileGroupsData = async (canvasCourseId, session) => new Promise(async
       categoriesWithGroups.push({
         id: category.id,
         name: category.name,
-        groups: groupsWithMembers
+        groups: groupsWithUsers
       });
     }
   })
@@ -207,253 +240,446 @@ exports.compileGroupsData = async (canvasCourseId, session) => new Promise(async
     }
   };
 
+  await exports.cacheStat();
+
   resolve(data);
 });
 
 // Get groups for a specified course.
-exports.getCourseGroups = async (courseId) => new Promise(function(resolve, reject) {
+exports.getCourseGroups = async (courseId) => new Promise(async function(resolve, reject) {
   try {
     const cachedData = courseGroupsCache.get(courseId, true);
+
     console.log("[Cache] Using found NodeCache entry for courseId " + courseId + ".");
     console.log("[Cache] Statistics: " + JSON.stringify(courseGroupsCache.getStats()));
+
     resolve(cachedData);
   }
   catch (err) {
-    console.log("[API] GET " + apiPath + "/courses/" + courseId + "/groups");
+    var thisApiPath = apiPath + "/courses/" + courseId + "/groups";
+    var apiData = [];
+    var returnedApiData = [];
 
-    request.get({
-      url: apiPath + "/courses/" + courseId + "/groups",
-      json: true,
-      headers: {
-        "User-Agent": "Chalmers/Azure/Request",
-        "Authorization": "Bearer " + apiBearerToken
+    while (thisApiPath) {
+      console.log("[API] GET " + thisApiPath);
+
+      try {
+        const response = await axios.get(thisApiPath, {
+          headers: {
+            "User-Agent": "Chalmers/Azure/Request",
+            "Authorization": "Bearer " + apiBearerToken
+          }
+        });
+
+        const data = response.data;
+        apiData.push(data);
+
+        if (response.headers["Link"]) {
+          console.log("[Debug] Link header.");
+
+          var link = LinkHeader.parse(response.headers["Link"]);
+
+          if (link.has("rel", "next")) {
+            thisApiPath = link.get("rel", "next")[0].uri;
+            console.log("[Debug] Link rel next = '" + thisApiPath +"'.");
+          }
+          else {
+            thisApiPath = false;
+          }
+        }
+        else {
+          thisApiPath = false;
+        }
       }
-    }, 
-    (error, result, data) => {
-      if (error) {
+      catch (error) {
         console.log("[API] Error: " + error);
-  
-        let err = new Error("Error from API.");
+    
+        let err = new Error("Error from API: " + error);
         err.status = 500;
   
         reject(err);
       }
-      else if (result.statusCode !== 200) {
-        console.log("[API] Status: " + result.statusCode);
-  
-        let err = new Error("Non-OK status code returned from API.");
-        err.status = result.statusCode;
-  
-        reject(err);
-      }
-      else {
-        courseGroupsCache.set(courseId, data);
+    }
 
-        console.log("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(data));
-        console.log("[Cache] Statistics: " + JSON.stringify(courseGroupsCache.getStats()));
-        console.log("[Cache] Keys: " + courseGroupsCache.keys());
-
-        resolve(data);
+    // Compile new object from all pages.
+    for (const page in apiData) {
+      for (const record in page) {
+        returnedApiData.push(record);
       }
-    });
+    }
+
+    // Store in cache.
+    courseGroupsCache.set(userId, returnedApiData);
+
+    console.log("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(returnedApiData));
+    console.log("[Cache] Statistics: " + JSON.stringify(courseGroupsCache.getStats()));
+    console.log("[Cache] Keys: " + courseGroupsCache.keys());
+
+    resolve(returnedApiData);
   }
 });
 
 // Get group categories for a specified course.
-exports.getGroupCategories = async (courseId) => new Promise(function(resolve, reject) {
+exports.getGroupCategories = async (courseId) => new Promise(async function(resolve, reject) {
   try {
-    const cachedData = groupCategoriesCache.get(courseId, true);
+    const cachedData = groupCategoriesCache.get(courseId);
+
     console.log("[Cache] Using found NodeCache entry for courseId " + courseId + ".");
     console.log("[Cache] Statistics: " + JSON.stringify(groupCategoriesCache.getStats()));
+
     resolve(cachedData);
   }
   catch {
-    const thisPath = apiPath + "/courses/" + courseId + "/group_categories";
-    console.log("[API] GET " + thisPath);
+    var thisApiPath = apiPath + "/courses/" + courseId + "/group_categories";
+    var apiData = new Array();
+    var returnedApiData = new Array();
 
-    request.get({
-      url: thisPath,
-      json: true,
-      headers: {
-        "User-Agent": "Chalmers/Azure/Request",
-        "Authorization": "Bearer " + apiBearerToken
+    while (thisApiPath) {
+      console.log("[API] GET " + thisApiPath);
+
+      try {
+        const response = await axios.get(thisApiPath, {
+          headers: {
+            "User-Agent": "Chalmers/Azure/Request",
+            "Authorization": "Bearer " + apiBearerToken
+          }
+        });
+
+        const data = response.data;
+        apiData.push(data);
+
+        if (response.headers["Link"]) {
+          console.log("[Debug] Link header.");
+
+          var link = LinkHeader.parse(response.headers["Link"]);
+
+          if (link.has("rel", "next")) {
+            thisApiPath = link.get("rel", "next")[0].uri;
+            console.log("[Debug] Link rel next = '" + thisApiPath +"'.");
+          }
+          else {
+            thisApiPath = false;
+          }
+        }
+        else {
+          thisApiPath = false;
+        }
       }
-    }, 
-    (error, result, data) => {
-      if (error) {
+      catch (error) {
         console.log("[API] Error: " + error);
-  
-        let err = new Error("Error from API.");
+    
+        let err = new Error("Error from API: " + error);
         err.status = 500;
   
         reject(err);
       }
-      else if (result.statusCode !== 200) {
-        console.log("[API] Status: " + result.statusCode);
-  
-        let err = new Error("Non-OK status code returned from API.");
-        err.status = result.statusCode;
-  
-        reject(err);
-      }
-      else {
-        groupCategoriesCache.set(courseId, data);
+    }
 
-        console.log("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(data));
-        console.log("[Cache] Statistics: " + JSON.stringify(groupCategoriesCache.getStats()));
-        console.log("[Cache] Keys: " + groupCategoriesCache.keys());
-
-        resolve(data);
+    // Compile new object from all pages.
+    for (const page of apiData) {
+      for (const record of page) {
+        returnedApiData.push(record);
       }
-    });
+    }
+
+    // Store in cache.
+    groupCategoriesCache.set(courseId, returnedApiData);
+  
+    console.log("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(returnedApiData));
+    console.log("[Cache] Statistics: " + JSON.stringify(groupCategoriesCache.getStats()));
+    console.log("[Cache] Keys: " + groupCategoriesCache.keys());
+
+    resolve(returnedApiData);
   }
 });
 
 // Get groups for a specified category.
-exports.getCategoryGroups = async (categoryId) => new Promise(function(resolve, reject) {
+exports.getCategoryGroups = async (categoryId) => new Promise(async function(resolve, reject) {
   try {
     const cachedData = categoryGroupsCache.get(categoryId, true);
+
     console.log("[Cache] Using found NodeCache entry for categoryId " + categoryId + ".");
     console.log("[Cache] Statistics: " + JSON.stringify(categoryGroupsCache.getStats()));
+
     resolve(cachedData);
   }
   catch {
-    const thisPath = apiPath + "/group_categories/" + categoryId + "/groups";
-    console.log("[API] GET " + thisPath);
+    var thisApiPath = apiPath + "/group_categories/" + categoryId + "/groups";
+    var apiData = [];
+    var returnedApiData = [];
 
-    request.get({
-      url: thisPath,
-      json: true,
-      headers: {
-        "User-Agent": "Chalmers/Azure/Request",
-        "Authorization": "Bearer " + apiBearerToken
+    while (thisApiPath) {
+      console.log("[API] GET " + thisApiPath);
+
+      try {
+        const response = await axios.get(thisApiPath, {
+          json: true,
+          headers: {
+            "User-Agent": "Chalmers/Azure/Request",
+            "Authorization": "Bearer " + apiBearerToken
+          }
+        });
+
+        const data = response.data;
+        apiData.push(data);
+
+        if (response.headers["Link"]) {
+          var link = LinkHeader.parse(response.headers["Link"]);
+
+          if (link.has("rel", "next")) {
+            thisApiPath = link.get("rel", "next")[0].uri;
+          }
+          else {
+            thisApiPath = false;
+          }
+        }
+        else {
+          thisApiPath = false;
+        }
       }
-    }, 
-    (error, result, data) => {
-      if (error) {
+      catch (error) {
         console.log("[API] Error: " + error);
-  
-        let err = new Error("Error from API.");
+    
+        let err = new Error("Error from API: " + error);
         err.status = 500;
   
         reject(err);
       }
-      else if (result.statusCode !== 200) {
-        console.log("[API] Status: " + result.statusCode);
+    }
+
+    // Compile new object from all pages.
+    for (const page of apiData) {
+      for (const record of page) {
+        returnedApiData.push(record);
+      }
+    }
+
+    // Store in cache.
+    categoryGroupsCache.set(categoryId, returnedApiData);
   
-        let err = new Error("Non-OK status code returned from API.");
-        err.status = result.statusCode;
+    console.log("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(returnedApiData));
+    console.log("[Cache] Statistics: " + JSON.stringify(categoryGroupsCache.getStats()));
+    console.log("[Cache] Keys: " + categoryGroupsCache.keys());
+
+    resolve(returnedApiData);
+  }
+});
+
+// Get users (not members) for a specified group.
+exports.getGroupUsers = async (groupId) => new Promise(async function(resolve, reject) {
+  try {
+    const cachedData = groupUsersCache.get(groupId, true);
+
+    console.log("[Cache] Using found NodeCache entry for groupId " + groupId + ".");
+    console.log("[Cache] Statistics: " + JSON.stringify(groupUsersCache.getStats()));
+
+    resolve(cachedData);
+  }
+  catch {
+    var thisApiPath = apiPath + "/groups/" + groupId + "/users?include[]=avatar_url&include[]=email&per_page=3";
+    var apiData = [];
+    var returnedApiData = [];
+
+    while (thisApiPath) {
+      console.log("[API] GET " + thisApiPath);
+
+      try {
+        const response = await axios.get(thisApiPath, {
+          json: true,
+          headers: {
+            "User-Agent": "Chalmers/Azure/Request",
+            "Authorization": "Bearer " + apiBearerToken
+          }
+        });
+
+        const data = response.data;
+        apiData.push(data);
+
+        /* console.log("data=" + JSON.stringify(response.data));
+        console.log("status=" + JSON.stringify(response.status));
+        console.log("statusText=" + JSON.stringify(response.statusText));
+        console.log("headers=" + JSON.stringify(response.headers));
+        console.log("config=" + JSON.stringify(response.config)); */
+
+        if (response.headers["link"]) {
+          console.log("[Debug] Link header.");
+
+          var link = LinkHeader.parse(response.headers["link"]);
+
+          if (link.has("rel", "next")) {
+            thisApiPath = link.get("rel", "next")[0].uri;
+            console.log("[Debug] Link rel next = '" + thisApiPath +"'.");
+          }
+          else {
+            thisApiPath = false;
+          }
+        }
+        else {
+          thisApiPath = false;
+        }
+      }
+      catch (error) {
+        console.log("[API] Error: " + error);
+    
+        let err = new Error("Error from API: " + error);
+        err.status = 500;
   
         reject(err);
       }
-      else {
-        categoryGroupsCache.set(categoryId, data);
+    }
 
-        console.log("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(data));
-        console.log("[Cache] Statistics: " + JSON.stringify(categoryGroupsCache.getStats()));
-        console.log("[Cache] Keys: " + categoryGroupsCache.keys());
-
-        resolve(data);
+    // Compile new object from all pages.
+    for (const page of apiData) {
+      for (const record of page) {
+        returnedApiData.push(record);
       }
-    });
+    }
+
+    // Store in cache.
+    groupUsersCache.set(groupId, returnedApiData);
+  
+    console.log("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(returnedApiData));
+    console.log("[Cache] Statistics: " + JSON.stringify(groupUsersCache.getStats()));
+    console.log("[Cache] Keys: " + groupUsersCache.keys());
+
+    resolve(returnedApiData);
   }
 });
 
 // Get members for a specified group.
-exports.getGroupMembers = async (groupId) => new Promise(function(resolve, reject) {
+exports.getGroupMembers = async (groupId) => new Promise(async function(resolve, reject) {
   try {
     const cachedData = memberCache.get(groupId, true);
+
     console.log("[Cache] Using found NodeCache entry for groupId " + groupId + ".");
     console.log("[Cache] Statistics: " + JSON.stringify(memberCache.getStats()));
+
     resolve(cachedData);
   }
   catch {
-    console.log("[API] GET " + apiPath + "/groups/" + groupId + "/memberships");
+    var thisApiPath = apiPath + "/groups/" + groupId + "/memberships?per_page=3";
+    var apiData = [];
+    var returnedApiData = [];
 
-    request.get({
-      url: apiPath + "/groups/" + groupId + "/memberships",
-      json: true,
-      headers: {
-        "User-Agent": "Chalmers/Azure/Request",
-        "Authorization": "Bearer " + apiBearerToken
+    while (thisApiPath) {
+      console.log("[API] GET " + thisApiPath);
+
+      try {
+        const response = await axios.get(thisApiPath, {
+          json: true,
+          headers: {
+            "User-Agent": "Chalmers/Azure/Request",
+            "Authorization": "Bearer " + apiBearerToken
+          }
+        });
+
+        const data = response.data;
+        apiData.push(data);
+
+        if (response.headers["Link"]) {
+          console.log("[Debug] Link header.");
+
+          var link = LinkHeader.parse(response.headers["Link"]);
+
+          if (link.has("rel", "next")) {
+            thisApiPath = link.get("rel", "next")[0].uri;
+            console.log("[Debug] Link rel next = '" + thisApiPath +"'.");
+          }
+          else {
+            thisApiPath = false;
+          }
+        }
+        else {
+          thisApiPath = false;
+        }
       }
-    }, 
-    (error, result, data) => {
-      if (error) {
+      catch (error) {
         console.log("[API] Error: " + error);
-  
-        let err = new Error("Error from API.");
+    
+        let err = new Error("Error from API: " + error);
         err.status = 500;
   
         reject(err);
       }
-      else if (result.statusCode !== 200) {
-        console.log("[API] Status: " + result.statusCode);
-  
-        let err = new Error("Non-OK status code returned from API.");
-        err.status = result.statusCode;
-  
-        reject(err);
-      }
-      else {
-        memberCache.set(groupId, data);
+    }
 
-        console.log("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(data));
-        console.log("[Cache] Statistics: " + JSON.stringify(memberCache.getStats()));
-        console.log("[Cache] Keys: " + memberCache.keys());
-
-        resolve(data);
+    // Compile new object from all pages.
+    for (const page of apiData) {
+      for (const record of page) {
+        returnedApiData.push(record);
       }
-    });
+    }
+
+    // Store in cache.
+    memberCache.set(groupId, returnedApiData);
+  
+    console.log("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(returnedApiData));
+    console.log("[Cache] Statistics: " + JSON.stringify(memberCache.getStats()));
+    console.log("[Cache] Keys: " + memberCache.keys());
+
+    resolve(returnedApiData);
   }
 });
 
 // Get details about a specified user.
-exports.getUser = async (userId) => new Promise(function(resolve, reject) {
+exports.getUser = async (userId) => new Promise(async function(resolve, reject) {
   try {
     const cachedData = userCache.get(userId, true);
-    const cachedDataTime = new Date(1000*Math.round(userCache.getTtl(userId)/1000));
-
-    console.log("[Cache] Using found NodeCache entry for userId " + userId + ", TTL is " + cachedDataTime.getUTCMinutes + ":" + cachedDataTime.getUTCSeconds);
+    console.log("[Cache] Using found NodeCache entry for userId " + userId + ".");
     resolve(cachedData);
   }
   catch {
-    console.log("[API] GET " + apiPath + "/users/" + userId);
-  
-    request.get({
-      url: apiPath + "/users/" + userId,
-      json: true,
-      headers: {
-        "User-Agent": "Chalmers/Azure/Request",
-        "Authorization": "Bearer " + apiBearerToken
+    var thisApiPath = apiPath + "/users/" + userId;
+    var apiData = [];
+
+    while (thisApiPath) {
+      console.log("[API] GET " + thisApiPath);
+
+      try {
+        const response = await axios.get(thisApiPath, {
+          json: true,
+          headers: {
+            "User-Agent": "Chalmers/Azure/Request",
+            "Authorization": "Bearer " + apiBearerToken
+          }
+        });
+
+        const data = response.data;
+        apiData.push(data);
+
+        if (response.headers["Link"]) {
+          console.log("[Debug] Link header.");
+
+          var link = LinkHeader.parse(response.headers["Link"]);
+
+          if (link.has("rel", "next")) {
+            thisApiPath = link.get("rel", "next")[0].uri;
+            console.log("[Debug] Link rel next = '" + thisApiPath +"'.");
+          }
+          else {
+            thisApiPath = false;
+          }
+        }
+        else {
+          thisApiPath = false;
+        }
       }
-    }, 
-    (error, result, data) => {
-      if (error) {
+      catch (error) {
         console.log("[API] Error: " + error);
-  
-        let err = new Error("Error from API.");
+    
+        let err = new Error("Error from API: " + error);
         err.status = 500;
   
         reject(err);
       }
-      else if (result.statusCode !== 200) {
-        console.log("[API] Status: " + result.statusCode);
-  
-        let err = new Error("Non-OK status code returned from API.");
-        err.status = result.statusCode;
-  
-        reject(err);
-      }
-      else {
-        userCache.set(userId, data);
+    }
 
-        console.log("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(data));
-        console.log("[Cache] Statistics: " + JSON.stringify(userCache.getStats()));
-        console.log("[Cache] Keys: " + userCache.keys());
-  
-        resolve(data);
-      }
-    });
+    userCache.set(userId, apiData[0]);
+
+    console.log("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(apiData[0]));
+    console.log("[Cache] Statistics: " + JSON.stringify(userCache.getStats()));
+    console.log("[Cache] Keys: " + userCache.keys());
+
+    resolve(apiData[0]);
   }
 });
