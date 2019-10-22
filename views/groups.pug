@@ -25,7 +25,6 @@ html(lang='en')
                     th Group
                     th Student
                     th Email address
-                    th
                 tbody
 
                 each group in category.groups
@@ -34,8 +33,6 @@ html(lang='en')
                             td #{group.name}
                             td #{user.sortableName}
                             td #{user.email}
-                            td
-                              img(class='avatar' style='max-height:50px;' src=user.avatarUrl)
 
             div(class='button-bar')
                 button(type='button' class='btn btn-primary btn-sm' onclick='downloadCsv(' + category.id + ');') Download CSV for Excel
