@@ -126,7 +126,7 @@ exports.compileCategoryGroupsData = async (categoryId, session) => new Promise(a
         name: group.name,
         description: group.description,
         category_id: group.group_category_id,
-        user: usersWithDetails
+        users: usersWithDetails
       });
     }
   })
