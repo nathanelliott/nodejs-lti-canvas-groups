@@ -39,3 +39,8 @@ th {
 .button-bar {
     margin-bottom: 32px;
 }
+
+img.avatar {
+    max-height: 50px;
+    float: right;
+}
