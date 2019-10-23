@@ -124,3 +124,8 @@ app.get('/csv/category/:id', async (request, result, next) => {
 app.post('/launch_lti', lti.handleLaunch);
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+
+process.on('uncaughtException', (err) => {
+  console.error('There was an uncaught error', err);
+  process.exit(1); //mandatory (as per the Node docs)
+});
