@@ -87,24 +87,30 @@ app.get('/csv/category/:id', async (request, result, next) => {
   if (request.session.userId && request.session.canvasCourseId) {
     try {
       const id = request.params.id;
-      const data = await canvasApi.compileCategoryGroupsData(id, request.session);
-  
-      console.log("[JSON Result] " + JSON.stringify(data));
-  
-      result.setHeader("Content-Disposition", "attachment; filename=canvas-groups-category-" + id + ".csv");
-      result.set("Content-Type", "text/csv");
 
-      let csvData = "Group\tStudent\tEmail address\r\n";
-
-      for (const group of data.categories[0].groups) {
-        for (const user of group.users) {
-          csvData = csvData + group.name + "\t" + user.sortableName + "\t" + user.email + "\r\n";
+      if (id > 0) {
+        const data = await canvasApi.compileCategoryGroupsData(id, request.session);
+  
+        console.log("[JSON Result] " + JSON.stringify(data));
+    
+        result.setHeader("Content-Disposition", "attachment; filename=canvas-groups-category-" + id + ".csv");
+        result.set("Content-Type", "text/csv");
+  
+        let csvData = "Group\tStudent\tEmail address\r\n";
+  
+        for (const group of data.categories[0].groups) {
+          for (const user of group.users) {
+            csvData = csvData + group.name + "\t" + user.sortableName + "\t" + user.email + "\r\n";
+          }
         }
+  
+        console.log("Returning: " + csvData);
+  
+        return result.status(200).end(csvData);
       }
-
-      console.log("Returning: " + csvData);
-
-      return result.status(200).end(csvData);
+      else {
+        throw(new Error("Category id missing."));
+      }
     }
     catch (error) {
       next(new Error(error));
