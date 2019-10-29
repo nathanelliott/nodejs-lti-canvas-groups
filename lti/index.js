@@ -84,7 +84,8 @@ exports.handleLaunch = (req, res, next) => {
           req.session.canvasUserId = provider.body.custom_canvas_user_id;
           req.session.canvasCourseId = provider.body.custom_canvas_course_id;
           req.session.canvasEnrollmentState = provider.body.custom_canvas_enrollment_state;
-
+          req.session.rawProviderData = JSON.stringify(provider);
+          
           console.log("Redirecting 301 to /application.");
 
           return res.redirect(301, '/application');
