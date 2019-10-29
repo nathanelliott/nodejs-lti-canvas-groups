@@ -85,9 +85,9 @@ exports.handleLaunch = (req, res, next) => {
           req.session.canvasCourseId = provider.body.custom_canvas_course_id;
           req.session.canvasEnrollmentState = provider.body.custom_canvas_enrollment_state;
 
-          console.log("Redirecting 301 to /groups.");
+          console.log("Redirecting 301 to /application.");
 
-          return res.redirect(301, '/groups');
+          return res.redirect(301, '/application');
         });
       } else {
         console.log("The request is NOT valid.");
