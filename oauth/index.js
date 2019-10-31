@@ -35,12 +35,13 @@ exports.providerRequestToken = async (request) => new Promise(async function(res
             }
         })
         .then((response) => {
-            console.log("Response: " + JSON.stringify(response));
+            console.log("Response: " + JSON.stringify(response.data));
 
             const tokenData = {
                 access_token: response.data.access_token,
                 token_type: response.data.token_type,
                 refresh_token: response.data.refresh_token,
+                expires_in: response.data.expires_in,
                 expires_at_utc: new Date(Date.now() + (response.data.expires_in * 1000))
             };
 
