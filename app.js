@@ -46,11 +46,25 @@ app.get('/', (req, res, next) => {
 });
 
 app.get('/oauth', (request, response, next) => {
-  oauth.providerLogin(response);
+  try {
+    return response.redirect(await oauth.providerLogin());    
+  } 
+  catch (error) {
+    next(error);
+  }
 });
 
-app.get('/oauth/redirect', (request, response, next) => {
-  oauth.providerRequestToken(request, response, '/groups');
+app.get('/oauth/redirect', async (request, response, next) => {
+  try {
+    const tokenData = await oauth.providerRequestToken(request);
+    response.session.token = tokenData;
+    console.log("Written data to session: " + JSON.stringify(response.session.token));
+  }
+  catch (error) {
+    next(error);
+  }
+  console.log("Redirecting to /groups");
+  response.redirect('/groups');
 });
 
 app.get('/application', (req, res, next) => {

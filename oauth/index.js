@@ -8,12 +8,17 @@ const clientRedirectUri = "https://cth-lti-canvas-groups-development.azurewebsit
 const providerBaseUri = "https://chalmers.test.instructure.com";
 const providerLoginUri = providerBaseUri + "/login/oauth2/auth?client_id=" + clientId + "&response_type=code&state=RANDOM123&redirect_uri=" + clientRedirectUri;
 
-exports.providerLogin = (response) => {
-    console.log("Redirecting to OAuth URI: " + providerLoginUri);
-    return response.redirect(providerLoginUri);
-};
+exports.providerLogin = async () => new Promise(async function(resolve, reject) {
+    if (providerLoginUri) {
+        console.log("Redirecting to OAuth URI: " + providerLoginUri);
+        resolve(providerLoginUri);
+    }
+    else {
+        reject(new Error("No configured URI for OAuth provider login."));
+    }
+});
 
-exports.providerRequestToken = (request, response, onsuccess) => {
+exports.providerRequestToken = async (request) => new Promise(async function(resolve, reject) {
     const requestToken = request.query.code;
     console.log("Request token: " + requestToken);
 
@@ -39,17 +44,17 @@ exports.providerRequestToken = (request, response, onsuccess) => {
                 expires_at_utc: new Date(Date.now() + (response.data.expires_in * 1000))
             };
 
-            request.session.token = tokenData;
-            console.log("Got token: " + JSON.stringify(request.session.token.access_token));
+            console.log("Got token data: " + JSON.stringify(tokenData));
+            resolve(tokenData);
         })
         .catch((error) => {
-            throw(new Error("Error during POST: " + error));
+            reject(new Error("Error during POST: " + error));
         });
-
-        console.log("Redirecting to " + onsuccess);
-        response.redirect(onsuccess);
     }
-};
+    else {
+        reject(new Error("LTI session is not valid."));
+    }
+});
 
 exports.providerRefreshToken = (request) => {
     if (request.session.userId && request.session.canvasCourseId) {
