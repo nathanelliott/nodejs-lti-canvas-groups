@@ -13,7 +13,7 @@ exports.providerLogin = (response) => {
     return response.redirect(providerLoginUri);
 };
 
-exports.providerRequestToken = (request, onsuccess) => {
+exports.providerRequestToken = (request, response, onsuccess) => {
     const requestToken = request.query.code;
     console.log("Request token: " + requestToken);
 
@@ -30,22 +30,24 @@ exports.providerRequestToken = (request, onsuccess) => {
             }
         })
         .then((response) => {
+            console.log("Response: " + JSON.stringify(response));
+
             const tokenData = {
                 access_token: response.data.access_token,
-                token_type: response.token_type,
-                refresh_token: response.refresh_token,
-                expires_at_utc: new Date(Date.now() + (response.expires_in * 1000))
+                token_type: response.data.token_type,
+                refresh_token: response.data.refresh_token,
+                expires_at_utc: new Date(Date.now() + (response.data.expires_in * 1000))
             };
 
             request.session.token = tokenData;
 
-            console.log("Got token data: " + JSON.stringify(request.session.token));
-            console.log("Redirecting to " + onsuccess);
+            console.log("Got token: " + JSON.stringify(request.session.token.access_token));
 
+            console.log("Redirecting to " + onsuccess);
             response.redirect(onsuccess);
         })
         .catch((error) => {
-            console.log("Error during token POST: " + error);
+            throw(new Error("Error during POST: " + error));
         });
     }
 };

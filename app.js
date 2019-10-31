@@ -50,7 +50,7 @@ app.get('/oauth', (request, response, next) => {
 });
 
 app.get('/oauth/redirect', (request, response, next) => {
-  oauth.providerRequestToken(request, '/groups');
+  oauth.providerRequestToken(request, response, '/groups');
 });
 
 app.get('/application', (req, res, next) => {
