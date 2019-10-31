@@ -3,6 +3,7 @@
 const lti = require('ims-lti');
 const NodeCache = require('node-cache');
 const nodeCacheNonceStore = require('../node-cache-nonce');
+const oauth = require('../oauth');
 
 const myCache = new NodeCache();
 const nonceStore = new nodeCacheNonceStore(myCache);
@@ -63,36 +64,54 @@ exports.handleLaunch = (req, res, next) => {
         return next(err);
       }
       if (isValid) {
-        req.session.regenerate(err => {
-          if (err) next(err);
-          req.session.contextId = provider.context_id;
-          req.session.contextTitle = provider.context_title;
-          req.session.userId = provider.userId;
-          req.session.username = provider.username;
-          req.session.fullname = provider.body.lis_person_name_full;
-          req.session.email = provider.body.lis_person_contact_email_primary;
-          req.session.ltiConsumer = provider.body.tool_consumer_instance_guid;
-          req.session.isInstructor = provider.instructor === true;
-          req.session.isAdmin = provider.admin === true;
-          req.session.isAlumni = provider.alumni === true;
-          req.session.isContentDeveloper = provider.content_developer === true;
-          req.session.isGuest = provider.guest === true;
-          req.session.isManager = provider.manager === true;
-          req.session.isMentor = provider.mentor === true;
-          req.session.isObserver = provider.observer === true;
-          req.session.isStudent = provider.student === true;
-          req.session.canvasUserId = provider.body.custom_canvas_user_id;
-          req.session.canvasCourseId = provider.body.custom_canvas_course_id;
-          req.session.canvasEnrollmentState = provider.body.custom_canvas_enrollment_state;
-          req.session.rawProviderData = JSON.stringify(provider);
+        if (req.session.contextId && req.session.contextId == provider.context_id) {
+          console.log("LTI Session is OK.");
 
-          console.log("Redirecting 301 to /oauth");
-
-          return res.redirect(301, '/oauth');
-        });
-      } else {
+          if (req.session.token.expires_at_utc && Date(req.session.token.expires_at_utc) > Date()) {
+            console.log("OAuth Token for API is OK.");
+            res.redirect('/groups');
+          }
+          else if (req.session.token.expires_at_utc && Date(req.session.token.expires_at_utc) < Date()) {
+            console.log("OAuth Token for API has expired, refreshing.");
+            oauth.providerRefreshToken(req);
+            res.redirect('/groups');
+          }
+          else {
+            console.log("No OAuth Token for API, forcing OAuth flow.");
+            res.redirect('/oauth');
+          }
+        }
+        else {
+          req.session.regenerate(err => {
+            if (err) next(err);
+            req.session.contextId = provider.context_id;
+            req.session.contextTitle = provider.context_title;
+            req.session.userId = provider.userId;
+            req.session.username = provider.username;
+            req.session.fullname = provider.body.lis_person_name_full;
+            req.session.email = provider.body.lis_person_contact_email_primary;
+            req.session.ltiConsumer = provider.body.tool_consumer_instance_guid;
+            req.session.isInstructor = provider.instructor === true;
+            req.session.isAdmin = provider.admin === true;
+            req.session.isAlumni = provider.alumni === true;
+            req.session.isContentDeveloper = provider.content_developer === true;
+            req.session.isGuest = provider.guest === true;
+            req.session.isManager = provider.manager === true;
+            req.session.isMentor = provider.mentor === true;
+            req.session.isObserver = provider.observer === true;
+            req.session.isStudent = provider.student === true;
+            req.session.canvasUserId = provider.body.custom_canvas_user_id;
+            req.session.canvasCourseId = provider.body.custom_canvas_course_id;
+            req.session.canvasEnrollmentState = provider.body.custom_canvas_enrollment_state;
+            req.session.rawProviderData = JSON.stringify(provider);
+  
+            console.log("Session regenerated/set, redirecting to /oauth");
+            return res.redirect('/oauth');
+          });
+        }
+      }
+      else {
         console.log("The request is NOT valid.");
-
         return next(err);
       }
     });

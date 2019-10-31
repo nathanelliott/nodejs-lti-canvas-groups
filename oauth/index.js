@@ -71,7 +71,10 @@ exports.providerRefreshToken = (request) => {
         })
         .then((response) => {
             request.session.token.access_token = response.data.access_token;
-            response.redirect('/groups');
+            request.session.token.expires_in = response.data.expires_in;
+            request.session.token.expires_at_utc = new Date(Date.now() + (response.data.expires_in * 1000));
+
+            console.log("Refreshed token: " + JSON.stringify(request.session.token));
         })
         .catch((error) => {
             console.log("Error during token Refresh POST: " + error);
