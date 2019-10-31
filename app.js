@@ -47,8 +47,8 @@ app.get('/', (req, res, next) => {
 
 app.get('/oauth', (request, response, next) => {
   try {
-    return response.redirect(await oauth.providerLogin());    
-  } 
+    return response.redirect(oauth.providerLogin());    
+  }
   catch (error) {
     next(error);
   }
