@@ -57,8 +57,8 @@ app.get('/oauth', (request, response, next) => {
 app.get('/oauth/redirect', async (request, response, next) => {
   try {
     const tokenData = await oauth.providerRequestToken(request);
-    response.session.token = tokenData;
-    console.log("Written data to session: " + JSON.stringify(response.session.token));
+    request.session.token = tokenData;
+    console.log("Written data to session: " + JSON.stringify(request.session.token));
   }
   catch (error) {
     console.log("Catch error: " + error);
