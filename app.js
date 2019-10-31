@@ -61,6 +61,7 @@ app.get('/oauth/redirect', async (request, response, next) => {
     console.log("Written data to session: " + JSON.stringify(response.session.token));
   }
   catch (error) {
+    console.log("Catch error: " + error);
     next(error);
   }
   console.log("Redirecting to /groups");
