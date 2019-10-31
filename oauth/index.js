@@ -2,9 +2,11 @@
 
 const axios = require('axios');
 
-const clientId = "125230000000000041";
-const clientSecret = "usMzShPAlpiC0Vihs53254lRHIBfqdAkPWMoTQJ01gauoSZ6V16AzyqAYHRjLPRT";
-const providerLoginUri = "https://chalmers.instructure.com/login/oauth2/auth?client_id=125230000000000041&response_type=code&state=RANDOM123&redirect_uri=https://cth-lti-canvas-groups-development.azurewebsites.net/oauth/redirect";
+const clientId = "125230000000000040";
+const clientSecret = "UyNraHQO8sTho8lMddO03Fl1QCKjObwgy500ligLnZXiFTa6FjAlLqksEOpB3uz9";
+const clientRedirectUri = "https://cth-lti-canvas-groups-development.azurewebsites.net/oauth/redirect";
+const providerBaseUri = "https://chalmers.test.instructure.com";
+const providerLoginUri = providerBaseUri + "/login/oauth2/auth?client_id=" + clientId + "&response_type=code&state=RANDOM123&redirect_uri=" + clientRedirectUri;
 
 exports.providerLogin = (response) => {
     console.log("Redirecting to OAuth URI: " + providerLoginUri);
@@ -19,7 +21,7 @@ exports.providerRequestToken = (request, onsuccess) => {
         console.log("POST to get OAuth Token.");
         axios({
             method: 'post',
-            url: 'https://chalmers.instructure.com/login/oauth2/token',
+            url: providerBaseUri + "/login/oauth2/token",
             data: {
                 grant_type: "authorization_code",
                 client_id: clientId,
@@ -52,7 +54,7 @@ exports.providerRefreshToken = (request) => {
     if (request.session.userId && request.session.canvasCourseId) {
         axios({
             method: 'post',
-            url: 'https://chalmers.instructure.com/login/oauth2/token',
+            url: providerBaseUri + "/login/oauth2/token",
             data: {
                 grant_type: "refresh_token",
                 client_id: clientId,
