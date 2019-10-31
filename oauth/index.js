@@ -8,15 +8,15 @@ const clientRedirectUri = "https://cth-lti-canvas-groups-development.azurewebsit
 const providerBaseUri = "https://chalmers.test.instructure.com";
 const providerLoginUri = providerBaseUri + "/login/oauth2/auth?client_id=" + clientId + "&response_type=code&state=RANDOM123&redirect_uri=" + clientRedirectUri;
 
-exports.providerLogin = async () => new Promise(async function(resolve, reject) {
+exports.providerLogin = () => {
     if (providerLoginUri) {
         console.log("Redirecting to OAuth URI: " + providerLoginUri);
-        resolve(providerLoginUri);
+        return providerLoginUri;
     }
     else {
-        reject(new Error("No configured URI for OAuth provider login."));
+        throw(new Error("No configured URI for OAuth provider login."));
     }
-});
+};
 
 exports.providerRequestToken = async (request) => new Promise(async function(resolve, reject) {
     const requestToken = request.query.code;
