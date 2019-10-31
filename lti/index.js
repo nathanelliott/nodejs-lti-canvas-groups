@@ -77,6 +77,10 @@ exports.handleLaunch = (req, res, next) => {
             res.redirect('/groups');
           }
           else {
+            console.log("expires_at_utc, raw: " + req.session.token.expires_at_utc);
+            console.log("expires_at_utc, Date: " + Date(req.session.token.expires_at_utc));
+            console.log("Just Date: " + Date());
+            
             console.log("No OAuth Token for API, forcing OAuth flow.");
             res.redirect('/oauth');
           }
