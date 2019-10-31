@@ -40,15 +40,14 @@ exports.providerRequestToken = (request, response, onsuccess) => {
             };
 
             request.session.token = tokenData;
-
             console.log("Got token: " + JSON.stringify(request.session.token.access_token));
-
-            console.log("Redirecting to " + onsuccess);
-            response.redirect(onsuccess);
         })
         .catch((error) => {
             throw(new Error("Error during POST: " + error));
         });
+
+        console.log("Redirecting to " + onsuccess);
+        response.redirect(onsuccess);
     }
 };
 
