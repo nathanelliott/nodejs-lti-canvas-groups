@@ -85,10 +85,10 @@ exports.handleLaunch = (req, res, next) => {
           req.session.canvasCourseId = provider.body.custom_canvas_course_id;
           req.session.canvasEnrollmentState = provider.body.custom_canvas_enrollment_state;
           req.session.rawProviderData = JSON.stringify(provider);
-          
-          console.log("Redirecting 301 to /application.");
 
-          return res.redirect(301, '/application');
+          console.log("Redirecting 301 to /oauth");
+
+          return res.redirect(301, '/oauth');
         });
       } else {
         console.log("The request is NOT valid.");

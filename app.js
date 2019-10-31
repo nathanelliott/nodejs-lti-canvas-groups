@@ -8,6 +8,7 @@ const FileStore = require('session-file-store')(session);
 const helmet = require('helmet');
 const lti = require('./lti');
 const canvasApi = require('./canvas');
+const oauth = require('./oauth');
 
 const port = process.env.PORT || 3000;
 const fileStoreOptions = {};
@@ -22,7 +23,7 @@ app.use(helmet({
 
 app.disable('X-Powered-By');
 
-// set view engine
+// set view engine∏
 app.set('view engine', 'pug');
 
 // memory store shouldn't be used in production
@@ -42,6 +43,14 @@ app.enable('trust proxy');
 
 app.get('/', (req, res, next) => {
   return res.send({status: 'Up'});
+});
+
+app.get('/oauth', (request, response, next) => {
+  oauth.providerLogin(response);
+});
+
+app.get('/oauth/redirect', (request, response, next) => {
+  oauth.providerRequestToken(request, '/groups');
 });
 
 app.get('/application', (req, res, next) => {

@@ -99,14 +99,14 @@ exports.compileCategoryGroupsData = async (categoryId, session) => new Promise(a
   console.log("[API] GetCategoryGroups()");
 
   // Get data about each group in this category.
-  await exports.getCategoryGroups(categoryId).then(async function (groupsData) {
+  await exports.getCategoryGroups(categoryId, session.token).then(async function (groupsData) {
     for (const group of groupsData) {
       var usersWithDetails = new Array();
 
       console.log("[API] GetGroupUsers()");
 
       // Get data about each user in the group.
-      await exports.getGroupUsers(group.id).then(async function (usersData) {
+      await exports.getGroupUsers(group.id, session.token).then(async function (usersData) {
         for (const user of usersData) {
           usersWithDetails.push({
             userId: user.id,
@@ -166,21 +166,21 @@ exports.compileGroupsData = async (canvasCourseId, session) => new Promise(async
 
   console.log("[API] GetGroupCategories()");
 
-  await exports.getGroupCategories(canvasCourseId).then(async function (categoriesData) {
+  await exports.getGroupCategories(canvasCourseId, session.token).then(async function (categoriesData) {
     for (const category of categoriesData) {
       var groupsWithUsers = new Array();
 
       console.log("[API] GetCategoryGroups()");
 
       // Get data about each group in this category.
-      await exports.getCategoryGroups(category.id).then(async function (groupsData) {
+      await exports.getCategoryGroups(category.id, session.token).then(async function (groupsData) {
         for (const group of groupsData) {
           var usersWithDetails = new Array();
   
           console.log("[API] GetGroupUsers()");
   
           // Get data about each user in the group.
-          await exports.getGroupUsers(group.id).then(async function (usersData) {
+          await exports.getGroupUsers(group.id, session.token).then(async function (usersData) {
             for (const user of usersData) {
               usersWithDetails.push({
                 userId: user.id,
@@ -245,7 +245,7 @@ exports.compileGroupsData = async (canvasCourseId, session) => new Promise(async
 });
 
 // Get groups for a specified course.
-exports.getCourseGroups = async (courseId) => new Promise(async function(resolve, reject) {
+exports.getCourseGroups = async (courseId, token) => new Promise(async function(resolve, reject) {
   try {
     const cachedData = courseGroupsCache.get(courseId);
 
@@ -266,7 +266,7 @@ exports.getCourseGroups = async (courseId) => new Promise(async function(resolve
         const response = await axios.get(thisApiPath, {
           headers: {
             "User-Agent": "Chalmers/Azure/Request",
-            "Authorization": "Bearer " + apiBearerToken
+            "Authorization": token.token_type + " " + token.access_token
           }
         });
 
@@ -316,7 +316,7 @@ exports.getCourseGroups = async (courseId) => new Promise(async function(resolve
 });
 
 // Get group categories for a specified course.
-exports.getGroupCategories = async (courseId) => new Promise(async function(resolve, reject) {
+exports.getGroupCategories = async (courseId, token) => new Promise(async function(resolve, reject) {
   try {
     const cachedData = groupCategoriesCache.get(courseId);
 
@@ -337,7 +337,7 @@ exports.getGroupCategories = async (courseId) => new Promise(async function(reso
         const response = await axios.get(thisApiPath, {
           headers: {
             "User-Agent": "Chalmers/Azure/Request",
-            "Authorization": "Bearer " + apiBearerToken
+            "Authorization": token.token_type + " " + token.access_token
           }
         });
 
@@ -387,7 +387,7 @@ exports.getGroupCategories = async (courseId) => new Promise(async function(reso
 });
 
 // Get groups for a specified category.
-exports.getCategoryGroups = async (categoryId) => new Promise(async function(resolve, reject) {
+exports.getCategoryGroups = async (categoryId, token) => new Promise(async function(resolve, reject) {
   try {
     const cachedData = categoryGroupsCache.get(categoryId);
 
@@ -409,7 +409,7 @@ exports.getCategoryGroups = async (categoryId) => new Promise(async function(res
           json: true,
           headers: {
             "User-Agent": "Chalmers/Azure/Request",
-            "Authorization": "Bearer " + apiBearerToken
+            "Authorization": token.token_type + " " + token.access_token
           }
         });
 
@@ -459,7 +459,7 @@ exports.getCategoryGroups = async (categoryId) => new Promise(async function(res
 });
 
 // Get users (not members) for a specified group.
-exports.getGroupUsers = async (groupId) => new Promise(async function(resolve, reject) {
+exports.getGroupUsers = async (groupId, token) => new Promise(async function(resolve, reject) {
   try {
     const cachedData = groupUsersCache.get(groupId);
 
@@ -481,7 +481,7 @@ exports.getGroupUsers = async (groupId) => new Promise(async function(resolve, r
           json: true,
           headers: {
             "User-Agent": "Chalmers/Azure/Request",
-            "Authorization": "Bearer " + apiBearerToken
+            "Authorization": token.token_type + " " + token.access_token
           }
         });
 
@@ -531,7 +531,7 @@ exports.getGroupUsers = async (groupId) => new Promise(async function(resolve, r
 });
 
 // Get memberships data for a specified group.
-exports.getGroupMembers = async (groupId) => new Promise(async function(resolve, reject) {
+exports.getGroupMembers = async (groupId, token) => new Promise(async function(resolve, reject) {
   try {
     const cachedData = memberCache.get(groupId);
 
@@ -553,7 +553,7 @@ exports.getGroupMembers = async (groupId) => new Promise(async function(resolve,
           json: true,
           headers: {
             "User-Agent": "Chalmers/Azure/Request",
-            "Authorization": "Bearer " + apiBearerToken
+            "Authorization": token.token_type + " " + token.access_token
           }
         });
 
@@ -603,7 +603,7 @@ exports.getGroupMembers = async (groupId) => new Promise(async function(resolve,
 });
 
 // Get details about one specified user.
-exports.getUser = async (userId) => new Promise(async function(resolve, reject) {
+exports.getUser = async (userId, token) => new Promise(async function(resolve, reject) {
   try {
     const cachedData = userCache.get(userId);
     console.log("[Cache] Using found NodeCache entry for userId " + userId + ".");
@@ -621,7 +621,7 @@ exports.getUser = async (userId) => new Promise(async function(resolve, reject) 
           json: true,
           headers: {
             "User-Agent": "Chalmers/Azure/Request",
-            "Authorization": "Bearer " + apiBearerToken
+            "Authorization": token.token_type + " " + token.access_token
           }
         });
 
