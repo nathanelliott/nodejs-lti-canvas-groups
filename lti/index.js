@@ -69,20 +69,23 @@ exports.handleLaunch = (req, res, next) => {
 
           const now = new Date();
 
-          if (req.session.token.expires_at_utc && req.session.token.expires_at_utc > now) {
+          console.log("token.expires_at_utc: " + req.session.token.expires_at_utc);
+          console.log("now: " + now);
+
+          if (typeof req.session.token.expires_at_utc !== 'undefined' && req.session.token.expires_at_utc > now) {
             console.log("OAuth Token for API is OK.");
             res.redirect('/groups');
           }
-          else if (req.session.token.expires_at_utc && req.session.token.expires_at_utc < now) {
+          else if (typeof req.session.token.expires_at_utc !== 'undefined' && req.session.token.expires_at_utc < now) {
             console.log("OAuth Token for API has expired, refreshing.");
             oauth.providerRefreshToken(req);
             res.redirect('/groups');
           }
+          else if (req.session.token.expires_at_utc == now) {
+            console.log("The two dates are EXACTLY the same, believe it or not.");
+            res.redirect('/groups');
+          }
           else {
-            console.log("expires_at_utc, raw: " + req.session.token.expires_at_utc);
-            console.log("expires_at_utc, Date: " + Date(req.session.token.expires_at_utc));
-            console.log("Just Date: " + Date());
-            
             console.log("No OAuth Token for API, forcing OAuth flow.");
             res.redirect('/oauth');
           }
@@ -111,7 +114,7 @@ exports.handleLaunch = (req, res, next) => {
             req.session.canvasEnrollmentState = provider.body.custom_canvas_enrollment_state;
             req.session.rawProviderData = JSON.stringify(provider);
   
-            console.log("Session regenerated/set, redirecting to /oauth");
+            console.log("LTI Session data regenerated/set, redirecting to /oauth");
             return res.redirect('/oauth');
           });
         }
