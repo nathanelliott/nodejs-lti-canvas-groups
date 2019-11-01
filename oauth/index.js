@@ -74,7 +74,7 @@ exports.providerRefreshToken = (request) => {
             request.session.token.expires_in = response.data.expires_in;
             request.session.token.expires_at_utc = new Date(Date.now() + (response.data.expires_in * 1000));
 
-            console.log("Refreshed token: " + JSON.stringify(request.session.token));
+            console.log("Refreshed token: " + JSON.stringify(request.session.token) + ", expires: " + request.session.token.expires_at_utc);
         })
         .catch((error) => {
             console.log("Error during token Refresh POST: " + error);

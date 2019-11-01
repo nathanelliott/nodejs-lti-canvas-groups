@@ -67,11 +67,13 @@ exports.handleLaunch = (req, res, next) => {
         if (req.session.contextId && req.session.contextId == provider.context_id) {
           console.log("LTI Session is OK.");
 
-          if (req.session.token.expires_at_utc && Date(req.session.token.expires_at_utc) > Date()) {
+          const now = new Date();
+
+          if (req.session.token.expires_at_utc && req.session.token.expires_at_utc > now) {
             console.log("OAuth Token for API is OK.");
             res.redirect('/groups');
           }
-          else if (req.session.token.expires_at_utc && Date(req.session.token.expires_at_utc) < Date()) {
+          else if (req.session.token.expires_at_utc && req.session.token.expires_at_utc < now) {
             console.log("OAuth Token for API has expired, refreshing.");
             oauth.providerRefreshToken(req);
             res.redirect('/groups');
