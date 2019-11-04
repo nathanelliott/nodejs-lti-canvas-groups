@@ -32,7 +32,8 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'c8Vbe1',
   name: 'ltiSession',
   resave: false,
-  saveUninitialized: true
+  saveUninitialized: true,
+  ttl: 43200 // 12h
 }));
 
 // parse application/x-www-form-urlencoded
