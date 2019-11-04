@@ -68,9 +68,12 @@ exports.handleLaunch = (req, res, next) => {
           console.log("LTI Session is OK.");
 
           const now = new Date();
+          const expiry = Date.parse(req.session.token.expires_at_utc);
 
-          console.log("token.expires_at_utc: " + req.session.token.expires_at_utc);
-          console.log("now: " + now);
+          console.log("token.expires_at_utc (raw): " + req.session.token.expires_at_utc + "\n");
+          console.log("token.expires_at_utc (Date.parse(expires_at_utc)): " + expiry + "\n");
+          console.log("token.expires_at_utc (Date(Date.parse(expires_at_utc))): " + new Date(expiry) + "\n");
+          console.log("now: " + now + "\n");
 
           if (typeof req.session.token.expires_at_utc !== 'undefined' && req.session.token.expires_at_utc > now) {
             console.log("OAuth Token for API is OK.");
