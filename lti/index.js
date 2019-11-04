@@ -64,27 +64,26 @@ exports.handleLaunch = (req, res, next) => {
         return next(err);
       }
       if (isValid) {
-        if (req.session.contextId && req.session.contextId == provider.context_id) {
+        if (req.session.contextId && req.session.contextId == provider.context_id && typeof req.session.token.expires_at_utc !== 'undefined') {
           console.log("LTI Session is OK.");
 
           const now = new Date();
-          const expiry = Date.parse(req.session.token.expires_at_utc);
+          const expiry = new Date(Date.parse(req.session.token.expires_at_utc));
 
-          console.log("token.expires_at_utc (raw): " + req.session.token.expires_at_utc + "\n");
-          console.log("token.expires_at_utc (Date.parse(expires_at_utc)): " + expiry + "\n");
-          console.log("token.expires_at_utc (Date(Date.parse(expires_at_utc))): " + new Date(expiry) + "\n");
-          console.log("now: " + now + "\n");
+          console.log("now: " + now + "\r\n");
+          console.log("token.expires_at_utc (raw): " + req.session.token.expires_at_utc + "\r\n");
+          console.log("token.expires_at_utc (Date.parse(expires_at_utc)): " + expiry + "\r\n");
 
-          if (typeof req.session.token.expires_at_utc !== 'undefined' && req.session.token.expires_at_utc > now) {
+          if (expiry > now) {
             console.log("OAuth Token for API is OK.");
             res.redirect('/groups');
           }
-          else if (typeof req.session.token.expires_at_utc !== 'undefined' && req.session.token.expires_at_utc < now) {
+          else if (expiry < now) {
             console.log("OAuth Token for API has expired, refreshing.");
             oauth.providerRefreshToken(req);
             res.redirect('/groups');
           }
-          else if (req.session.token.expires_at_utc == now) {
+          else if (expiry == now) {
             console.log("The two dates are EXACTLY the same, believe it or not.");
             res.redirect('/groups');
           }
