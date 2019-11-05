@@ -48,10 +48,12 @@ exports.getClientData = (userId, env) => new Promise(async function(resolve, rej
         }
     });
 
+    console.log("Query db for tokens for user_id '" + userId + "', env '" + env + "'");
+
+    var tokenData = {};
+
     db.get("SELECT DISTINCT user_id, user_env, api_token, refresh_token, expires_at_utc FROM tokens WHERE user_id = ? AND user_env = ?", [userId, env],
     function(error, row) {
-        var tokenData = {};
-
         if (error) {
             console.error(error);
             db.close();
