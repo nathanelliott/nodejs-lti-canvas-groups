@@ -6,9 +6,9 @@ const express = require('express');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const helmet = require('helmet');
-const canvasApi = require('./canvas');
-const lti = require('./lti');
 const oauth = require('./oauth');
+const canvas = require('./canvas');
+const lti = require('./lti');
 const db = require('./db');
 
 const port = process.env.PORT || 3000;
@@ -52,7 +52,7 @@ app.get('/', (req, res, next) => {
 
 app.get('/oauth', (request, response, next) => {
   try {
-    return response.redirect(oauth.providerLogin());    
+    return response.redirect(oauth.providerLogin);    
   }
   catch (error) {
     next(error);
@@ -97,7 +97,7 @@ app.get('/application', (req, res, next) => {
 app.get('/groups', async (request, result, next) => { 
   if (request.session.userId && request.session.canvasCourseId) {
     try {
-      const data = await canvasApi.compileGroupsData(request.session.canvasCourseId, request.session);
+      const data = await canvas.compileGroupsData(request.session.canvasCourseId, request.session);
       data.statistics.name = pkg.name;
       data.statistics.version = pkg.version;
       
@@ -120,7 +120,7 @@ app.get('/csv/category/:id', async (request, result, next) => {
       const id = request.params.id;
 
       if (id > 0) {
-        const data = await canvasApi.compileCategoryGroupsData(id, request.session);
+        const data = await canvas.compileCategoryGroupsData(id, request.session);
   
         console.log("[JSON Result] " + JSON.stringify(data));
     
