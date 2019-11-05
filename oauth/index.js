@@ -4,7 +4,7 @@ const axios = require('axios');
 const canvas = require('../canvas');
 const db = require('../db');
 
-const clientRedirectUri = "https://" + process.env.HTTP_HOST + "/oauth/redirect";
+const clientRedirectUri = "https://" + process.env.WEBSITE_HOSTNAME + "/oauth/redirect";
 const clientId = process.env.oauthClientId ? process.env.oauthClientId : "125230000000000040";
 const clientSecret = process.env.oauthClientSecret ? process.env.oauthClientSecret : "UyNraHQO8sTho8lMddO03Fl1QCKjObwgy500ligLnZXiFTa6FjAlLqksEOpB3uz9";
 const clientState = process.env.oauthClientState ? process.env.oauthClientState : (process.env.COMPUTERNAME ? process.env.COMPUTERNAME : "C2D7938F027A5FD7A7076CA7");
