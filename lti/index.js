@@ -119,15 +119,15 @@ exports.handleLaunch = (req, res, next) => {
             req.session.canvasEnrollmentState = provider.body.custom_canvas_enrollment_state;
           });
 
-          let tokenData = db.getClientData(provider.userId, canvas.providerEnvironment);
-          
-          if (tokenData) {
-            req.session.token = tokenData;
-          }
-          else {
+          db.getClientData(provider.userId, canvas.providerEnvironment)
+          .then((value) => {
+            req.session.token = value;
+          })
+          .catch((error) => {
+            console.error(error);
             console.log("No token data in db for user_id '" + provider.userId + "', forcing OAuth flow.");
             res.redirect('/oauth');
-          }
+          });
 
           const now = new Date();
           const expiry = new Date(Date.parse(req.session.token.expires_at_utc));
