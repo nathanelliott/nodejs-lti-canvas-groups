@@ -65,6 +65,10 @@ exports.getClientData = (userId, env) => new Promise(async function(resolve, rej
             };
             console.log("Read data from DB: " + JSON.stringify(tokenData));
         }
+        else {
+            console.log("No data in db for userId " + user_id);
+            reject(new Error("No data."));
+        }
     });
 
     db.close();
