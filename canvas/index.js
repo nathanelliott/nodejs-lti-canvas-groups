@@ -10,7 +10,7 @@ const oauth = require('../oauth');
 /* This token should be put in Azure Application Settings Key "canvasApiAccessToken".         */
 /* The Uri to the Canvas API for your installation goes into Key "canvasApiPath".             */
 
-const providerBaseUri = process.env.canvasBaseUri ? process.env.canvasBaseUri : "https://chalmers.test.instructure.com";
+const providerBaseUri = process.env.canvasBaseUri !== 'undefined' ? process.env.canvasBaseUri : "https://chalmers.test.instructure.com";
 const apiPath = providerBaseUri + "/api/v1";
 const isTest = providerBaseUri.indexOf("test.in") > 0 ? true : false;
 const isBeta = providerBaseUri.indexOf("beta.in") > 0 ? true : false
