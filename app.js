@@ -9,9 +9,13 @@ const helmet = require('helmet');
 const lti = require('./lti');
 const canvasApi = require('./canvas');
 const oauth = require('./oauth');
+const db = require('./db');
 
 const port = process.env.PORT || 3000;
 const fileStoreOptions = {};
+
+// Setup database
+db.setupDatabase().then(console.log("Database initialized.")).catch(function(error) { console.error("Setting up database: " + error)});
 
 // this express server should be secured/hardened for production use
 const app = express();

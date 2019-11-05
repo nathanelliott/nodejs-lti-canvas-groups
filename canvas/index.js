@@ -3,14 +3,19 @@
 const LinkHeader = require('http-link-header');
 const NodeCache = require('node-cache');
 const axios = require('axios');
+const oauth = require('../oauth');
 
 /* This module handles communication between LTI Application and Canvas, using Canvas API V1. */
 /* It requires an API Token, which can be generated from inside Canvas settings.              */
 /* This token should be put in Azure Application Settings Key "canvasApiAccessToken".         */
 /* The Uri to the Canvas API for your installation goes into Key "canvasApiPath".             */
 
-const apiPath = process.env.canvasApiPath;
-const apiBearerToken = process.env.canvasApiAccessToken;
+const providerBaseUri = process.env.canvasBaseUri ? process.env.canvasBaseUri : "https://chalmers.test.instructure.com";
+const apiPath = providerBaseUri + "/api/v1";
+const isTest = providerBaseUri.indexOf("test.in") > 0 ? true : false;
+const isBeta = providerBaseUri.indexOf("beta.in") > 0 ? true : false
+const isProduction = isTest == false && isBeta == false ? true : false;
+const providerEnvironment = isTest ? "test" : (isbeta ? "beta" : "production");
 
 const CACHE_TTL = (parseInt(process.env.canvasApiCacheSecondsTTL) > 0 ? parseInt(process.env.canvasApiCacheSecondsTTL) : 180);
 const CACHE_CHECK_EXPIRE = 200;
@@ -270,21 +275,33 @@ exports.getCourseGroups = async (courseId, token) => new Promise(async function(
           }
         });
 
-        const data = response.data;
-        apiData.push(data);
-
-        if (response.headers["link"]) {
-          var link = LinkHeader.parse(response.headers["link"]);
-
-          if (link.has("rel", "next")) {
-            thisApiPath = link.get("rel", "next")[0].uri;
+        if (response.status == 401) {
+          if (response.headers['www-authenticate']) {
+            // refresh token and try again
+            oauth.providerRefreshToken()
           }
           else {
-            thisApiPath = false;
+            // for some reason our token does not work
+            console.error("Supplied token '" + token.access_token + "' does not satisfy API.");
           }
         }
         else {
-          thisApiPath = false;
+          const data = response.data;
+          apiData.push(data);
+  
+          if (response.headers["link"]) {
+            var link = LinkHeader.parse(response.headers["link"]);
+  
+            if (link.has("rel", "next")) {
+              thisApiPath = link.get("rel", "next")[0].uri;
+            }
+            else {
+              thisApiPath = false;
+            }
+          }
+          else {
+            thisApiPath = false;
+          }  
         }
       }
       catch (error) {
@@ -330,7 +347,7 @@ exports.getGroupCategories = async (courseId, token) => new Promise(async functi
     var apiData = new Array();
     var returnedApiData = new Array();
 
-    while (thisApiPath) {
+    while (thisApiPath && token.access_token) {
       console.log("[API] GET " + thisApiPath);
 
       try {

@@ -1,12 +1,15 @@
 'use strict';
 
 const axios = require('axios');
+const canvas = require('../canvas');
+const db = require('../db');
 
-const clientId = "125230000000000040";
-const clientSecret = "UyNraHQO8sTho8lMddO03Fl1QCKjObwgy500ligLnZXiFTa6FjAlLqksEOpB3uz9";
-const clientRedirectUri = "https://cth-lti-canvas-groups-development.azurewebsites.net/oauth/redirect";
-const providerBaseUri = "https://chalmers.test.instructure.com";
-const providerLoginUri = providerBaseUri + "/login/oauth2/auth?client_id=" + clientId + "&response_type=code&state=RANDOM123&redirect_uri=" + clientRedirectUri;
+const clientRedirectUri = "https://" + process.env.HTTP_HOST + "/oauth/redirect";
+const clientId = process.env.oauthClientId ? process.env.oauthClientId : "125230000000000040";
+const clientSecret = process.env.oauthClientSecret ? process.env.oauthClientSecret : "UyNraHQO8sTho8lMddO03Fl1QCKjObwgy500ligLnZXiFTa6FjAlLqksEOpB3uz9";
+const clientState = process.env.oauthClientState ? process.env.oauthClientState : (process.env.COMPUTERNAME ? process.env.COMPUTERNAME : "C2D7938F027A5FD7A7076CA7");
+const providerBaseUri = canvas.providerBaseUri;
+const providerLoginUri = providerBaseUri + "/login/oauth2/auth?client_id=" + clientId + "&response_type=code&state=" + clientState + "&redirect_uri=" + clientRedirectUri;
 
 exports.providerLogin = () => {
     if (providerLoginUri) {
@@ -34,7 +37,7 @@ exports.providerRequestToken = async (request) => new Promise(async function(res
                 code: requestToken
             }
         })
-        .then((response) => {
+        .then(async (response) => {
             console.log("Response: " + JSON.stringify(response.data));
 
             const tokenData = {
@@ -46,6 +49,9 @@ exports.providerRequestToken = async (request) => new Promise(async function(res
             };
 
             console.log("Got token data: " + JSON.stringify(tokenData));
+
+            await db.setClientData(request.session.userid, canvas.providerEnvironment, tokenData.access_token, tokenData.refresh_token, tokenData.expires_at_utc);
+
             resolve(tokenData);
         })
         .catch((error) => {
@@ -69,10 +75,18 @@ exports.providerRefreshToken = (request) => {
                 refresh_token: request.session.token.refresh_token
             }
         })
-        .then((response) => {
+        .then(async (response) => {
             request.session.token.access_token = response.data.access_token;
             request.session.token.expires_in = response.data.expires_in;
             request.session.token.expires_at_utc = new Date(Date.now() + (response.data.expires_in * 1000));
+
+            await db.setClientData(
+                request.session.userid, 
+                canvas.providerEnvironment, 
+                request.session.token.access_token, 
+                request.session.token.refresh_token, 
+                request.session.token.expires_at_utc
+            );
 
             console.log("Refreshed token: " + JSON.stringify(request.session.token) + ", expires: " + request.session.token.expires_at_utc);
         })
