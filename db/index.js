@@ -11,7 +11,7 @@ exports.setupDatabase = () => new Promise(async function(resolve, reject) {
         }
     });
     db.serialize(function() {
-        db.run('CREATE TABLE IF NOT EXISTS tokens (user_id INTEGER, user_env TEXT NOT NULL, ' + 
+        db.run('CREATE TABLE IF NOT EXISTS tokens (user_id TEXT NOT NULL, user_env TEXT NOT NULL, ' + 
         'api_token TEXT NOT NULL, refresh_token TEXT NOT NULL, expires_at_utc DATETIME NOT NULL, updated_at DATETIME NOT NULL DEFAULT current_timestamp, ' +
         'PRIMARY KEY (user_id, user_env))');
     });
