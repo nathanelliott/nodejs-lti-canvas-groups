@@ -61,7 +61,7 @@ exports.handleLaunch = (req, res, next) => {
 
     const provider = new lti.Provider(consumerKey, consumerSecret, nonceStore, lti.HMAC_SHA1);
     
-    provider.valid_request(req, (err, isValid) => {
+    provider.valid_request(req, async (err, isValid) => {
       if (err) {
         return next(err);
       }
