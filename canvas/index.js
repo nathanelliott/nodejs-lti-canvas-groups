@@ -16,10 +16,18 @@ const isTest = providerBaseUri.indexOf("test.in") > 0 ? true : false;
 const isBeta = providerBaseUri.indexOf("beta.in") > 0 ? true : false
 const isProduction = isTest == false && isBeta == false ? true : false;
 const providerEnvironment = isTest ? "test" : (isbeta ? "beta" : "production");
-
 const CACHE_TTL = (parseInt(process.env.canvasApiCacheSecondsTTL) > 0 ? parseInt(process.env.canvasApiCacheSecondsTTL) : 180);
 const CACHE_CHECK_EXPIRE = 200;
 const API_PER_PAGE = 50;
+
+module.exports = {
+  providerBaseUri: providerBaseUri,
+  apiPath: apiPath,
+  isTest: isTest,
+  isBeta: isBeta,
+  isProduction: isProduction,
+  providerEnvironment: providerEnvironment
+}
 
 /* Cache the results of API calls for a shorter period, to ease the load on API servers */
 /* and make load time bearable for the user.                                            */

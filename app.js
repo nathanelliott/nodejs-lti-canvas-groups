@@ -6,8 +6,8 @@ const express = require('express');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const helmet = require('helmet');
-const lti = require('./lti');
 const canvasApi = require('./canvas');
+const lti = require('./lti');
 const oauth = require('./oauth');
 const db = require('./db');
 
@@ -62,7 +62,9 @@ app.get('/oauth', (request, response, next) => {
 app.get('/oauth/redirect', async (request, response, next) => {
   try {
     const tokenData = await oauth.providerRequestToken(request);
+    await db.updateUserToken(request.session.userId, request.session.token.access_token)
     request.session.token = tokenData;
+
     console.log("Written data to session: " + JSON.stringify(request.session.token));
   }
   catch (error) {
