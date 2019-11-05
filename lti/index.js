@@ -117,11 +117,17 @@ exports.handleLaunch = (req, res, next) => {
             req.session.canvasUserId = provider.body.custom_canvas_user_id;
             req.session.canvasCourseId = provider.body.custom_canvas_course_id;
             req.session.canvasEnrollmentState = provider.body.custom_canvas_enrollment_state;
-            req.session.rawProviderData = JSON.stringify(provider);
-            req.session.token = db.getClientData(provider.userId, canvas.providerEnvironment);
           });
 
-          console.log("LTI Session data regenerated/set, including token data from DB.");
+          let tokenData = db.getClientData(provider.userId, canvas.providerEnvironment);
+          
+          if (tokenData) {
+            req.session.token = tokenData;
+          }
+          else {
+            console.log("No token data in db for user_id '" + provider.userId + "', forcing OAuth flow.");
+            res.redirect('/oauth');
+          }
 
           const now = new Date();
           const expiry = new Date(Date.parse(req.session.token.expires_at_utc));
