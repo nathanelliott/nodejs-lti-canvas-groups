@@ -40,7 +40,7 @@ exports.setClientData = (userId, env, token, refresh, expires) => new Promise(as
      resolve();
 });
 
-exports.getClientData = (userId, env) => new Promise(async function(resolve, reject) {
+exports.getClientData = async (userId, env) => new Promise(async function(resolve, reject) {
     let db = new sqlite3.Database(dbPath, (error) => {
         if (error) {
             console.error(error.message);

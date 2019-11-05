@@ -119,7 +119,7 @@ exports.handleLaunch = (req, res, next) => {
             req.session.canvasEnrollmentState = provider.body.custom_canvas_enrollment_state;
           });
 
-          db.getClientData(provider.userId, canvas.providerEnvironment)
+          await db.getClientData(provider.userId, canvas.providerEnvironment)
           .then((value) => {
             req.session.token = value;
 
