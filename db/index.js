@@ -53,7 +53,7 @@ exports.getClientData = (userId, env) => new Promise(async function(resolve, rej
         if (error) {
             console.error(error);
             db.close();
-            reject();
+            reject(error);
         }
         if (row) {
             const tokenData = {
