@@ -69,7 +69,7 @@ exports.getClientData = (userId, env) => new Promise(function(resolve, reject) {
             console.log("(DB) Read data from DB: " + JSON.stringify(tokenData));
         }
         else {
-            console.log("(DB) No data in db for userId " + userId);
+            console.log("(DB) No data in db for userId '" + userId + "'");
             reject("No data.");
         }
     });

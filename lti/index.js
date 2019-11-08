@@ -76,26 +76,26 @@ exports.handleLaunch = (req, res, next) => {
           const now = new Date();
           const expiry = new Date(Date.parse(req.session.token.expires_at_utc));
 
-          console.log("now: " + now + "\r\n");
-          console.log("token.expires_at_utc (raw): " + req.session.token.expires_at_utc + "\r\n");
-          console.log("token.expires_at_utc (Date.parse(expires_at_utc)): " + expiry + "\r\n");
+          console.log("(session) now: " + now + "\r\n");
+          console.log("(session) token.expires_at_utc (raw): " + req.session.token.expires_at_utc + "\r\n");
+          console.log("(session) token.expires_at_utc (Date.parse(expires_at_utc)): " + expiry + "\r\n");
 
           if (expiry > now) {
-            console.log("OAuth Token for API is OK.");
+            console.log("(session) OAuth Token for API is OK.");
             res.redirect('/groups');
           }
           else if (expiry < now) {
-            console.log("OAuth Token for API has expired, refreshing.");
+            console.log("(session) OAuth Token for API has expired, refreshing.");
             oauth.providerRefreshToken(req);
             res.redirect('/groups');
           }
           else if (expiry == now) {
-            console.log("The two dates are EXACTLY the same, believe it or not.");
+            console.log("(session) The two dates are EXACTLY the same, believe it or not.");
             oauth.providerRefreshToken(req);
             res.redirect('/groups');
           }
           else {
-            console.log("No OAuth Token for API, forcing OAuth flow.");
+            console.log("(session) No OAuth Token for API, forcing OAuth flow.");
             res.redirect('/oauth');
           }
         }
@@ -130,32 +130,32 @@ exports.handleLaunch = (req, res, next) => {
             const now = new Date();
             const expiry = new Date(Date.parse(req.session.token.expires_at_utc));
   
-            console.log("(DB) now: " + now + "\r\n");
-            console.log("(DB) token.expires_at_utc (raw): " + req.session.token.expires_at_utc + "\r\n");
-            console.log("(DB) token.expires_at_utc (Date.parse(expires_at_utc)): " + expiry + "\r\n");
+            console.log("(afterDB_1) now: " + now + "\r\n");
+            console.log("(afterDB_2) token.expires_at_utc (raw): " + req.session.token.expires_at_utc);
+            console.log("(afterDB_3) token.expires_at_utc (Date.parse(expires_at_utc)): " + expiry);
   
             if (expiry > now) {
-              console.log("OAuth Token for API is OK.");
+              console.log("(afterDB) OAuth Token for API is OK.");
               res.redirect('/groups');
             }
             else if (expiry < now) {
-              console.log("OAuth Token for API has expired, refreshing.");
+              console.log("(afterDB) OAuth Token for API has expired, refreshing.");
               oauth.providerRefreshToken(req);
               res.redirect('/groups');
             }
             else if (expiry == now) {
-              console.log("The two dates are EXACTLY the same, believe it or not.");
+              console.log("(afterDB) The two dates are EXACTLY the same, believe it or not.");
               oauth.providerRefreshToken(req);
               res.redirect('/groups');
             }
             else {
-              console.log("No OAuth Token for API, forcing OAuth flow.");
+              console.log("(afterDB) No OAuth Token for API, forcing OAuth flow.");
               res.redirect('/oauth');
             }
           })
           .catch((error) => {
             console.error(error);
-            console.log("No token data in db for user_id '" + provider.userId + "', forcing OAuth flow.");
+            console.log("(afterDB_CATCH) No token data in db for user_id '" + provider.userId + "', forcing OAuth flow.");
             res.redirect('/oauth');
           });
         }
