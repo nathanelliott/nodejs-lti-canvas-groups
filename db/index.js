@@ -40,7 +40,7 @@ exports.setClientData = (userId, env, token, refresh, expires) => new Promise(as
      resolve();
 });
 
-exports.getClientData = async (userId, env) => new Promise(async function(resolve, reject) {
+exports.getClientData = (userId, env) => new Promise(function(resolve, reject) {
     let db = new sqlite3.Database(dbPath, (error) => {
         if (error) {
             console.error(error.message);
@@ -48,7 +48,7 @@ exports.getClientData = async (userId, env) => new Promise(async function(resolv
         }
     });
 
-    console.log("Query db for tokens for user_id '" + userId + "', env '" + env + "'");
+    console.log("(DB) Query db for tokens for user_id '" + userId + "', env '" + env + "'");
 
     var tokenData = {};
 
@@ -66,11 +66,11 @@ exports.getClientData = async (userId, env) => new Promise(async function(resolv
             tokenData.refresh_token = row.refresh_token;
             tokenData.expires_in = 3600;
             tokenData.expires_at_utc = new Date(Date.parse(row.expires_at_utc));
-            console.log("Read data from DB: " + JSON.stringify(tokenData));
+            console.log("(DB) Read data from DB: " + JSON.stringify(tokenData));
         }
         else {
-            console.log("No data in db for userId " + userId);
-            reject(new Error("No data."));
+            console.log("(DB) No data in db for userId " + userId);
+            reject("No data.");
         }
     });
 
