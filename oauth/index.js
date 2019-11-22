@@ -85,7 +85,7 @@ exports.providerRefreshToken = (request) => {
             request.session.token.expires_at_utc = new Date(Date.now() + (response.data.expires_in * 1000));
 
             db.setClientData(
-                request.session.userid, 
+                request.session.userId, 
                 canvas.providerEnvironment, 
                 request.session.token.access_token, 
                 request.session.token.refresh_token, 

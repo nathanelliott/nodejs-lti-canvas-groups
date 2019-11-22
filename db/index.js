@@ -71,6 +71,7 @@ exports.getClientData = (userId, env) => new Promise(function(resolve, reject) {
                 }
                 else {
                     if (row) {
+                        console.log("(DB) Raw row: " + JSON.stringify(row));
                         tokenData.access_token = row.api_token;
                         tokenData.token_type = "Bearer";
                         tokenData.refresh_token = row.refresh_token;

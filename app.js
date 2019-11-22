@@ -36,7 +36,8 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'c8Vbe1',
   name: 'ltiSession',
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
+  cookie: { secure: true },
   ttl: 43200 // 12h
 }));
 
@@ -104,7 +105,7 @@ app.get('/groups', async (request, result, next) => {
     }
     catch (error) {
       console.error(error);
-      
+
       if (error.status == 401) {
         try {
           return response.redirect(oauth.providerLogin());    

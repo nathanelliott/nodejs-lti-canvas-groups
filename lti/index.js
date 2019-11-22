@@ -67,7 +67,7 @@ exports.handleLaunch = (req, res, next) => {
       }
       if (isValid) {
         if (typeof req.session !== 'undefined' && typeof req.session.token !== 'undefined' && typeof req.session.token.expires_at_utc !== 'undefined' && req.session.contextId && req.session.contextId == provider.context_id) {
-          console.log("LTI Session is OK.");
+          console.log("User session exists: " + req.session.id);
 
           const now = new Date();
           const expiry = new Date(Date.parse(req.session.token.expires_at_utc));
