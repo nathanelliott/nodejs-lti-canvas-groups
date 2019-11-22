@@ -21,7 +21,7 @@ exports.providerLogin = () => {
     }
 };
 
-exports.providerRequestToken = async (request) => new Promise(async function(resolve, reject) {
+exports.providerRequestToken = async (request) => new Promise(function(resolve, reject) {
     const requestToken = request.query.code;
     console.log("Request token: " + requestToken);
 
@@ -80,15 +80,20 @@ exports.providerRefreshToken = (request) => {
             request.session.token.expires_in = response.data.expires_in;
             request.session.token.expires_at_utc = new Date(Date.now() + (response.data.expires_in * 1000));
 
-            await db.setClientData(
+            db.setClientData(
                 request.session.userid, 
                 canvas.providerEnvironment, 
                 request.session.token.access_token, 
                 request.session.token.refresh_token, 
                 request.session.token.expires_at_utc
-            );
+            )
+            .then(() => {
+                console.log("Refreshed token: " + JSON.stringify(request.session.token) + ", expires: " + request.session.token.expires_at_utc);
 
-            console.log("Refreshed token: " + JSON.stringify(request.session.token) + ", expires: " + request.session.token.expires_at_utc);
+            })
+            .catch((error) => {
+                console.log("Error during token database store: " + error);
+            })
         })
         .catch((error) => {
             console.log("Error during token Refresh POST: " + error);
