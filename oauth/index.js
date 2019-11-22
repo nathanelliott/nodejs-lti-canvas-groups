@@ -50,9 +50,13 @@ exports.providerRequestToken = async (request) => new Promise(function(resolve, 
 
             console.log("Got token data: " + JSON.stringify(tokenData));
 
-            await db.setClientData(request.session.userid, canvas.providerEnvironment, tokenData.access_token, tokenData.refresh_token, tokenData.expires_at_utc);
-
-            resolve(tokenData);
+            db.setClientData(request.session.userid, canvas.providerEnvironment, tokenData.access_token, tokenData.refresh_token, tokenData.expires_at_utc)
+            .then(() => {
+                resolve(tokenData);
+            })
+            .catch((error) => {
+                reject(error);
+            })
         })
         .catch((error) => {
             reject(new Error("Error during POST: " + error));
@@ -75,7 +79,7 @@ exports.providerRefreshToken = (request) => {
                 refresh_token: request.session.token.refresh_token
             }
         })
-        .then(async (response) => {
+        .then((response) => {
             request.session.token.access_token = response.data.access_token;
             request.session.token.expires_in = response.data.expires_in;
             request.session.token.expires_at_utc = new Date(Date.now() + (response.data.expires_in * 1000));

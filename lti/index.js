@@ -66,11 +66,7 @@ exports.handleLaunch = (req, res, next) => {
         return next(err);
       }
       if (isValid) {
-        if (req.session.contextId && req.session.contextId == provider.context_id && typeof req.session.token.expires_at_utc !== 'undefined') {
-          if (typeof req.session.token.expires_at_utc !== 'undefined') {
-            console.log("Typeof for req.session.token.expires_at_utc is NOT 'undefined', just so you know.");
-          }
-
+        if (typeof req.session !== 'undefined' && typeof req.session.token !== 'undefined' && typeof req.session.token.expires_at_utc !== 'undefined' && req.session.contextId && req.session.contextId == provider.context_id) {
           console.log("LTI Session is OK.");
 
           const now = new Date();
