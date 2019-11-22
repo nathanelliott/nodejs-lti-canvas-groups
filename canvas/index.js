@@ -86,7 +86,7 @@ userCache.on('expired', function(key) {
   console.log("[Cache] Expired NodeCache entry for userCachekey '" + key + "'.");
 });
 
-exports.cacheStat = async () => new Promise(async function (resolve, reject) {
+module.exports.cacheStat = async () => new Promise(async function (resolve, reject) {
   for (const cache of caches) {
     console.log("[Stats] Cache keys and TTL for " + cache.name + ":");
 
@@ -107,7 +107,7 @@ exports.cacheStat = async () => new Promise(async function (resolve, reject) {
 });
 
 // Compile category groups data for CSV export.
-exports.compileCategoryGroupsData = async (categoryId, session) => new Promise(async function(resolve, reject) {
+module.exports.compileCategoryGroupsData = async (categoryId, session) => new Promise(async function(resolve, reject) {
   var hrstart = process.hrtime();
   var categoriesWithGroups = new Array();
   var groupsWithUsers = new Array();
@@ -176,7 +176,7 @@ exports.compileCategoryGroupsData = async (categoryId, session) => new Promise(a
 });
 
 // Compile groups data for web view.
-exports.compileGroupsData = async (canvasCourseId, session) => new Promise(async function(resolve, reject) {
+module.exports.compileGroupsData = async (canvasCourseId, session) => new Promise(async function(resolve, reject) {
   var hrstart = process.hrtime();
   var categoriesWithGroups = new Array();
 
