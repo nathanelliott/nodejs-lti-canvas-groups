@@ -94,7 +94,7 @@ app.get('/application', (req, res, next) => {
 app.get('/groups', async (request, result, next) => { 
   if (request.session.userId && request.session.canvasCourseId) {
     try {
-      const data = await canvas.compileGroupsData(request.session.canvasCourseId, request.session);
+      const data = await canvas.compileGroupsData(request.session.canvasCourseId, request);
       data.statistics.name = pkg.name;
       data.statistics.version = pkg.version;
       
@@ -103,7 +103,19 @@ app.get('/groups', async (request, result, next) => {
       return result.render('groups', data);  
     }
     catch (error) {
-      next(new Error(error));
+      console.error(error);
+      
+      if (error.status == 401) {
+        try {
+          return response.redirect(oauth.providerLogin());    
+        }
+        catch (error) {
+          next(error);
+        }
+      }
+      else {
+        next(new Error(error));
+      }
     }
   }
   else {
@@ -117,7 +129,7 @@ app.get('/csv/category/:id', async (request, result, next) => {
       const id = request.params.id;
 
       if (id > 0) {
-        const data = await canvas.compileCategoryGroupsData(id, request.session);
+        const data = await canvas.compileCategoryGroupsData(id, request);
   
         console.log("[JSON Result] " + JSON.stringify(data));
     

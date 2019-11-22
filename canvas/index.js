@@ -107,7 +107,7 @@ exports.cacheStat = async () => new Promise(async function (resolve, reject) {
 });
 
 // Compile category groups data for CSV export.
-module.exports.compileCategoryGroupsData = async (categoryId, session) => new Promise(async function(resolve, reject) {
+module.exports.compileCategoryGroupsData = async (categoryId, request) => new Promise(async function(resolve, reject) {
   var hrstart = process.hrtime();
   var categoriesWithGroups = new Array();
   var groupsWithUsers = new Array();
@@ -115,14 +115,14 @@ module.exports.compileCategoryGroupsData = async (categoryId, session) => new Pr
   console.log("[API] GetCategoryGroups()");
 
   // Get data about each group in this category.
-  await exports.getCategoryGroups(categoryId, session.token).then(async function (groupsData) {
+  await exports.getCategoryGroups(categoryId, request).then(async function (groupsData) {
     for (const group of groupsData) {
       var usersWithDetails = new Array();
 
       console.log("[API] GetGroupUsers()");
 
       // Get data about each user in the group.
-      await exports.getGroupUsers(group.id, session.token).then(async function (usersData) {
+      await exports.getGroupUsers(group.id, request.session.token).then(async function (usersData) {
         for (const user of usersData) {
           usersWithDetails.push({
             userId: user.id,
@@ -176,27 +176,27 @@ module.exports.compileCategoryGroupsData = async (categoryId, session) => new Pr
 });
 
 // Compile groups data for web view.
-module.exports.compileGroupsData = async (canvasCourseId, session) => new Promise(async function(resolve, reject) {
+module.exports.compileGroupsData = async (canvasCourseId, request) => new Promise(async function(resolve, reject) {
   var hrstart = process.hrtime();
   var categoriesWithGroups = new Array();
 
   console.log("[API] GetGroupCategories()");
 
-  await exports.getGroupCategories(canvasCourseId, session.token).then(async function (categoriesData) {
+  await exports.getGroupCategories(canvasCourseId, request).then(async function (categoriesData) {
     for (const category of categoriesData) {
       var groupsWithUsers = new Array();
 
       console.log("[API] GetCategoryGroups()");
 
       // Get data about each group in this category.
-      await exports.getCategoryGroups(category.id, session.token).then(async function (groupsData) {
+      await exports.getCategoryGroups(category.id, request).then(async function (groupsData) {
         for (const group of groupsData) {
           var usersWithDetails = new Array();
   
           console.log("[API] GetGroupUsers()");
   
           // Get data about each user in the group.
-          await exports.getGroupUsers(group.id, session.token).then(async function (usersData) {
+          await exports.getGroupUsers(group.id, request.session.token).then(async function (usersData) {
             for (const user of usersData) {
               usersWithDetails.push({
                 userId: user.id,
@@ -344,7 +344,7 @@ exports.getCourseGroups = async (courseId, token) => new Promise(async function(
 });
 
 // Get group categories for a specified course.
-exports.getGroupCategories = async (courseId, token) => new Promise(async function(resolve, reject) {
+exports.getGroupCategories = async (courseId, request) => new Promise(async function(resolve, reject) {
   try {
     const cachedData = groupCategoriesCache.get(courseId);
 
@@ -358,32 +358,42 @@ exports.getGroupCategories = async (courseId, token) => new Promise(async functi
     var apiData = new Array();
     var returnedApiData = new Array();
 
-    while (thisApiPath && token.access_token) {
+    while (thisApiPath && request.token.access_token) {
       console.log("[API] GET " + thisApiPath);
 
       try {
         const response = await axios.get(thisApiPath, {
           headers: {
             "User-Agent": "Chalmers/Azure/Request",
-            "Authorization": token.token_type + " " + token.access_token
+            "Authorization": request.token.token_type + " " + request.token.access_token
           }
         });
 
-        const data = response.data;
-        apiData.push(data);
-
-        if (response.headers["link"]) {
-          var link = LinkHeader.parse(response.headers["link"]);
-
-          if (link.has("rel", "next")) {
-            thisApiPath = link.get("rel", "next")[0].uri;
+        if (response.status == 401 && response.headers['www-authenticate']) { // refresh token, then try again
+          oauth.providerRefreshToken(request);
+        }
+        else if (response.status == 401 && !response.headers['www-authenticate']) { // no access, redirect to auth
+          let error = new Error("Not authorized in Canvas for API.");
+          error.status = 401;
+          reject(error);
+        }
+        else {
+          const data = response.data;
+          apiData.push(data);
+  
+          if (response.headers["link"]) {
+            var link = LinkHeader.parse(response.headers["link"]);
+  
+            if (link.has("rel", "next")) {
+              thisApiPath = link.get("rel", "next")[0].uri;
+            }
+            else {
+              thisApiPath = false;
+            }
           }
           else {
             thisApiPath = false;
           }
-        }
-        else {
-          thisApiPath = false;
         }
       }
       catch (error) {
@@ -415,7 +425,7 @@ exports.getGroupCategories = async (courseId, token) => new Promise(async functi
 });
 
 // Get groups for a specified category.
-exports.getCategoryGroups = async (categoryId, token) => new Promise(async function(resolve, reject) {
+exports.getCategoryGroups = async (categoryId, request) => new Promise(async function(resolve, reject) {
   try {
     const cachedData = categoryGroupsCache.get(categoryId);
 
@@ -437,7 +447,7 @@ exports.getCategoryGroups = async (categoryId, token) => new Promise(async funct
           json: true,
           headers: {
             "User-Agent": "Chalmers/Azure/Request",
-            "Authorization": token.token_type + " " + token.access_token
+            "Authorization": request.token.token_type + " " + request.token.access_token
           }
         });
 
