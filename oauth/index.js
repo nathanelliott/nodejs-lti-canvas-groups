@@ -50,7 +50,7 @@ exports.providerRequestToken = async (request) => new Promise(function(resolve, 
 
             console.log("Got token data: " + JSON.stringify(tokenData));
 
-            db.setClientData(request.session.userid, canvas.providerEnvironment, tokenData.access_token, tokenData.refresh_token, tokenData.expires_at_utc)
+            db.setClientData(request.session.userId, canvas.providerEnvironment, tokenData.access_token, tokenData.refresh_token, tokenData.expires_at_utc)
             .then(() => {
                 resolve(tokenData);
             })
