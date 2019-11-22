@@ -86,7 +86,7 @@ userCache.on('expired', function(key) {
   console.log("[Cache] Expired NodeCache entry for userCachekey '" + key + "'.");
 });
 
-module.exports.cacheStat = async () => new Promise(async function (resolve, reject) {
+exports.cacheStat = async () => new Promise(async function (resolve, reject) {
   for (const cache of caches) {
     console.log("[Stats] Cache keys and TTL for " + cache.name + ":");
 
