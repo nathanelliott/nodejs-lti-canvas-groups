@@ -62,7 +62,6 @@ app.get('/oauth', (request, response, next) => {
 app.get('/oauth/redirect', async (request, response, next) => {
   try {
     request.session.token = await oauth.providerRequestToken(request);
-    await db.updateUserToken(request.session.userId, request.session.token.access_token)
     console.log("Written data to session: " + JSON.stringify(request.session.token));
     console.log("Redirecting to /groups");
     response.redirect('/groups');
