@@ -69,8 +69,10 @@ exports.providerRequestToken = async (request) => new Promise(function(resolve, 
 
 exports.providerRefreshToken = (request) => {
     if (request.session.userId && request.session.canvasCourseId) {
+        console.log("Refresh token data: client_id: " + clientId + "client_secret: " + clientSecret + "refresh_token: " + request.session.token.refresh_token);
+        
         axios({
-            method: 'post',
+            method: "post",
             url: providerBaseUri + "/login/oauth2/token",
             data: {
                 grant_type: "refresh_token",
@@ -101,6 +103,7 @@ exports.providerRefreshToken = (request) => {
         })
         .catch((error) => {
             console.log("Error during token Refresh POST: " + error);
+            console.error(JSON.stringify(error));
         }); 
     }
 };

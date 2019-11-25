@@ -357,8 +357,9 @@ exports.getGroupCategories = async (courseId, request) => new Promise(async func
     var thisApiPath = apiPath + "/courses/" + courseId + "/group_categories?per_page=" + API_PER_PAGE;
     var apiData = new Array();
     var returnedApiData = new Array();
+    var errorCount = 0;
 
-    while (thisApiPath && request.session.token.access_token) {
+    while (errorCount < 4 && thisApiPath && request.session.token.access_token) {
       console.log("[API] GET " + thisApiPath);
 
       try {
@@ -386,7 +387,9 @@ exports.getGroupCategories = async (courseId, request) => new Promise(async func
           thisApiPath = false;
         }        
       }
-      catch (error) {        
+      catch (error) {
+        errorCount++;
+        
         if (error.response.status == 401 && error.response.headers['www-authenticate']) { // refresh token, then try again
           oauth.providerRefreshToken(request);
         }
