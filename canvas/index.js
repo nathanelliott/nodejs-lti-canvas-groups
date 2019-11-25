@@ -358,14 +358,14 @@ exports.getGroupCategories = async (courseId, request) => new Promise(async func
     var apiData = new Array();
     var returnedApiData = new Array();
 
-    while (thisApiPath && request.token.access_token) {
+    while (thisApiPath && request.session.token.access_token) {
       console.log("[API] GET " + thisApiPath);
 
       try {
         const response = await axios.get(thisApiPath, {
           headers: {
             "User-Agent": "Chalmers/Azure/Request",
-            "Authorization": request.token.token_type + " " + request.token.access_token
+            "Authorization": request.session.token.token_type + " " + request.session.token.access_token
           }
         });
 
