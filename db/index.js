@@ -76,7 +76,7 @@ exports.getClientData = (userId, env) => new Promise(function(resolve, reject) {
                         tokenData.token_type = "Bearer";
                         tokenData.refresh_token = row.refresh_token;
                         tokenData.expires_in = 3600;
-                        tokenData.expires_at_utc = new Date(Date.parse(row.expires_at_utc));
+                        tokenData.expires_at_utc = new Date(row.expires_at_utc);
                         console.log("(DB) Read data from DB: " + JSON.stringify(tokenData));
 
                         db.close();
