@@ -196,7 +196,7 @@ module.exports.compileGroupsData = async (canvasCourseId, request) => new Promis
           console.log("[API] GetGroupUsers()");
   
           // Get data about each user in the group.
-          await exports.getGroupUsers(group.id, request.session.token).then(async function (usersData) {
+          await exports.getGroupUsers(group.id, request).then(async function (usersData) {
             for (const user of usersData) {
               usersWithDetails.push({
                 userId: user.id,
@@ -389,7 +389,7 @@ exports.getGroupCategories = async (courseId, request) => new Promise(async func
       }
       catch (error) {
         errorCount++;
-        
+
         if (error.response.status == 401 && error.response.headers['www-authenticate']) { // refresh token, then try again
           oauth.providerRefreshToken(request);
         }
@@ -446,7 +446,7 @@ exports.getCategoryGroups = async (categoryId, request) => new Promise(async fun
           json: true,
           headers: {
             "User-Agent": "Chalmers/Azure/Request",
-            "Authorization": request.token.token_type + " " + request.token.access_token
+            "Authorization": request.session.token.token_type + " " + request.session.token.access_token
           }
         });
 
@@ -496,7 +496,7 @@ exports.getCategoryGroups = async (categoryId, request) => new Promise(async fun
 });
 
 // Get users (not members) for a specified group.
-exports.getGroupUsers = async (groupId, token) => new Promise(async function(resolve, reject) {
+exports.getGroupUsers = async (groupId, request) => new Promise(async function(resolve, reject) {
   try {
     const cachedData = groupUsersCache.get(groupId);
 
@@ -518,7 +518,7 @@ exports.getGroupUsers = async (groupId, token) => new Promise(async function(res
           json: true,
           headers: {
             "User-Agent": "Chalmers/Azure/Request",
-            "Authorization": token.token_type + " " + token.access_token
+            "Authorization": request.session.token.token_type + " " + request.session.token.access_token
           }
         });
 
