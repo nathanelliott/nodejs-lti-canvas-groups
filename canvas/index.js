@@ -241,12 +241,12 @@ module.exports.compileGroupsData = async (canvasCourseId, request) => new Promis
   // Compile JSON that returns to view.
   let data = {
     user: {
-      fullname: session.fullname,
-      id: session.userId
+      fullname: request.session.fullname,
+      id: request.session.userId
     },
     course: {
-      id: session.canvasCourseId,
-      contextTitle: session.contextTitle,
+      id: request.session.canvasCourseId,
+      contextTitle: request.session.contextTitle,
       categories: categoriesWithGroups
     },
     statistics: {
