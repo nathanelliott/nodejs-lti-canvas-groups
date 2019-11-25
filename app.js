@@ -37,7 +37,7 @@ app.use(session({
   name: 'ltiSession',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: true },
+  cookie: { secure: true, httpOnly: false },
   ttl: 43200 // 12h
 }));
 
