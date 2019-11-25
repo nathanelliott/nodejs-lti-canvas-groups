@@ -106,7 +106,7 @@ app.get('/groups', async (request, result, next) => {
     catch (error) {
       console.error(error);
 
-      if (error.status == 401) {
+      if (error.response.status == 401) {
         try {
           return response.redirect(oauth.providerLogin());    
         }

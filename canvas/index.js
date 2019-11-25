@@ -369,40 +369,36 @@ exports.getGroupCategories = async (courseId, request) => new Promise(async func
           }
         });
 
-        if (response.status == 401 && response.headers['www-authenticate']) { // refresh token, then try again
-          oauth.providerRefreshToken(request);
-        }
-        else if (response.status == 401 && !response.headers['www-authenticate']) { // no access, redirect to auth
-          let error = new Error("Not authorized in Canvas for API.");
-          error.status = 401;
-          reject(error);
-        }
-        else {
-          const data = response.data;
-          apiData.push(data);
-  
-          if (response.headers["link"]) {
-            var link = LinkHeader.parse(response.headers["link"]);
-  
-            if (link.has("rel", "next")) {
-              thisApiPath = link.get("rel", "next")[0].uri;
-            }
-            else {
-              thisApiPath = false;
-            }
+        const data = response.data;
+        apiData.push(data);
+
+        if (response.headers["link"]) {
+          var link = LinkHeader.parse(response.headers["link"]);
+
+          if (link.has("rel", "next")) {
+            thisApiPath = link.get("rel", "next")[0].uri;
           }
           else {
             thisApiPath = false;
           }
         }
+        else {
+          thisApiPath = false;
+        }        
       }
-      catch (error) {
-        console.log("[API] Error: " + error);
-    
-        let err = new Error("Error from API: " + error);
-        err.status = 500;
-  
-        reject(err);
+      catch (error) {        
+        if (error.response.status == 401 && error.response.headers['www-authenticate']) { // refresh token, then try again
+          oauth.providerRefreshToken(request);
+        }
+        else if (error.response.status == 401 && !error.response.headers['www-authenticate']) { // no access, redirect to auth
+          console.error("[API] Not authorized in Canvas for use of this API endpoint.");
+          console.error(JSON.stringify(error));
+          reject(error);
+        }
+        else {
+          console.error(error);
+          reject(error);  
+        }
       }
     }
 
