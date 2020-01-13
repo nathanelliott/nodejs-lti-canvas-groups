@@ -109,7 +109,7 @@ app.get('/groups', async (request, result, next) => {
 
       if (error.response.status == 401) {
         try {
-          return response.redirect(oauth.providerLogin());    
+          return result.redirect(oauth.providerLogin());    
         }
         catch (error) {
           next(error);
@@ -121,7 +121,7 @@ app.get('/groups', async (request, result, next) => {
     }
   }
   else {
-    response.redirect('/groups');
+    result.redirect('/groups');
   }
 });
 
