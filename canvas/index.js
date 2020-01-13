@@ -6,9 +6,6 @@ const axios = require('axios');
 const oauth = require('../oauth');
 
 /* This module handles communication between LTI Application and Canvas, using Canvas API V1. */
-/* It requires an API Token, which can be generated from inside Canvas settings.              */
-/* This token should be put in Azure Application Settings Key "canvasApiAccessToken".         */
-/* The Uri to the Canvas API for your installation goes into Key "canvasApiPath".             */
 
 const providerBaseUri = typeof process.env.canvasBaseUri !== 'undefined' && process.env.canvasBaseUri ? process.env.canvasBaseUri : "https://chalmers.test.instructure.com";
 const apiPath = providerBaseUri + "/api/v1";
@@ -285,39 +282,38 @@ exports.getCourseGroups = async (courseId, token) => new Promise(async function(
             "Authorization": token.token_type + " " + token.access_token
           }
         });
+        
+        const data = response.data;
+        apiData.push(data);
 
+        if (response.headers["link"]) {
+          var link = LinkHeader.parse(response.headers["link"]);
+
+          if (link.has("rel", "next")) {
+            thisApiPath = link.get("rel", "next")[0].uri;
+          }
+          else {
+            thisApiPath = false;
+          }
+        }
+        else {
+          thisApiPath = false;
+        }  
+      }
+      catch (error) {
+        console.log("[API] Error: " + error);
+    
         if (response.status == 401) {
           if (response.headers['www-authenticate']) {
             // refresh token and try again
-            oauth.providerRefreshToken()
+            oauth.providerRefreshToken();
           }
           else {
             // for some reason our token does not work
             console.error("Supplied token '" + token.access_token + "' does not satisfy API.");
           }
         }
-        else {
-          const data = response.data;
-          apiData.push(data);
-  
-          if (response.headers["link"]) {
-            var link = LinkHeader.parse(response.headers["link"]);
-  
-            if (link.has("rel", "next")) {
-              thisApiPath = link.get("rel", "next")[0].uri;
-            }
-            else {
-              thisApiPath = false;
-            }
-          }
-          else {
-            thisApiPath = false;
-          }  
-        }
-      }
-      catch (error) {
-        console.log("[API] Error: " + error);
-    
+
         let err = new Error("Error from API: " + error);
         err.status = 500;
   
