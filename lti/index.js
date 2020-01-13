@@ -82,13 +82,25 @@ exports.handleLaunch = (req, res, next) => {
           }
           else if (expiry < now) {
             console.log("(session) OAuth Token for API has expired, refreshing.");
-            oauth.providerRefreshToken(req);
-            res.redirect('/groups');
+            oauth.providerRefreshToken(req)
+            .then(() => {
+              res.redirect('/groups');
+            })
+            .catch((error) => {
+              console.error(error);
+              res.redirect('/error?string=Token+expired+below+but+error+during+refresh+session+exists');
+            });
           }
           else if (expiry == now) {
             console.log("(session) The two dates are EXACTLY the same, believe it or not.");
-            oauth.providerRefreshToken(req);
-            res.redirect('/groups');
+            oauth.providerRefreshToken(req)
+            .then(() => {
+              res.redirect('/groups');
+            })
+            .catch((error) => {
+              console.error(error);
+              res.redirect('/error?string=Token+expired+equal+but+error+during+refresh+session+exists');
+            });
           }
           else {
             console.log("(session) No OAuth Token for API, forcing OAuth flow.");
@@ -136,13 +148,25 @@ exports.handleLaunch = (req, res, next) => {
             }
             else if (expiry < now) {
               console.log("(afterDB) OAuth Token for API has expired, refreshing.");
-              oauth.providerRefreshToken(req);
-              res.redirect('/groups');
+              oauth.providerRefreshToken(req)
+              .then(() => {
+                res.redirect('/groups');
+              })
+              .catch((error) => {
+                console.error(error);
+                res.redirect('/error?string=Token+expired+below+but+error+during+refresh+session+regenerated');
+              });
             }
             else if (expiry == now) {
               console.log("(afterDB) The two dates are EXACTLY the same, believe it or not.");
-              oauth.providerRefreshToken(req);
-              res.redirect('/groups');
+              oauth.providerRefreshToken(req)
+              .then(() => {
+                res.redirect('/groups');
+              })
+              .catch((error) => {
+                console.error(error);
+                res.redirect('/error?string=Token+expired+equal+but+error+during+refresh+session+regenerated');
+              });
             }
             else {
               console.log("(afterDB) No OAuth Token for API, forcing OAuth flow.");
