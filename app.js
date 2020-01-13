@@ -13,6 +13,7 @@ const db = require('./db');
 
 const port = process.env.PORT || 3000;
 const fileStoreOptions = {};
+const cookieMaxAge = 3600000 * 12; // 12h
 
 // Setup database
 db.setupDatabase().then(console.log("Database initialized.")).catch(function(error) { console.error("Setting up database: " + error)});
@@ -37,8 +38,8 @@ app.use(session({
   name: 'ltiSession',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: true, httpOnly: false },
-  ttl: 43200 // 12h
+  rolling: true,
+  cookie: { secure: true, httpOnly: false, maxAge: cookieMaxAge }
 }));
 
 // parse application/x-www-form-urlencoded
@@ -120,7 +121,7 @@ app.get('/groups', async (request, result, next) => {
     }
   }
   else {
-    next(new Error('The session is invalid. Please login via LTI to use this application.'));
+    response.redirect('/groups');
   }
 });
 
