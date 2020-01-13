@@ -306,7 +306,7 @@ exports.getCourseGroups = async (courseId, token) => new Promise(async function(
         if (response.status == 401) {
           if (response.headers['www-authenticate']) {
             // refresh token and try again
-            oauth.providerRefreshToken();
+            await oauth.providerRefreshToken();
           }
           else {
             // for some reason our token does not work
@@ -385,9 +385,10 @@ exports.getGroupCategories = async (courseId, request) => new Promise(async func
       }
       catch (error) {
         errorCount++;
+        console.error("[API] Error: " + error);
 
         if (error.response.status == 401 && error.response.headers['www-authenticate']) { // refresh token, then try again
-          oauth.providerRefreshToken(request);
+          await oauth.providerRefreshToken(request);
         }
         else if (error.response.status == 401 && !error.response.headers['www-authenticate']) { // no access, redirect to auth
           console.error("[API] Not authorized in Canvas for use of this API endpoint.");
@@ -466,6 +467,8 @@ exports.getCategoryGroups = async (categoryId, request) => new Promise(async fun
       catch (error) {
         console.log("[API] Error: " + error);
     
+        // TODO: Token refresh if www-authenticate ...
+
         let err = new Error("Error from API: " + error);
         err.status = 500;
   
@@ -538,6 +541,8 @@ exports.getGroupUsers = async (groupId, request) => new Promise(async function(r
       catch (error) {
         console.log("[API] Error: " + error);
     
+        // TODO: Token refresh if www-authenticate ...
+
         let err = new Error("Error from API: " + error);
         err.status = 500;
   
@@ -610,6 +615,8 @@ exports.getGroupMembers = async (groupId, token) => new Promise(async function(r
       catch (error) {
         console.log("[API] Error: " + error);
     
+        // TODO: Token refresh if www-authenticate ...
+
         let err = new Error("Error from API: " + error);
         err.status = 500;
   
@@ -678,6 +685,8 @@ exports.getUser = async (userId, token) => new Promise(async function(resolve, r
       catch (error) {
         console.log("[API] Error: " + error);
     
+        // TODO: Token refresh if www-authenticate ...
+
         let err = new Error("Error from API: " + error);
         err.status = 500;
   

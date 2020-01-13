@@ -67,9 +67,9 @@ exports.providerRequestToken = async (request) => new Promise(function(resolve, 
     }
 });
 
-exports.providerRefreshToken = (request) => {
+exports.providerRefreshToken = async (request) => new Promise(function(resolve, reject) {
     if (request.session.userId && request.session.canvasCourseId) {
-        console.log("Refresh token data: client_id: " + clientId + "client_secret: " + clientSecret + "refresh_token: " + request.session.token.refresh_token);
+        console.log("[Token refresh] Refresh token data: client_id: " + clientId + "client_secret: " + clientSecret + "refresh_token: " + request.session.token.refresh_token);
         
         axios({
             method: "post",
@@ -95,15 +95,17 @@ exports.providerRefreshToken = (request) => {
             )
             .then(() => {
                 console.log("Refreshed token: " + JSON.stringify(request.session.token) + ", expires: " + request.session.token.expires_at_utc);
-
+                resolve();
             })
             .catch((error) => {
                 console.log("Error during token database store: " + error);
+                reject(error);
             })
         })
         .catch((error) => {
             console.log("Error during token Refresh POST: " + error);
             console.error(JSON.stringify(error));
+            reject(error);
         }); 
     }
-};
+});
