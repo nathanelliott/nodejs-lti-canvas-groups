@@ -158,9 +158,9 @@ module.exports.compileCategoryGroupsData = async (categoryId, request) => new Pr
   // Compile JSON that returns to view.
   let data = {
     user: {
-      fullname: session.fullname,
-      email: session.email,
-      id: session.userId
+      fullname: request.session.fullname,
+      email: request.session.email,
+      id: request.session.userId
     },
     categories: categoriesWithGroups,
     statistics: {
