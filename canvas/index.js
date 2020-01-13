@@ -119,7 +119,7 @@ module.exports.compileCategoryGroupsData = async (categoryId, request) => new Pr
       console.log("[API] GetGroupUsers()");
 
       // Get data about each user in the group.
-      await exports.getGroupUsers(group.id, request.session.token).then(async function (usersData) {
+      await exports.getGroupUsers(group.id, request).then(async function (usersData) {
         for (const user of usersData) {
           usersWithDetails.push({
             userId: user.id,
@@ -258,7 +258,7 @@ module.exports.compileGroupsData = async (canvasCourseId, request) => new Promis
 });
 
 // Get groups for a specified course.
-exports.getCourseGroups = async (courseId, token) => new Promise(async function(resolve, reject) {
+exports.getCourseGroups = async (courseId, request) => new Promise(async function(resolve, reject) {
   try {
     const cachedData = courseGroupsCache.get(courseId);
 
@@ -271,15 +271,16 @@ exports.getCourseGroups = async (courseId, token) => new Promise(async function(
     var thisApiPath = apiPath + "/courses/" + courseId + "/groups?per_page=" + API_PER_PAGE;
     var apiData = [];
     var returnedApiData = [];
+    var errorCount = 0;
 
-    while (thisApiPath) {
+    while (errorCount < 4 && thisApiPath && request.session.token.access_token) {
       console.log("[API] GET " + thisApiPath);
 
       try {
         const response = await axios.get(thisApiPath, {
           headers: {
             "User-Agent": "Chalmers/Azure/Request",
-            "Authorization": token.token_type + " " + token.access_token
+            "Authorization": request.session.token.token_type + " " + request.session.token.access_token
           }
         });
         
@@ -301,27 +302,26 @@ exports.getCourseGroups = async (courseId, token) => new Promise(async function(
         }  
       }
       catch (error) {
-        console.log("[API] Error: " + error);
-    
-        if (response.status == 401) {
-          if (response.headers['www-authenticate']) {
-            // refresh token and try again
-            await oauth.providerRefreshToken();
-          }
-          else {
-            // for some reason our token does not work
-            console.error("Supplied token '" + token.access_token + "' does not satisfy API.");
-          }
-        }
+        errorCount++;
+        console.error("[API] Error: " + error);
 
-        let err = new Error("Error from API: " + error);
-        err.status = 500;
-  
-        reject(err);
+        if (error.response.status == 401 && error.response.headers['www-authenticate']) { // refresh token, then try again
+          await oauth.providerRefreshToken(request);
+        }
+        else if (error.response.status == 401 && !error.response.headers['www-authenticate']) { // no access, redirect to auth
+          console.error("[API] Not authorized in Canvas for use of this API endpoint.");
+          console.error(JSON.stringify(error));
+          reject(error);
+        }
+        else {
+          console.error(error);
+          reject(error);  
+        }
       }
     }
 
     // Compile new object from all pages.
+    // TODO: Include errorCount here in some way for GUI.
     for (const page in apiData) {
       for (const record in page) {
         returnedApiData.push(record);
@@ -403,6 +403,7 @@ exports.getGroupCategories = async (courseId, request) => new Promise(async func
     }
 
     // Compile new object from all pages.
+    // TODO: Include errorCount in some way for GUI.
     for (const page of apiData) {
       for (const record of page) {
         returnedApiData.push(record);
@@ -434,8 +435,9 @@ exports.getCategoryGroups = async (categoryId, request) => new Promise(async fun
     var thisApiPath = apiPath + "/group_categories/" + categoryId + "/groups?per_page=" + API_PER_PAGE;
     var apiData = [];
     var returnedApiData = [];
+    var errorCount = 0;
 
-    while (thisApiPath) {
+    while (errorCount < 4 && thisApiPath && request.session.token.access_token) {
       console.log("[API] GET " + thisApiPath);
 
       try {
@@ -465,18 +467,26 @@ exports.getCategoryGroups = async (categoryId, request) => new Promise(async fun
         }
       }
       catch (error) {
-        console.log("[API] Error: " + error);
-    
-        // TODO: Token refresh if www-authenticate ...
+        errorCount++;
+        console.error("[API] Error: " + error);
 
-        let err = new Error("Error from API: " + error);
-        err.status = 500;
-  
-        reject(err);
+        if (error.response.status == 401 && error.response.headers['www-authenticate']) { // refresh token, then try again
+          await oauth.providerRefreshToken(request);
+        }
+        else if (error.response.status == 401 && !error.response.headers['www-authenticate']) { // no access, redirect to auth
+          console.error("[API] Not authorized in Canvas for use of this API endpoint.");
+          console.error(JSON.stringify(error));
+          reject(error);
+        }
+        else {
+          console.error(error);
+          reject(error);  
+        }
       }
     }
 
     // Compile new object from all pages.
+    // TODO: Include errorCount in some way for GUI.
     for (const page of apiData) {
       for (const record of page) {
         returnedApiData.push(record);
@@ -508,8 +518,9 @@ exports.getGroupUsers = async (groupId, request) => new Promise(async function(r
     var thisApiPath = apiPath + "/groups/" + groupId + "/users?include[]=avatar_url&include[]=email&per_page=" + API_PER_PAGE;
     var apiData = [];
     var returnedApiData = [];
+    var errorCount = 0;
 
-    while (thisApiPath) {
+    while (errorCount < 4 && thisApiPath && request.session.token.access_token) {
       console.log("[API] GET " + thisApiPath);
 
       try {
@@ -539,18 +550,26 @@ exports.getGroupUsers = async (groupId, request) => new Promise(async function(r
         }
       }
       catch (error) {
-        console.log("[API] Error: " + error);
-    
-        // TODO: Token refresh if www-authenticate ...
+        errorCount++;
+        console.error("[API] Error: " + error);
 
-        let err = new Error("Error from API: " + error);
-        err.status = 500;
-  
-        reject(err);
+        if (error.response.status == 401 && error.response.headers['www-authenticate']) { // refresh token, then try again
+          await oauth.providerRefreshToken(request);
+        }
+        else if (error.response.status == 401 && !error.response.headers['www-authenticate']) { // no access, redirect to auth
+          console.error("[API] Not authorized in Canvas for use of this API endpoint.");
+          console.error(JSON.stringify(error));
+          reject(error);
+        }
+        else {
+          console.error(error);
+          reject(error);  
+        }
       }
     }
 
     // Compile new object from all pages.
+    // TODO: Include errorCount in some way for GUI.
     for (const page of apiData) {
       for (const record of page) {
         returnedApiData.push(record);
@@ -569,7 +588,7 @@ exports.getGroupUsers = async (groupId, request) => new Promise(async function(r
 });
 
 // Get memberships data for a specified group.
-exports.getGroupMembers = async (groupId, token) => new Promise(async function(resolve, reject) {
+exports.getGroupMembers = async (groupId, request) => new Promise(async function(resolve, reject) {
   try {
     const cachedData = memberCache.get(groupId);
 
@@ -582,8 +601,9 @@ exports.getGroupMembers = async (groupId, token) => new Promise(async function(r
     var thisApiPath = apiPath + "/groups/" + groupId + "/memberships?per_page=" + API_PER_PAGE;
     var apiData = [];
     var returnedApiData = [];
+    var errorCount = 0;
 
-    while (thisApiPath) {
+    while (errorCount < 4 && thisApiPath && request.session.token.access_token) {
       console.log("[API] GET " + thisApiPath);
 
       try {
@@ -591,7 +611,7 @@ exports.getGroupMembers = async (groupId, token) => new Promise(async function(r
           json: true,
           headers: {
             "User-Agent": "Chalmers/Azure/Request",
-            "Authorization": token.token_type + " " + token.access_token
+            "Authorization": request.session.token.token_type + " " + request.session.token.access_token
           }
         });
 
@@ -613,18 +633,26 @@ exports.getGroupMembers = async (groupId, token) => new Promise(async function(r
         }
       }
       catch (error) {
-        console.log("[API] Error: " + error);
-    
-        // TODO: Token refresh if www-authenticate ...
+        errorCount++;
+        console.error("[API] Error: " + error);
 
-        let err = new Error("Error from API: " + error);
-        err.status = 500;
-  
-        reject(err);
+        if (error.response.status == 401 && error.response.headers['www-authenticate']) { // refresh token, then try again
+          await oauth.providerRefreshToken(request);
+        }
+        else if (error.response.status == 401 && !error.response.headers['www-authenticate']) { // no access, redirect to auth
+          console.error("[API] Not authorized in Canvas for use of this API endpoint.");
+          console.error(JSON.stringify(error));
+          reject(error);
+        }
+        else {
+          console.error(error);
+          reject(error);  
+        }
       }
     }
 
     // Compile new object from all pages.
+    // TODO: Include errorCount in some way for GUI.
     for (const page of apiData) {
       for (const record of page) {
         returnedApiData.push(record);
@@ -643,7 +671,7 @@ exports.getGroupMembers = async (groupId, token) => new Promise(async function(r
 });
 
 // Get details about one specified user.
-exports.getUser = async (userId, token) => new Promise(async function(resolve, reject) {
+exports.getUser = async (userId, request) => new Promise(async function(resolve, reject) {
   try {
     const cachedData = userCache.get(userId);
     console.log("[Cache] Using found NodeCache entry for userId " + userId + ".");
@@ -652,8 +680,9 @@ exports.getUser = async (userId, token) => new Promise(async function(resolve, r
   catch {
     var thisApiPath = apiPath + "/users/" + userId;
     var apiData = [];
+    var errorCount = 0;
 
-    while (thisApiPath) {
+    while (errorCount < 0 && thisApiPath && request.session.token.access_token) {
       console.log("[API] GET " + thisApiPath);
 
       try {
@@ -661,7 +690,7 @@ exports.getUser = async (userId, token) => new Promise(async function(resolve, r
           json: true,
           headers: {
             "User-Agent": "Chalmers/Azure/Request",
-            "Authorization": token.token_type + " " + token.access_token
+            "Authorization": request.session.token.token_type + " " + request.session.token.access_token
           }
         });
 
@@ -683,14 +712,21 @@ exports.getUser = async (userId, token) => new Promise(async function(resolve, r
         }
       }
       catch (error) {
-        console.log("[API] Error: " + error);
-    
-        // TODO: Token refresh if www-authenticate ...
+        errorCount++;
+        console.error("[API] Error: " + error);
 
-        let err = new Error("Error from API: " + error);
-        err.status = 500;
-  
-        reject(err);
+        if (error.response.status == 401 && error.response.headers['www-authenticate']) { // refresh token, then try again
+          await oauth.providerRefreshToken(request);
+        }
+        else if (error.response.status == 401 && !error.response.headers['www-authenticate']) { // no access, redirect to auth
+          console.error("[API] Not authorized in Canvas for use of this API endpoint.");
+          console.error(JSON.stringify(error));
+          reject(error);
+        }
+        else {
+          console.error(error);
+          reject(error);  
+        }
       }
     }
 
