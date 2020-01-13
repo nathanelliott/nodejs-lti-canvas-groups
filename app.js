@@ -137,11 +137,11 @@ app.get('/csv/category/:id', async (request, result, next) => {
         result.setHeader("Content-Disposition", "attachment; filename=canvas-groups-category-" + id + ".csv");
         result.set("Content-Type", "text/csv");
   
-        let csvData = "\ufeffsep=,\r\nGroup,Student,Email address\r\n";
+        let csvData = "\ufeffGroup;Student;Email address\r\n";
   
         for (const group of data.categories[0].groups) {
           for (const user of group.users) {
-            csvData = csvData + "\"" + group.name + "\",\"" + user.sortableName + "\",\"" + user.email + "\"\r\n";
+            csvData = csvData + "\"" + group.name + "\";\"" + user.sortableName + "\";\"" + user.email + "\"\r\n";
           }
         }
   
