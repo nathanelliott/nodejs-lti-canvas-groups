@@ -21,19 +21,15 @@ html(lang='en')
             table
                 thead
                 tr
-                    th Id
-                    th Environment
-                    th Token
-                    th Expires, UTC
-                    th Updated
+                    th Data
                 tbody
                 each user in users
                     tr
-                        td #{user.user_id}
-                        td #{user.user_env}
-                        td #{user.api_token}
-                        td #{user.expires_at_utc}
-                        td #{user.updated_at}
+                        td Id: #{user.user_id}
+                            br Environment: #{user.user_env}
+                            br Token: #{user.api_token}
+                            br Expires, UTC: #{user.expires_at_utc}
+                            br Updated: #{user.updated_at}
 
             hr
             
