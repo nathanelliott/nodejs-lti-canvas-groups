@@ -12,6 +12,12 @@ pre {
     white-space: pre-wrap;
 }
 
+.intro {
+    color: rgb(100, 100, 100);
+    font-size: 1.4em;
+    font-weight: bold;
+}
+
 small {
     color: rgb(106, 106, 129);
     font-size: 70%;
