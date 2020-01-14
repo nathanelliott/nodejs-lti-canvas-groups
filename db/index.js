@@ -50,7 +50,7 @@ exports.getAllClientsData = () => new Promise(async function(resolve, reject) {
                             api_token: row.api_token,
                             refresh_token: row.refresh_token,
                             expires_at: new Date(row.expires_at_utc).toISOString(),
-                            updated_at: row.updated_at.toISOString()
+                            updated_at: new Date(row.updated_at).toISOString()
                         };
 
                         clientData.push(thisData);
