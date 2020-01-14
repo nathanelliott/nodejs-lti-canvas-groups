@@ -49,8 +49,8 @@ exports.getAllClientsData = () => new Promise(async function(resolve, reject) {
                             user_env: row.user_env,
                             api_token: row.api_token,
                             refresh_token: row.refresh_token,
-                            expires_at: new Date(row.expires_at_utc).toLocaleDateString('sv-SE', { weekday: 'numeric', year: 'numeric', month: 'numeric', day: 'numeric' }),
-                            updated_at: row.updated_at.toLocaleDateString('sv-SE', { weekday: 'numeric', year: 'numeric', month: 'numeric', day: 'numeric' })
+                            expires_at: new Date(row.expires_at_utc).toISOString(),
+                            updated_at: row.updated_at.toISOString()
                         };
 
                         clientData.push(thisData);
