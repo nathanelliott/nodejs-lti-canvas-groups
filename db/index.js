@@ -24,6 +24,46 @@ exports.setupDatabase = () => new Promise(async function(resolve, reject) {
     });
 });
 
+exports.getAllClientsData = () => new Promise(async function(resolve, reject) {
+    let db = new sqlite3.Database(dbPath, (error) => {
+        if (error) {
+            console.error(error.message);
+            reject();
+        }
+        else {
+            console.log("(DB) Query all data for clients.");
+
+            var clientData = [];
+        
+            db.get("SELECT DISTINCT user_id, user_env, api_token, refresh_token, expires_at_utc, updated_at FROM tokens ORDER BY updated_at DESC", function(error, rows) {
+                if (error) {
+                    console.error(error);
+
+                    db.close();
+                    reject(error);
+                }
+                else {
+                    rows.forEach((row) => {
+                        var thisData = {
+                            user_id: user_id,
+                            user_env: user_env,
+                            api_token: api_token,
+                            refresh_token: refresh_token,
+                            expires_at_utc: expires_at_utc,
+                            updated_at: updated_at
+                        };
+
+                        clientData.push(thisData);
+                    });
+
+                    db.close();
+                    resolve(clientData);
+                }
+            });
+        }
+    });
+});
+
 exports.setClientData = (userId, env, token, refresh, expires) => new Promise(function(resolve, reject) {
     let db = new sqlite3.Database(dbPath, (error) => {
         if (error) {
