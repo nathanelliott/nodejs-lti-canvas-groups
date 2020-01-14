@@ -121,7 +121,7 @@ app.get('/groups', async (request, result, next) => {
     }
   }
   else {
-    result.redirect('/groups');
+    next(new Error('Session is invalid. Please login via LTI in Canvas to use this application.'));
   }
 });
 
@@ -135,7 +135,7 @@ app.get('/csv/category/:id', async (request, result, next) => {
   
         console.log("[JSON Result] " + JSON.stringify(data));
     
-        result.setHeader("Content-Disposition", "attachment; filename=canvas-groups-category-" + id + ".csv");
+        result.setHeader("Content-Disposition", "attachment; filename=Canvas+Groups+" + data.context.title.replace(/[^a-zA-Z0-9\s]+/g, "-") + ".csv");
         result.set("Content-Type", "text/csv");
   
         let csvData = "\ufeffGroup;Student;Email address\r\n";
@@ -147,7 +147,7 @@ app.get('/csv/category/:id', async (request, result, next) => {
         }
   
         console.log("Returning: " + csvData);
-  
+        
         return result.status(200).end(csvData);
       }
       else {
@@ -159,7 +159,7 @@ app.get('/csv/category/:id', async (request, result, next) => {
     }
   }
   else {
-    next(new Error('The session is invalid. Please login via LTI to use this application.'));
+    next(new Error('Session is invalid. Please login via LTI in Canvas first to use this application.'));
   }
 });
 

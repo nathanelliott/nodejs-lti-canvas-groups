@@ -162,6 +162,12 @@ module.exports.compileCategoryGroupsData = async (categoryId, request) => new Pr
       email: request.session.email,
       id: request.session.userId
     },
+    context: {
+      id: request.session.contextId,
+      courseId: request.session.canvasCourseId,
+      enrollmentState: request.session.canvasEnrollmentState,
+      title: request.session.contextTitle
+    },
     categories: categoriesWithGroups,
     statistics: {
       running_s: hrend[0],
