@@ -25,11 +25,16 @@ html(lang='en')
                 tbody
                 each user in users
                     tr
-                        td Id: #{user.user_id}
-                            br Environment: #{user.user_env}
-                            br Token: #{user.api_token}
-                            br Expires, UTC: #{user.expires_at_utc}
-                            br Updated: #{user.updated_at}
+                        td
+                            | Id: #{user.user_id}
+                            br
+                            | Environment: #{user.user_env}
+                            br 
+                            | Token: #{user.api_token}
+                            br
+                            | Expires, UTC: #{user.expires_at_utc}
+                            br
+                            | Updated: #{user.updated_at}
 
             hr
             
