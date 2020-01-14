@@ -77,10 +77,10 @@ app.get('/oauth/redirect', async (request, response, next) => {
 });
 
 app.get('/stats', async (request, response, next) => {
-  if (adminUserIds.length && req.session.userId && adminUserIds.includes(req.session.userId)) {
+  if (adminUserIds.length && request.session.userId && adminUserIds.includes(request.session.userId)) {
     const authorizedUsers = await db.getAllClientsData();
 
-    return res.render('stats', {
+    return response.render('stats', {
       users: authorizedUsers,
       statistics: {
         name: pkg.name,
