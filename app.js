@@ -15,7 +15,7 @@ const port = process.env.PORT || 3000;
 const fileStoreOptions = {};
 const cookieMaxAge = 3600000 * 12; // 12h
 
-const adminUserIds = process.env.adminCanvasUserIds.split(",");
+const adminUserIds = process.env.adminCanvasUserIds ? process.env.adminCanvasUserIds.split(",") : "";
 
 // Setup database
 db.setupDatabase().then(console.log("Database initialized.")).catch(function(error) { console.error("Setting up database: " + error)});
