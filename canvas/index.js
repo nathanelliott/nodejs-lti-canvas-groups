@@ -103,7 +103,7 @@ exports.cacheStat = async () => new Promise(async function (resolve, reject) {
   resolve(true);
 });
 
-exports.getCacheStat = async () => new Promise(async function (resolve, reject) {
+module.exports.getCacheStat = async () => new Promise(async function (resolve, reject) {
   var cacheList = [];
 
   for (const cache of caches) {    
