@@ -103,6 +103,40 @@ exports.cacheStat = async () => new Promise(async function (resolve, reject) {
   resolve(true);
 });
 
+exports.getCacheStat = async () => new Promise(async function (resolve, reject) {
+  var cacheList = [];
+
+  for (const cache of caches) {    
+    console.log("[Get] Cache keys and TTL for " + cache.name + ":");
+
+    var cacheKeys = [];
+
+    cache.bucket.keys(function(err, keys){
+      if (!err) {
+        for (const key of keys) {
+          const TTL_MS = cache.bucket.getTtl(key);
+          var thisKey = {
+            name: key,
+            ttl_ms: TTL_MS,
+            expires_at: new Date(TTL_MS).toLocaleTimeString()
+          };
+
+          cacheKeys.push(thisKey);
+        }
+      }
+    });
+
+    var cacheData = {
+      name: cache.name,
+      keys: cacheKeys
+    };
+
+    cacheList.push(cacheData);
+  }
+
+  resolve(cacheList);
+});
+
 // Compile category groups data for CSV export.
 module.exports.compileCategoryGroupsData = async (categoryId, request) => new Promise(async function(resolve, reject) {
   var hrstart = process.hrtime();

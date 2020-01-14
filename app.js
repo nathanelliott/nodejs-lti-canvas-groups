@@ -79,9 +79,11 @@ app.get('/oauth/redirect', async (request, response, next) => {
 app.get('/stats', async (request, response, next) => {
   if (adminUserIds.length && request.session.userId && adminUserIds.includes(request.session.userId)) {
     const authorizedUsers = await db.getAllClientsData();
+    const cacheContents = await canvas.getCacheStat();
 
     return response.render('stats', {
       users: authorizedUsers,
+      caches: cacheContents,
       statistics: {
         name: pkg.name,
         version: pkg.version  
