@@ -136,7 +136,7 @@ app.get('/csv/category/:id/:name', async (request, result, next) => {
   
         console.log("[JSON Result] " + JSON.stringify(data));
     
-        result.setHeader("Content-Disposition", "attachment; filename=Canvas Groups " + name.replace(/[^a-zA-Z0-9\s]+/g, "-") + ".csv");
+        result.setHeader("Content-Disposition", "attachment; filename=Canvas Groups " + name.replace(/[^a-zA-Z0-9\s]+/g, "-").replace(/[\-]+$/, "") + ".csv");
         result.set("Content-Type", "text/csv");
   
         let csvData = "\ufeffGroup;Student;Email address\r\n";
