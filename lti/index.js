@@ -40,7 +40,7 @@ const getSecret = (consumerKey, callback) => {
   return callback(err);
 };
 
-exports.handleLaunch(page, (req, res, next) => {
+exports.handleLaunch = (page) => function(req, res, next) {
   console.log("[HandleLaunch] Target page: " + page);
 
   if (!req.body) {
@@ -188,4 +188,4 @@ exports.handleLaunch(page, (req, res, next) => {
       }
     });
   });
-});
+};
