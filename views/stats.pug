@@ -1,0 +1,41 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='utf-8')
+    title nodejs-lti-canvas-groups
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    meta(name='description', content='nodejs-lti-canvas-groups')
+    meta(name='author', content='Rolf Johansson')
+    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css')
+    link(rel='stylesheet', href='https://fonts.googleapis.com/css?family=Lato:300,400,400i,700&amp;subset=latin-ext&amp;display=swap')
+    link(rel='stylesheet', href='/assets/styles/styles.css')
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js')
+    script(src='https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js')
+    script(src='/assets/js/script.js')
+  body
+    .container
+      .row
+        .col-lg-12.text-left
+            h1 Administration
+            h2 Authorized users from Canvas
+            table
+                thead
+                tr
+                    th Id
+                    th Environment
+                    th Token
+                    th Expires, UTC
+                    th Updated
+                tbody
+                each user in users
+                    tr
+                        td #{user.user_id}
+                        td #{user.user_env}
+                        td #{user.api_token}
+                        td #{user.expires_at_utc}
+                        td #{user.updated_at}
+
+            hr
+            
+            p
+                small #{statistics.name} #{statistics.version} <!-- render time #{statistics.running_s}s, #{statistics.running_ms}ms. -->

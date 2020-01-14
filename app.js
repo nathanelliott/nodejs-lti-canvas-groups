@@ -81,7 +81,11 @@ app.get('/stats', async (request, response, next) => {
     const authorizedUsers = await db.getAllClientsData();
 
     return res.render('stats', {
-      users: authorizedUsers
+      users: authorizedUsers,
+      statistics: {
+        name: pkg.name,
+        version: pkg.version  
+      }
     });
   }
   else {

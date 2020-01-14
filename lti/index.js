@@ -80,28 +80,28 @@ exports.handleLaunch = (page) => function(req, res, next) {
 
           if (expiry > now) {
             console.log("(session) OAuth Token for API is OK.");
-            res.redirect('/groups');
+            res.redirect('/' + page);
           }
           else if (expiry < now) {
             console.log("(session) OAuth Token for API has expired, refreshing.");
             oauth.providerRefreshToken(req)
             .then(() => {
-              res.redirect('/groups');
+              res.redirect('/' + page);
             })
             .catch((error) => {
               console.error(error);
-              res.redirect('/error?string=Token+expired+below+but+error+during+refresh+session+exists');
+              res.redirect('/' + page + '?error=Token+expired+below+but+error+during+refresh+session+exists');
             });
           }
           else if (expiry == now) {
             console.log("(session) The two dates are EXACTLY the same, believe it or not.");
             oauth.providerRefreshToken(req)
             .then(() => {
-              res.redirect('/groups');
+              res.redirect('/' + page);
             })
             .catch((error) => {
               console.error(error);
-              res.redirect('/error?string=Token+expired+equal+but+error+during+refresh+session+exists');
+              res.redirect('/' + page + '?error=Token+expired+equal+but+error+during+refresh+session+exists');
             });
           }
           else {
@@ -146,28 +146,28 @@ exports.handleLaunch = (page) => function(req, res, next) {
   
             if (expiry > now) {
               console.log("(afterDB) OAuth Token for API is OK.");
-              res.redirect('/groups');
+              res.redirect('/' + page);
             }
             else if (expiry < now) {
               console.log("(afterDB) OAuth Token for API has expired, refreshing.");
               oauth.providerRefreshToken(req)
               .then(() => {
-                res.redirect('/groups');
+                res.redirect('/' + page);
               })
               .catch((error) => {
                 console.error(error);
-                res.redirect('/error?string=Token+expired+below+but+error+during+refresh+session+regenerated');
+                res.redirect('/' + page + '?error=Token+expired+below+but+error+during+refresh+session+regenerated');
               });
             }
             else if (expiry == now) {
               console.log("(afterDB) The two dates are EXACTLY the same, believe it or not.");
               oauth.providerRefreshToken(req)
               .then(() => {
-                res.redirect('/groups');
+                res.redirect('/' + page);
               })
               .catch((error) => {
                 console.error(error);
-                res.redirect('/error?string=Token+expired+equal+but+error+during+refresh+session+regenerated');
+                res.redirect('/' + page + 'error=Token+expired+equal+but+error+during+refresh+session+regenerated');
               });
             }
             else {
