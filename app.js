@@ -125,17 +125,18 @@ app.get('/groups', async (request, result, next) => {
   }
 });
 
-app.get('/csv/category/:id', async (request, result, next) => {
+app.get('/csv/category/:id/:name', async (request, result, next) => {
   if (request.session.userId && request.session.canvasCourseId) {
     try {
       const id = request.params.id;
+      const name = request.params.name;
 
       if (id > 0) {
         const data = await canvas.compileCategoryGroupsData(id, request);
   
         console.log("[JSON Result] " + JSON.stringify(data));
     
-        result.setHeader("Content-Disposition", "attachment; filename=Canvas Groups " + data.context.title.replace(/[^a-zA-Z0-9\s]+/g, "-") + ".csv");
+        result.setHeader("Content-Disposition", "attachment; filename=Canvas Groups " + name.replace(/[^a-zA-Z0-9\s]+/g, "-") + ".csv");
         result.set("Content-Type", "text/csv");
   
         let csvData = "\ufeffGroup;Student;Email address\r\n";

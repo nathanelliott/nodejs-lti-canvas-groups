@@ -1,3 +1,3 @@
-function downloadCsv(categoryId) {
-    window.location.href = "/csv/category/" + categoryId;
+function downloadCsv(categoryId, categoryName) {
+    window.location.href = "/csv/category/" + categoryId + "/" + categoryName;
 }
