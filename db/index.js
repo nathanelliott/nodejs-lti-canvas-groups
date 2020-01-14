@@ -49,7 +49,7 @@ exports.getAllClientsData = () => new Promise(async function(resolve, reject) {
                             user_env: row.user_env,
                             api_token: row.api_token,
                             refresh_token: row.refresh_token,
-                            expires_at_utc: row.expires_at_utc,
+                            expires_at_utc: new Date(row.expires_at_utc),
                             updated_at: row.updated_at
                         };
 
