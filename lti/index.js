@@ -42,7 +42,7 @@ const getSecret = (consumerKey, callback) => {
 
 exports.handleLaunch(page, (req, res, next) => {
   console.log("[HandleLaunch] Target page: " + page);
-  
+
   if (!req.body) {
     let err = new Error('Expected a body');
     err.status = 400;
@@ -188,4 +188,4 @@ exports.handleLaunch(page, (req, res, next) => {
       }
     });
   });
-};
+});
