@@ -83,6 +83,7 @@ app.get('/stats', async (request, response, next) => {
 
     return response.render('stats', {
       users: authorizedUsers,
+      usersString: JSON.stringify(authorizedUsers),
       caches: cacheContents,
       cachesString: JSON.stringify(cacheContents),
       statistics: {
