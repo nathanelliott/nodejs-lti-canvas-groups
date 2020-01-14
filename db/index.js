@@ -35,7 +35,7 @@ exports.getAllClientsData = () => new Promise(async function(resolve, reject) {
 
             var clientData = [];
         
-            db.get("SELECT DISTINCT user_id, user_env, api_token, refresh_token, expires_at_utc, updated_at FROM tokens ORDER BY updated_at DESC", [], function(error, rows) {
+            db.all("SELECT DISTINCT user_id, user_env, api_token, refresh_token, expires_at_utc, updated_at FROM tokens ORDER BY updated_at DESC", [], function(error, rows) {
                 if (error) {
                     console.error(error);
 
