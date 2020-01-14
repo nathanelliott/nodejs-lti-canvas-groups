@@ -45,12 +45,12 @@ exports.getAllClientsData = () => new Promise(async function(resolve, reject) {
                 else {
                     rows.forEach((row) => {
                         var thisData = {
-                            user_id: user_id,
-                            user_env: user_env,
-                            api_token: api_token,
-                            refresh_token: refresh_token,
-                            expires_at_utc: expires_at_utc,
-                            updated_at: updated_at
+                            user_id: row.user_id,
+                            user_env: row.user_env,
+                            api_token: row.api_token,
+                            refresh_token: row.refresh_token,
+                            expires_at_utc: row.expires_at_utc,
+                            updated_at: row.updated_at
                         };
 
                         clientData.push(thisData);
