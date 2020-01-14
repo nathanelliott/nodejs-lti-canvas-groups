@@ -84,6 +84,7 @@ app.get('/stats', async (request, response, next) => {
     return response.render('stats', {
       users: authorizedUsers,
       caches: cacheContents,
+      cachesString: JSON.stringify(cacheContents),
       statistics: {
         name: pkg.name,
         version: pkg.version  
