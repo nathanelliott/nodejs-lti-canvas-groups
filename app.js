@@ -15,6 +15,8 @@ const port = process.env.PORT || 3000;
 const fileStoreOptions = {};
 const cookieMaxAge = 3600000 * 12; // 12h
 
+const adminUserIds = process.env.adminCanvasUserIds.split(",");
+
 // Setup database
 db.setupDatabase().then(console.log("Database initialized.")).catch(function(error) { console.error("Setting up database: " + error)});
 
@@ -71,6 +73,19 @@ app.get('/oauth/redirect', async (request, response, next) => {
   catch (error) {
     console.log("Error during token exchange in app.js: " + error);
     next(error);
+  }
+});
+
+app.get('/stats', async (request, response, next) => {
+  if (adminUserIds.length && req.session.userId && adminUserIds.includes(req.session.userId)) {
+    const authorizedUsers = await db.getAllClientsData();
+
+    return res.render('stats', {
+      users: authorizedUsers
+    });
+  }
+  else {
+    next(new Error('Session invalid. Please login via LTI to use this application.'));
   }
 });
 
@@ -164,7 +179,8 @@ app.get('/csv/category/:id/:name', async (request, result, next) => {
   }
 });
 
-app.post('/launch_lti', lti.handleLaunch);
+app.post('/launch_lti', lti.handleLaunch('groups'));
+app.post('/launch_lti_stats', lti.handleLaunch('stats'));
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 
