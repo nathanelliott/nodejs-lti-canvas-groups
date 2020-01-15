@@ -9,6 +9,7 @@ const helmet = require('helmet');
 const oauth = require('./oauth');
 const canvas = require('./canvas');
 const lti = require('./lti');
+const log = require('./log');
 const db = require('./db');
 
 const port = process.env.PORT || 3000;
@@ -18,7 +19,7 @@ const cookieMaxAge = 3600000 * 12; // 12h
 const adminUserIds = process.env.adminCanvasUserIds ? process.env.adminCanvasUserIds.split(",") : "";
 
 // Setup database
-db.setupDatabase().then(console.log("Database initialized.")).catch(function(error) { console.error("Setting up database: " + error)});
+db.setupDatabase().then(log.info("Database initialized.")).catch(function(error) { log.error("Setting up database: " + error)});
 
 // this express server should be secured/hardened for production use
 const app = express();
