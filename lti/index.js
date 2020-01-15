@@ -5,6 +5,7 @@ const NodeCache = require('node-cache');
 const nodeCacheNonceStore = require('../node-cache-nonce');
 const canvas = require('../canvas');
 const oauth = require('../oauth');
+const log = require('../log');
 const db = require('../db');
 
 const myCache = new NodeCache();
@@ -24,7 +25,7 @@ const getSecret = (consumerKey, callback) => {
         "secret": key.split(':')[1] 
       });
 
-      console.log("Added consumer key for '" + key.split(':')[0] + "'.");
+      log.info("Added consumer key for '" + key.split(':')[0] + "'.");
     }
   }
 
@@ -41,8 +42,7 @@ const getSecret = (consumerKey, callback) => {
 };
 
 exports.handleLaunch = (page) => function(req, res, next) {
-  console.log("[HandleLaunch] Target page: " + page);
-  console.log("[HandleLaunch] Version: " + process.version);
+  log.info("[HandleLaunch] Target page: " + page);
   
   if (!req.body) {
     let err = new Error('Expected a body');
@@ -70,43 +70,43 @@ exports.handleLaunch = (page) => function(req, res, next) {
       }
       if (isValid) {
         if (typeof req.session !== 'undefined' && typeof req.session.token !== 'undefined' && typeof req.session.token.expires_at_utc !== 'undefined' && req.session.contextId && req.session.contextId == provider.context_id) {
-          console.log("User session exists: " + req.session.id);
+          log.info("User session exists: " + req.session.id);
 
           const now = new Date();
           const expiry = new Date(Date.parse(req.session.token.expires_at_utc));
 
-          console.log("(session) now: " + now + "\r\n");
-          console.log("(session) token.expires_at_utc (raw): " + req.session.token.expires_at_utc + "\r\n");
-          console.log("(session) token.expires_at_utc (Date.parse(expires_at_utc)): " + expiry + "\r\n");
+          log.info("(session) now: " + now + "\r\n");
+          log.info("(session) token.expires_at_utc (raw): " + req.session.token.expires_at_utc + "\r\n");
+          log.info("(session) token.expires_at_utc (Date.parse(expires_at_utc)): " + expiry + "\r\n");
 
           if (expiry > now) {
-            console.log("(session) OAuth Token for API is OK.");
+            log.info("(session) OAuth Token for API is OK.");
             res.redirect('/' + page);
           }
           else if (expiry < now) {
-            console.log("(session) OAuth Token for API has expired, refreshing.");
+            log.info("(session) OAuth Token for API has expired, refreshing.");
             oauth.providerRefreshToken(req)
             .then(() => {
               res.redirect('/' + page);
             })
             .catch((error) => {
-              console.error(error);
+              log.error(error);
               res.redirect('/' + page + '?error=Token+expired+below+but+error+during+refresh+session+exists');
             });
           }
           else if (expiry == now) {
-            console.log("(session) The two dates are EXACTLY the same, believe it or not.");
+            log.info("(session) The two dates are EXACTLY the same, believe it or not.");
             oauth.providerRefreshToken(req)
             .then(() => {
               res.redirect('/' + page);
             })
             .catch((error) => {
-              console.error(error);
+              log.error(error);
               res.redirect('/' + page + '?error=Token+expired+equal+but+error+during+refresh+session+exists');
             });
           }
           else {
-            console.log("(session) No OAuth Token for API, forcing OAuth flow.");
+            log.info("(session) No OAuth Token for API, forcing OAuth flow.");
             res.redirect('/oauth');
           }
         }
@@ -141,50 +141,50 @@ exports.handleLaunch = (page) => function(req, res, next) {
             const now = new Date();
             const expiry = new Date(Date.parse(req.session.token.expires_at_utc));
   
-            console.log("(afterDB_1) now: " + now + "\r\n");
-            console.log("(afterDB_2) token.expires_at_utc (raw): " + req.session.token.expires_at_utc);
-            console.log("(afterDB_3) token.expires_at_utc (Date.parse(expires_at_utc)): " + expiry);
+            log.info("(afterDB_1) now: " + now + "\r\n");
+            log.info("(afterDB_2) token.expires_at_utc (raw): " + req.session.token.expires_at_utc);
+            log.info("(afterDB_3) token.expires_at_utc (Date.parse(expires_at_utc)): " + expiry);
   
             if (expiry > now) {
-              console.log("(afterDB) OAuth Token for API is OK.");
+              log.info("(afterDB) OAuth Token for API is OK.");
               res.redirect('/' + page);
             }
             else if (expiry < now) {
-              console.log("(afterDB) OAuth Token for API has expired, refreshing.");
+              log.info("(afterDB) OAuth Token for API has expired, refreshing.");
               oauth.providerRefreshToken(req)
               .then(() => {
                 res.redirect('/' + page);
               })
               .catch((error) => {
-                console.error(error);
+                log.error(error);
                 res.redirect('/' + page + '?error=Token+expired+below+but+error+during+refresh+session+regenerated');
               });
             }
             else if (expiry == now) {
-              console.log("(afterDB) The two dates are EXACTLY the same, believe it or not.");
+              log.info("(afterDB) The two dates are EXACTLY the same, believe it or not.");
               oauth.providerRefreshToken(req)
               .then(() => {
                 res.redirect('/' + page);
               })
               .catch((error) => {
-                console.error(error);
+                log.error(error);
                 res.redirect('/' + page + 'error=Token+expired+equal+but+error+during+refresh+session+regenerated');
               });
             }
             else {
-              console.log("(afterDB) No OAuth Token for API, forcing OAuth flow.");
+              log.info("(afterDB) No OAuth Token for API, forcing OAuth flow.");
               res.redirect('/oauth');
             }
           })
           .catch((error) => {
-            console.error(error);
-            console.log("(afterDB_CATCH) No token data in db for user_id '" + provider.userId + "', forcing OAuth flow.");
+            log.error(error);
+            log.info("(afterDB_CATCH) No token data in db for user_id '" + provider.userId + "', forcing OAuth flow.");
             res.redirect('/oauth');
           });
         }
       }
       else {
-        console.log("The request is NOT valid.");
+        log.info("The request is NOT valid.");
         return next(err);
       }
     });

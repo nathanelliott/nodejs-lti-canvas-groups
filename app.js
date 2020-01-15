@@ -67,12 +67,12 @@ app.get('/oauth', (request, response, next) => {
 app.get('/oauth/redirect', async (request, response, next) => {
   try {
     request.session.token = await oauth.providerRequestToken(request);
-    console.log("Written data to session: " + JSON.stringify(request.session.token));
-    console.log("Redirecting to /groups");
+    log.info("Written data to session: " + JSON.stringify(request.session.token));
+    log.info("Redirecting to /groups");
     response.redirect('/groups');
   }
   catch (error) {
-    console.log("Error during token exchange in app.js: " + error);
+    log.info("Error during token exchange in app.js: " + error);
     next(error);
   }
 });
@@ -128,12 +128,12 @@ app.get('/groups', async (request, result, next) => {
       data.statistics.name = pkg.name;
       data.statistics.version = pkg.version;
       
-      console.log("[JSON Result] " + JSON.stringify(data));
+      log.info("[JSON Result] " + JSON.stringify(data));
 
       return result.render('groups', data);  
     }
     catch (error) {
-      console.error(error);
+      log.error(error);
 
       if (error.response.status == 401) {
         try {
@@ -162,7 +162,7 @@ app.get('/csv/category/:id/:name', async (request, result, next) => {
       if (id > 0) {
         const data = await canvas.compileCategoryGroupsData(id, request);
   
-        console.log("[JSON Result] " + JSON.stringify(data));
+        log.info("[JSON Result] " + JSON.stringify(data));
     
         result.setHeader("Content-Disposition", "attachment; filename=Canvas Groups " + name.replace(/[^a-zA-Z0-9\s]+/g, "-").replace(/[\-]+$/, "") + ".csv");
         result.set("Content-Type", "text/csv");
@@ -175,7 +175,7 @@ app.get('/csv/category/:id/:name', async (request, result, next) => {
           }
         }
   
-        console.log("Returning: " + csvData);
+        log.info("Returning: " + csvData);
 
         return result.status(200).end(csvData);
       }
@@ -195,9 +195,9 @@ app.get('/csv/category/:id/:name', async (request, result, next) => {
 app.post('/launch_lti', lti.handleLaunch('groups'));
 app.post('/launch_lti_stats', lti.handleLaunch('stats'));
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+app.listen(port, () => log.info(`Example app listening on port ${port}!`));
 
 process.on('uncaughtException', (err) => {
-  console.error('There was an uncaught error', err);
+  log.error('There was an uncaught error', err);
   process.exit(1); //mandatory (as per the Node docs)
 });
