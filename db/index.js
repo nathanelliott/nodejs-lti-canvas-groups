@@ -1,6 +1,7 @@
 'use strict';
 
 const sqlite3 = require('sqlite3').verbose();
+const log = require('../log');
 const dbPath = './db/token.db';
 
 exports.setupDatabase = () => new Promise(async function(resolve, reject) {
