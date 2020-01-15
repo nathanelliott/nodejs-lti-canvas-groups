@@ -115,13 +115,11 @@ module.exports.getCacheStat = async () => new Promise(async function (resolve, r
       if (!err) {
         for (const key of keys) {
           const TTL_MS = cache.bucket.getTtl(key);
-          const value = cache.bucket.get(key);
 
           var thisKey = {
             name: key,
             ttl_ms: TTL_MS,
-            expires_at: new Date(TTL_MS).toLocaleTimeString(),
-            content: JSON.stringify(value)
+            expires_at: new Date(TTL_MS).toLocaleTimeString()
           };
 
           cacheKeys.push(thisKey);
