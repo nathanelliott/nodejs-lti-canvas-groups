@@ -10,6 +10,8 @@ h1, h2, h3 {
 
 pre {
     white-space: pre-wrap;
+    font-size: 0.8em;
+    color: rgb(20, 20, 20);
 }
 
 .intro {
