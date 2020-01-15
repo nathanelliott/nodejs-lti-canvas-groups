@@ -88,7 +88,10 @@ app.get('/stats', async (request, response, next) => {
       cachesString: JSON.stringify(cacheContents, null, 2),
       statistics: {
         name: pkg.name,
-        version: pkg.version  
+        version: pkg.version,
+        pid: process.pid,
+        ppid: process.ppid,
+        resourceUsage: JSON.stringify(process.resourceUsage(), null, 2)
       }
     });
   }

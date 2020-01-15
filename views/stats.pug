@@ -18,13 +18,16 @@ html(lang='en')
         .col-lg-12.text-left
             h1 Administration
 
-            h3 Authorized users from Canvas
+            h3 OAuth from Canvas
             pre #{usersString}
 
             h3 Caches
             pre #{cachesString}
 
+            h3 Resource Usage
+            pre #{resourceUsage}
+            
             hr
             
             p
-                small #{statistics.name} #{statistics.version} <!-- render time #{statistics.running_s}s, #{statistics.running_ms}ms. -->
+                small #{statistics.name} #{statistics.version} #{statistics.pid} &gt; #{statistics.ppid} <!-- render time #{statistics.running_s}s, #{statistics.running_ms}ms. -->
