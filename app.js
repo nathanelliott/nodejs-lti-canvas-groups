@@ -80,7 +80,7 @@ app.get('/oauth/redirect', async (request, response, next) => {
 app.get('/error', (request, response, next) => {
   return response.render('error', {
     error: {
-      text: request.param('text')
+      text: request.params.text
     },
     statistics: {
       name: pkg.name,

@@ -18,13 +18,12 @@ html(lang='en')
         .col-lg-12.text-left
             h1 Sorry, something went wrong
 
-            pre #{error.text}
-
             p Please go back and try using the link again. If the error is still here, please contact an administrator with the following information:
 
             pre Version #{statistics.version}, PID #{statistics.pid}, PPID #{statistics.ppid}
+            pre #{error.text}
 
             hr
             
             p
-                small #{statistics.name} #{statistics.version} #{statistics.pid} &gt; #{statistics.ppid} <!-- render time #{statistics.running_s}s, #{statistics.running_ms}ms. -->
+                small #{statistics.name} #{statistics.version} <!-- render time #{statistics.running_s}s, #{statistics.running_ms}ms. -->
