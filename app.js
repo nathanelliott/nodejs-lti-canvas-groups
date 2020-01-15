@@ -91,7 +91,8 @@ app.get('/stats', async (request, response, next) => {
         version: pkg.version,
         pid: process.pid,
         ppid: process.ppid,
-        resourceUsage: JSON.stringify(process.resourceUsage(), null, 2)
+        resourceUsage: JSON.stringify(process.resourceUsage(), null, 2),
+        versions: JSON.stringify(process.versions, null, 2)
       }
     });
   }
