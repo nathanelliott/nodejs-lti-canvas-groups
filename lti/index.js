@@ -42,7 +42,8 @@ const getSecret = (consumerKey, callback) => {
 
 exports.handleLaunch = (page) => function(req, res, next) {
   console.log("[HandleLaunch] Target page: " + page);
-
+  console.log("[HandleLaunch] Version: " + process.version);
+  
   if (!req.body) {
     let err = new Error('Expected a body');
     err.status = 400;
