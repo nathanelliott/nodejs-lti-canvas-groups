@@ -75,9 +75,9 @@ exports.handleLaunch = (page) => function(req, res, next) {
           const now = new Date();
           const expiry = new Date(Date.parse(req.session.token.expires_at_utc));
 
-          log.info("(session) now: " + now + "\r\n");
+          /* log.info("(session) now: " + now + "\r\n");
           log.info("(session) token.expires_at_utc (raw): " + req.session.token.expires_at_utc + "\r\n");
-          log.info("(session) token.expires_at_utc (Date.parse(expires_at_utc)): " + expiry + "\r\n");
+          log.info("(session) token.expires_at_utc (Date.parse(expires_at_utc)): " + expiry + "\r\n"); */
 
           if (expiry > now) {
             log.info("(session) OAuth Token for API is OK.");
@@ -141,9 +141,9 @@ exports.handleLaunch = (page) => function(req, res, next) {
             const now = new Date();
             const expiry = new Date(Date.parse(req.session.token.expires_at_utc));
   
-            log.info("(afterDB_1) now: " + now + "\r\n");
+            /* log.info("(afterDB_1) now: " + now + "\r\n");
             log.info("(afterDB_2) token.expires_at_utc (raw): " + req.session.token.expires_at_utc);
-            log.info("(afterDB_3) token.expires_at_utc (Date.parse(expires_at_utc)): " + expiry);
+            log.info("(afterDB_3) token.expires_at_utc (Date.parse(expires_at_utc)): " + expiry); */
   
             if (expiry > now) {
               log.info("(afterDB) OAuth Token for API is OK.");
