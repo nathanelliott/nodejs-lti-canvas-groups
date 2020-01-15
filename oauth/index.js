@@ -2,6 +2,7 @@
 
 const axios = require('axios');
 const canvas = require('../canvas');
+const log = require('../log');
 const db = require('../db');
 
 const clientRedirectUri = "https://" + process.env.WEBSITE_HOSTNAME + "/oauth/redirect";
