@@ -72,9 +72,25 @@ app.get('/oauth/redirect', async (request, response, next) => {
     response.redirect('/groups');
   }
   catch (error) {
-    log.info("Error during token exchange in app.js: " + error);
-    next(error);
+    log.error("Error during token exchange in app.js: " + error);
+    response.redirect('/error?text=Error during token exchange in app.js: ' + error);
   }
+});
+
+app.get('/error', (request, response, next) => {
+  return response.render('error', {
+    error: {
+      text: request.param('text')
+    },
+    statistics: {
+      name: pkg.name,
+      version: pkg.version,
+      pid: process.pid,
+      ppid: process.ppid,
+      resourceUsage: JSON.stringify(process.resourceUsage(), null, 2),
+      versions: JSON.stringify(process.versions, null, 2)
+    }
+  });
 });
 
 app.get('/stats', async (request, response, next) => {
@@ -128,8 +144,6 @@ app.get('/groups', async (request, result, next) => {
       data.statistics.name = pkg.name;
       data.statistics.version = pkg.version;
       
-      log.info("[JSON Result] " + JSON.stringify(data));
-
       return result.render('groups', data);  
     }
     catch (error) {
@@ -149,7 +163,7 @@ app.get('/groups', async (request, result, next) => {
     }
   }
   else {
-    next(new Error('Session is invalid. Please login via LTI in Canvas to use this application.'));
+    return result.redirect('/error?text=Session is invalid. Please login via LTI in Canvas.'); 
   }
 });
 
@@ -175,8 +189,6 @@ app.get('/csv/category/:id/:name', async (request, result, next) => {
           }
         }
   
-        log.info("Returning: " + csvData);
-
         return result.status(200).end(csvData);
       }
       else {

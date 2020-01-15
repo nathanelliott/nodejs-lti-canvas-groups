@@ -70,7 +70,7 @@ exports.handleLaunch = (page) => function(req, res, next) {
       }
       if (isValid) {
         if (typeof req.session !== 'undefined' && typeof req.session.token !== 'undefined' && typeof req.session.token.expires_at_utc !== 'undefined' && req.session.contextId && req.session.contextId == provider.context_id) {
-          log.info("User session exists: " + req.session.id);
+          log.info("[Session] User session exists: " + req.session.id);
 
           const now = new Date();
           const expiry = new Date(Date.parse(req.session.token.expires_at_utc));
@@ -91,7 +91,7 @@ exports.handleLaunch = (page) => function(req, res, next) {
             })
             .catch((error) => {
               log.error(error);
-              res.redirect('/' + page + '?error=Token+expired+below+but+error+during+refresh+session+exists');
+              res.redirect('/error?text=Token+expired+below+but+error+during+refresh+session+exists');
             });
           }
           else if (expiry == now) {
@@ -102,7 +102,7 @@ exports.handleLaunch = (page) => function(req, res, next) {
             })
             .catch((error) => {
               log.error(error);
-              res.redirect('/' + page + '?error=Token+expired+equal+but+error+during+refresh+session+exists');
+              res.redirect('/error?text=Token+expired+equal+but+error+during+refresh+session+exists');
             });
           }
           else {
@@ -157,7 +157,7 @@ exports.handleLaunch = (page) => function(req, res, next) {
               })
               .catch((error) => {
                 log.error(error);
-                res.redirect('/' + page + '?error=Token+expired+below+but+error+during+refresh+session+regenerated');
+                res.redirect('/error?text=Token+expired+below+but+error+during+refresh+session+regenerated');
               });
             }
             else if (expiry == now) {
@@ -168,7 +168,7 @@ exports.handleLaunch = (page) => function(req, res, next) {
               })
               .catch((error) => {
                 log.error(error);
-                res.redirect('/' + page + 'error=Token+expired+equal+but+error+during+refresh+session+regenerated');
+                res.redirect('/error?text=Token+expired+equal+but+error+during+refresh+session+regenerated');
               });
             }
             else {
@@ -184,7 +184,7 @@ exports.handleLaunch = (page) => function(req, res, next) {
         }
       }
       else {
-        log.info("The request is NOT valid.");
+        log.error("The request is NOT valid.");
         return next(err);
       }
     });

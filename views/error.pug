@@ -1,0 +1,30 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='utf-8')
+    title nodejs-lti-canvas-groups
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    meta(name='description', content='nodejs-lti-canvas-groups')
+    meta(name='author', content='Rolf Johansson')
+    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css')
+    link(rel='stylesheet', href='https://fonts.googleapis.com/css?family=Lato:300,400,400i,700&amp;subset=latin-ext&amp;display=swap')
+    link(rel='stylesheet', href='/assets/styles/styles.css')
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js')
+    script(src='https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js')
+    script(src='/assets/js/script.js')
+  body
+    .container
+      .row
+        .col-lg-12.text-left
+            h1 Sorry, something went wrong
+
+            pre #{error.text}
+
+            p Please go back and try using the link again. If the error is still here, please contact an administrator with the following information:
+
+            pre Version #{statistics.version}, PID #{statistics.pid}, PPID #{statistics.ppid}
+
+            hr
+            
+            p
+                small #{statistics.name} #{statistics.version} #{statistics.pid} &gt; #{statistics.ppid} <!-- render time #{statistics.running_s}s, #{statistics.running_ms}ms. -->
