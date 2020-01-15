@@ -64,7 +64,7 @@ exports.providerRequestToken = async (request) => new Promise(function(resolve, 
         });
     }
     else {
-        reject(new Error("LTI session is not valid."));
+        reject(new Error("Session is not valid; third-party cookies must be allowed."));
     }
 });
 
