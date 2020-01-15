@@ -198,6 +198,6 @@ app.post('/launch_lti_stats', lti.handleLaunch('stats'));
 app.listen(port, () => log.info(`Example app listening on port ${port}!`));
 
 process.on('uncaughtException', (err) => {
-  log.error('There was an uncaught error', err);
+  console.error('There was an uncaught error', err);
   process.exit(1); //mandatory (as per the Node docs)
 });
