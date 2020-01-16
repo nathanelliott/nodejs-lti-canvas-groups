@@ -20,6 +20,11 @@ pre {
     font-weight: bold;
 }
 
+.error {
+    color: rgb(140,20,20);
+    font-weight: bold;
+}
+
 small {
     color: rgb(106, 106, 129);
     font-size: 70%;

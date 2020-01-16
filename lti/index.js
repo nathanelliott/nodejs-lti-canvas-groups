@@ -91,7 +91,7 @@ exports.handleLaunch = (page) => function(req, res, next) {
             })
             .catch((error) => {
               log.error(error);
-              res.redirect('/error?text=Token+expired+below+but+error+during+refresh+session+exists');
+              res.redirect('/error/text/Token+expired+below+but+error+during+refresh+session+exists');
             });
           }
           else if (expiry == now) {
@@ -102,11 +102,11 @@ exports.handleLaunch = (page) => function(req, res, next) {
             })
             .catch((error) => {
               log.error(error);
-              res.redirect('/error?text=Token+expired+equal+but+error+during+refresh+session+exists');
+              res.redirect('/error/text/Token+expired+equal+but+error+during+refresh+session+exists');
             });
           }
           else {
-            log.info("(session) No OAuth Token for API, forcing OAuth flow.");
+            log.info("[Session] No OAuth Token for API, forcing OAuth flow.");
             res.redirect('/oauth');
           }
         }
@@ -157,7 +157,7 @@ exports.handleLaunch = (page) => function(req, res, next) {
               })
               .catch((error) => {
                 log.error(error);
-                res.redirect('/error?text=Token+expired+below+but+error+during+refresh+session+regenerated');
+                res.redirect('/error/text/Token+expired+below+but+error+during+refresh+session+regenerated');
               });
             }
             else if (expiry == now) {
@@ -168,7 +168,7 @@ exports.handleLaunch = (page) => function(req, res, next) {
               })
               .catch((error) => {
                 log.error(error);
-                res.redirect('/error?text=Token+expired+equal+but+error+during+refresh+session+regenerated');
+                res.redirect('/error/text/Token+expired+equal+but+error+during+refresh+session+regenerated');
               });
             }
             else {

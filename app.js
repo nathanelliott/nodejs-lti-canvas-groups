@@ -11,12 +11,16 @@ const canvas = require('./canvas');
 const lti = require('./lti');
 const log = require('./log');
 const db = require('./db');
+const error = require('./error');
 
 const port = process.env.PORT || 3000;
 const fileStoreOptions = {};
 const cookieMaxAge = 3600000 * 12; // 12h
 
 const adminUserIds = process.env.adminCanvasUserIds ? process.env.adminCanvasUserIds.split(",") : "";
+
+const NODE_MAJOR_VERSION = process.versions.node.split('.')[0];
+const NODE_MINOR_VERSION = process.versions.node.split('.')[1];
 
 // Setup database
 db.setupDatabase().then(log.info("Database initialized.")).catch(function(error) { log.error("Setting up database: " + error)});
@@ -73,11 +77,29 @@ app.get('/oauth/redirect', async (request, response, next) => {
   }
   catch (error) {
     log.error("Error during token exchange in app.js: " + error);
-    response.redirect('/error?text=Error during token exchange in app.js: ' + error);
+    response.redirect('/error/text/Error during token exchange in app.js: ' + error);
   }
 });
 
-app.get('/error', (request, response, next) => {
+app.get('/error/code/:id', async (request, response, next) => {
+  console.log("Getting error id " + request.params.id);
+  return response.render('error', {
+    error: {
+      text: await error.errorDescription(request.params.id)
+    },
+    statistics: {
+      name: pkg.name,
+      version: pkg.version,
+      node: process.version,
+      pid: process.pid,
+      ppid: process.ppid,
+      resourceUsage: NODE_MAJOR_VERSION >= 12 && NODE_MINOR_VERSION >= 6 ? JSON.stringify(process.resourceUsage(), null, 2) : 'Needs node 12.6',
+      versions: JSON.stringify(process.versions, null, 2)
+    }
+  });
+});
+
+app.get('/error/text/:text', (request, response, next) => {
   return response.render('error', {
     error: {
       text: request.params.text
@@ -87,7 +109,7 @@ app.get('/error', (request, response, next) => {
       version: pkg.version,
       pid: process.pid,
       ppid: process.ppid,
-      resourceUsage: JSON.stringify(process.resourceUsage(), null, 2),
+      resourceUsage: NODE_MAJOR_VERSION >= 12 && NODE_MINOR_VERSION >= 6 ? JSON.stringify(process.resourceUsage(), null, 2) : 'Needs node 12.6',
       versions: JSON.stringify(process.versions, null, 2)
     }
   });
@@ -108,7 +130,7 @@ app.get('/stats', async (request, response, next) => {
         version: pkg.version,
         pid: process.pid,
         ppid: process.ppid,
-        resourceUsage: JSON.stringify(process.resourceUsage(), null, 2),
+        resourceUsage: NODE_MAJOR_VERSION >= 12 && NODE_MINOR_VERSION >= 6 ? JSON.stringify(process.resourceUsage(), null, 2) : 'Needs node 12.6',
         versions: JSON.stringify(process.versions, null, 2)
       }
     });
@@ -163,7 +185,7 @@ app.get('/groups', async (request, result, next) => {
     }
   }
   else {
-    return result.redirect('/error?text=Session is invalid. Please login via LTI in Canvas.'); 
+    return result.redirect('/error/code/20'); 
   }
 });
 
