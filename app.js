@@ -55,10 +55,6 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.set('json spaces', 2);
 app.enable('trust proxy');
 
-app.get('/', (req, res, next) => {
-  return res.send({status: 'Up'});
-});
-
 app.get('/oauth', (request, response, next) => {
   try {
     return response.redirect(oauth.providerLogin());    
@@ -77,7 +73,7 @@ app.get('/oauth/redirect', async (request, response, next) => {
   }
   catch (error) {
     log.error("Error during token exchange in app.js: " + error);
-    response.redirect('/error/text/Error during token exchange in app.js: ' + error);
+    response.redirect('/error/text/Error during token exchange: ' + error);
   }
 });
 
@@ -116,46 +112,32 @@ app.get('/error/text/:text', (request, response, next) => {
 });
 
 app.get('/stats', async (request, response, next) => {
-  if (adminUserIds.length && request.session.userId && adminUserIds.includes(request.session.userId)) {
-    const authorizedUsers = await db.getAllClientsData();
-    const cacheContents = await canvas.getCacheStat();
+  if (request.session.userId ) {
+    if (adminUserIds.length && adminUserIds.includes(request.session.userId)) {
+      const authorizedUsers = await db.getAllClientsData();
+      const cacheContents = await canvas.getCacheStat();
 
-    return response.render('stats', {
-      users: authorizedUsers,
-      usersString: JSON.stringify(authorizedUsers, null, 2),
-      caches: cacheContents,
-      cachesString: JSON.stringify(cacheContents, null, 2),
-      statistics: {
-        name: pkg.name,
-        version: pkg.version,
-        pid: process.pid,
-        ppid: process.ppid,
-        resourceUsage: NODE_MAJOR_VERSION >= 12 && NODE_MINOR_VERSION >= 6 ? JSON.stringify(process.resourceUsage(), null, 2) : 'Needs node 12.6',
-        versions: JSON.stringify(process.versions, null, 2)
-      }
-    });
+      return response.render('stats', {
+        users: authorizedUsers,
+        usersString: JSON.stringify(authorizedUsers, null, 2),
+        caches: cacheContents,
+        cachesString: JSON.stringify(cacheContents, null, 2),
+        statistics: {
+          name: pkg.name,
+          version: pkg.version,
+          pid: process.pid,
+          ppid: process.ppid,
+          resourceUsage: NODE_MAJOR_VERSION >= 12 && NODE_MINOR_VERSION >= 6 ? JSON.stringify(process.resourceUsage(), null, 2) : 'Needs node 12.6',
+          versions: JSON.stringify(process.versions, null, 2)
+        }
+      });
+    }
+    else {
+      return result.redirect('/error/code/42'); // Admin level needed
+    }
   }
   else {
-    next(new Error('Session invalid. Please login via LTI to use this application.'));
-  }
-});
-
-app.get('/application', (req, res, next) => {
-  if (req.session.userId) {
-    return res.render('index', {
-      email: req.session.email,
-      username: req.session.username,
-      fullname: req.session.fullname,
-      ltiConsumer: req.session.ltiConsumer,
-      userId: req.session.userId,
-      isInstructor: req.session.isInstructor,
-      contextId: req.session.contextId,
-      rawProvider: req.session.rawProvider,
-      rawSession: JSON.stringify(req.session)
-    })
-  }
-  else {
-    next(new Error('Session invalid. Please login via LTI to use this application.'));
+    return result.redirect('/error/code/41'); // Third-party cookies
   }
 });
 
@@ -185,7 +167,7 @@ app.get('/groups', async (request, result, next) => {
     }
   }
   else {
-    return result.redirect('/error/code/20'); 
+    return result.redirect('/error/code/41'); // Third-party cookies
   }
 });
 
@@ -222,7 +204,7 @@ app.get('/csv/category/:id/:name', async (request, result, next) => {
     }
   }
   else {
-    next(new Error('Session is invalid. Please login via LTI in Canvas first to use this application.'));
+    return result.redirect('/error/code/41'); // Third-party cookies
   }
 });
 
