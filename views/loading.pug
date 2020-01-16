@@ -17,7 +17,7 @@ html(lang='en')
     .container
       .row
         .col-lg-12.text-left
-            h3 Loading data from Canvas API
+            h3 Loading data from Canvas API...
             progress(max='100', value='10')
             script.
                 setInterval(function() { var progress = document.getElementsByTagName('progress')[0]; if (progress.value < progress.max) { progress.value > 30 && progress.value < 60 ? progress.value += 3 : progress.value += 1; } }, 900);
