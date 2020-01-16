@@ -1,0 +1,24 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='utf-8')
+    title nodejs-lti-canvas-groups
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    meta(name='description', content='nodejs-lti-canvas-groups')
+    meta(name='author', content='Rolf Johansson')
+    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css')
+    link(rel='stylesheet', href='https://fonts.googleapis.com/css?family=Lato:300,400,400i,700&amp;subset=latin-ext&amp;display=swap')
+    link(rel='stylesheet', href='/assets/styles/styles.css')
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js')
+    script(src='https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js')
+    script(src='/assets/js/script.js')
+    script(src='/assets/js/loading.js')
+    meta(http-equiv='refresh', content='0;url=/' + page)
+  body
+    .container
+      .row
+        .col-lg-12.text-left
+            h3 Loading data from Canvas API
+            progress(max='100', value='10')
+            script.
+                setInterval(function() { var progress = document.getElementsByTagName('progress')[0]; if (progress.value < progress.max) { progress.value > 30 && progress.value < 60 ? progress.value += 3 : progress.value += 1; } }, 900);

@@ -140,6 +140,10 @@ app.get('/stats', async (request, response, next) => {
   }
 });
 
+app.get('/loading/:page', async (request, result, next) => {
+      return result.render('loading', { page: request.params.page });  
+});
+
 app.get('/groups', async (request, result, next) => { 
   if (request.session.userId && request.session.canvasCourseId) {
     try {
@@ -207,8 +211,8 @@ app.get('/csv/category/:id/:name', async (request, result, next) => {
   }
 });
 
-app.post('/launch_lti', lti.handleLaunch('groups'));
-app.post('/launch_lti_stats', lti.handleLaunch('stats'));
+app.post('/launch_lti', lti.handleLaunch('loading/groups'));
+app.post('/launch_lti_stats', lti.handleLaunch('loading/stats'));
 
 app.listen(port, () => log.info(`Example app listening on port ${port}!`));
 
