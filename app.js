@@ -102,6 +102,7 @@ app.get('/error/text/:text', (request, response, next) => {
     statistics: {
       name: pkg.name,
       version: pkg.version,
+      node: process.version,
       pid: process.pid,
       ppid: process.ppid,
       resourceUsage: NODE_MAJOR_VERSION >= 12 && NODE_MINOR_VERSION >= 6 ? JSON.stringify(process.resourceUsage(), null, 2) : 'Needs node 12.6',
