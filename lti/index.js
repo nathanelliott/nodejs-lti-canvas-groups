@@ -75,7 +75,7 @@ exports.handleLaunch = (page) => function(req, res, next) {
           req.session.canvasCourseId = provider.body.custom_canvas_course_id;
           req.session.canvasEnrollmentState = provider.body.custom_canvas_enrollment_state;
 
-          log.info("[Session] Context changed to " + req.session.contextId + ", course id " + req.session.canvasCourseId + ", " + req.session.contextTitle);
+          log.info("[Session] Context is " + req.session.contextId + ", course id " + req.session.canvasCourseId + ", " + req.session.contextTitle);
 
           const now = new Date();
           const expiry = new Date(Date.parse(req.session.token.expires_at_utc));
@@ -83,11 +83,11 @@ exports.handleLaunch = (page) => function(req, res, next) {
           log.info("[Session] User session exists: " + req.session.id + ", expires: " + expiry);
 
           if (expiry > now) {
-            log.info("(session) OAuth Token for API is OK.");
+            log.info("[Session] OAuth Token for API is OK.");
             res.redirect('/' + page);
           }
           else if (expiry < now) {
-            log.info("(session) OAuth Token for API has expired, refreshing.");
+            log.info("[Session] OAuth Token for API has expired, refreshing.");
             oauth.providerRefreshToken(req)
             .then(() => {
               res.redirect('/' + page);
@@ -98,7 +98,7 @@ exports.handleLaunch = (page) => function(req, res, next) {
             });
           }
           else if (expiry == now) {
-            log.info("(session) The two dates are EXACTLY the same, believe it or not.");
+            log.info("[Session] The two dates are EXACTLY the same, believe it or not.");
             oauth.providerRefreshToken(req)
             .then(() => {
               res.redirect('/' + page);
@@ -149,11 +149,11 @@ exports.handleLaunch = (page) => function(req, res, next) {
             const expiry = new Date(Date.parse(req.session.token.expires_at_utc));
   
             if (expiry > now) {
-              log.info("(afterDB) OAuth Token for API is OK.");
+              log.info("[Session] OAuth Token for API is OK.");
               res.redirect('/' + page);
             }
             else if (expiry < now) {
-              log.info("(afterDB) OAuth Token for API has expired, refreshing.");
+              log.info("[Session] OAuth Token for API has expired, refreshing.");
               oauth.providerRefreshToken(req)
               .then(() => {
                 res.redirect('/' + page);
@@ -164,7 +164,7 @@ exports.handleLaunch = (page) => function(req, res, next) {
               });
             }
             else if (expiry == now) {
-              log.info("(afterDB) The two dates are EXACTLY the same, believe it or not.");
+              log.info("[Session] The two dates are EXACTLY the same, believe it or not.");
               oauth.providerRefreshToken(req)
               .then(() => {
                 res.redirect('/' + page);
@@ -175,7 +175,7 @@ exports.handleLaunch = (page) => function(req, res, next) {
               });
             }
             else {
-              log.info("(afterDB) No OAuth Token for API, forcing OAuth flow.");
+              log.info("[Session] No OAuth Token for API, forcing OAuth flow.");
               res.redirect('/oauth');
             }
           })
@@ -187,7 +187,7 @@ exports.handleLaunch = (page) => function(req, res, next) {
         }
       }
       else {
-        log.error("The request is NOT valid.");
+        log.error("[Session] The request is NOT valid.");
         return next(err);
       }
     });
