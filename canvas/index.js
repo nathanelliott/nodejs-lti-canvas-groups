@@ -11,7 +11,7 @@ const log = require('../log');
 const providerBaseUri = typeof process.env.canvasBaseUri !== 'undefined' && process.env.canvasBaseUri ? process.env.canvasBaseUri : "https://chalmers.test.instructure.com";
 const apiPath = providerBaseUri + "/api/v1";
 const isTest = providerBaseUri.indexOf("test.in") > 0 ? true : false;
-const isBeta = providerBaseUri.indexOf("beta.in") > 0 ? true : false
+const isBeta = providerBaseUri.indexOf("beta.in") > 0 ? true : false;
 const isProduction = isTest == false && isBeta == false ? true : false;
 const providerEnvironment = isTest ? "test" : (isbeta ? "beta" : "production");
 
@@ -345,18 +345,18 @@ exports.getCourseGroups = async (courseId, request) => new Promise(async functio
       }
       catch (error) {
         errorCount++;
-        console.error("[API] Error: " + error);
+        log.error("[API] Error: " + error);
 
         if (error.response.status == 401 && error.response.headers['www-authenticate']) { // refresh token, then try again
           await oauth.providerRefreshToken(request);
         }
         else if (error.response.status == 401 && !error.response.headers['www-authenticate']) { // no access, redirect to auth
-          console.error("[API] Not authorized in Canvas for use of this API endpoint.");
-          console.error(JSON.stringify(error));
+          log.error("[API] Not authorized in Canvas for use of this API endpoint.");
+          log.error(JSON.stringify(error));
           reject(error);
         }
         else {
-          console.error(error);
+          log.error(error);
           reject(error);  
         }
       }
@@ -427,18 +427,18 @@ exports.getGroupCategories = async (courseId, request) => new Promise(async func
       }
       catch (error) {
         errorCount++;
-        console.error("[API] Error: " + error);
+        log.error("[API] Error: " + error);
 
         if (error.response.status == 401 && error.response.headers['www-authenticate']) { // refresh token, then try again
           await oauth.providerRefreshToken(request);
         }
         else if (error.response.status == 401 && !error.response.headers['www-authenticate']) { // no access, redirect to auth
-          console.error("[API] Not authorized in Canvas for use of this API endpoint.");
-          console.error(JSON.stringify(error));
+          log.error("[API] Not authorized in Canvas for use of this API endpoint.");
+          log.error(JSON.stringify(error));
           reject(error);
         }
         else {
-          console.error(error);
+          log.error(error);
           reject(error);  
         }
       }
@@ -510,18 +510,18 @@ exports.getCategoryGroups = async (categoryId, request) => new Promise(async fun
       }
       catch (error) {
         errorCount++;
-        console.error("[API] Error: " + error);
+        log.error("[API] Error: " + error);
 
         if (error.response.status == 401 && error.response.headers['www-authenticate']) { // refresh token, then try again
           await oauth.providerRefreshToken(request);
         }
         else if (error.response.status == 401 && !error.response.headers['www-authenticate']) { // no access, redirect to auth
-          console.error("[API] Not authorized in Canvas for use of this API endpoint.");
-          console.error(JSON.stringify(error));
+          log.error("[API] Not authorized in Canvas for use of this API endpoint.");
+          log.error(JSON.stringify(error));
           reject(error);
         }
         else {
-          console.error(error);
+          log.error(error);
           reject(error);  
         }
       }
@@ -593,18 +593,18 @@ exports.getGroupUsers = async (groupId, request) => new Promise(async function(r
       }
       catch (error) {
         errorCount++;
-        console.error("[API] Error: " + error);
+        log.error("[API] Error: " + error);
 
         if (error.response.status == 401 && error.response.headers['www-authenticate']) { // refresh token, then try again
           await oauth.providerRefreshToken(request);
         }
         else if (error.response.status == 401 && !error.response.headers['www-authenticate']) { // no access, redirect to auth
-          console.error("[API] Not authorized in Canvas for use of this API endpoint.");
-          console.error(JSON.stringify(error));
+          log.error("[API] Not authorized in Canvas for use of this API endpoint.");
+          log.error(JSON.stringify(error));
           reject(error);
         }
         else {
-          console.error(error);
+          log.error(error);
           reject(error);  
         }
       }
@@ -676,18 +676,18 @@ exports.getGroupMembers = async (groupId, request) => new Promise(async function
       }
       catch (error) {
         errorCount++;
-        console.error("[API] Error: " + error);
+        log.error("[API] Error: " + error);
 
         if (error.response.status == 401 && error.response.headers['www-authenticate']) { // refresh token, then try again
           await oauth.providerRefreshToken(request);
         }
         else if (error.response.status == 401 && !error.response.headers['www-authenticate']) { // no access, redirect to auth
-          console.error("[API] Not authorized in Canvas for use of this API endpoint.");
-          console.error(JSON.stringify(error));
+          log.error("[API] Not authorized in Canvas for use of this API endpoint.");
+          log.error(JSON.stringify(error));
           reject(error);
         }
         else {
-          console.error(error);
+          log.error(error);
           reject(error);  
         }
       }
@@ -755,18 +755,18 @@ exports.getUser = async (userId, request) => new Promise(async function(resolve,
       }
       catch (error) {
         errorCount++;
-        console.error("[API] Error: " + error);
+        log.error("[API] Error: " + error);
 
         if (error.response.status == 401 && error.response.headers['www-authenticate']) { // refresh token, then try again
           await oauth.providerRefreshToken(request);
         }
         else if (error.response.status == 401 && !error.response.headers['www-authenticate']) { // no access, redirect to auth
-          console.error("[API] Not authorized in Canvas for use of this API endpoint.");
-          console.error(JSON.stringify(error));
+          log.error("[API] Not authorized in Canvas for use of this API endpoint.");
+          log.error(JSON.stringify(error));
           reject(error);
         }
         else {
-          console.error(error);
+          log.error(error);
           reject(error);  
         }
       }
