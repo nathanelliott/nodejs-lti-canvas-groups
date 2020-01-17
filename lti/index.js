@@ -72,8 +72,10 @@ exports.handleLaunch = (page) => function(req, res, next) {
         if (typeof req.session !== 'undefined' && typeof req.session.token !== 'undefined' && typeof req.session.token.expires_at_utc !== 'undefined') {
           req.session.contextId = provider.context_id;
           req.session.contextTitle = provider.context_title;
+          req.session.canvasCourseId = provider.body.custom_canvas_course_id;
+          req.session.canvasEnrollmentState = provider.body.custom_canvas_enrollment_state;
 
-          log.info("[Session] Context changed to " + req.session.contextId + ", " + req.session.contextTitle);
+          log.info("[Session] Context changed to " + req.session.contextId + ", course id " + req.session.canvasCourseId + ", " + req.session.contextTitle);
 
           const now = new Date();
           const expiry = new Date(Date.parse(req.session.token.expires_at_utc));
