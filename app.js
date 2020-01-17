@@ -14,8 +14,8 @@ const db = require('./db');
 const error = require('./error');
 
 const port = process.env.PORT || 3000;
-const fileStoreOptions = {};
 const cookieMaxAge = 3600000 * 12; // 12h
+const fileStoreOptions = { ttl: 3600 * 12, retries: 3, logFn: log.info };
 
 const adminUserIds = process.env.adminCanvasUserIds ? process.env.adminCanvasUserIds.split(",") : "";
 
