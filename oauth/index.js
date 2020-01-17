@@ -26,45 +26,50 @@ exports.providerRequestToken = async (request) => new Promise(function(resolve, 
     const requestToken = request.query.code;
     log.info("Request token: " + requestToken);
 
-    if (request.session.userId && request.session.canvasCourseId) {
-        log.info("POST to get OAuth Token.");
-        axios({
-            method: 'post',
-            url: providerBaseUri + "/login/oauth2/token",
-            data: {
-                grant_type: "authorization_code",
-                client_id: clientId,
-                client_secret: clientSecret,
-                code: requestToken
-            }
-        })
-        .then(async (response) => {
-            log.info("Response: " + JSON.stringify(response.data));
+    if (requestToken !== 'undefined') {
+        if (request.session.userId && request.session.canvasCourseId) {
+            log.info("POST to get OAuth Token.");
+            axios({
+                method: 'post',
+                url: providerBaseUri + "/login/oauth2/token",
+                data: {
+                    grant_type: "authorization_code",
+                    client_id: clientId,
+                    client_secret: clientSecret,
+                    code: requestToken
+                }
+            })
+            .then(async (response) => {
+                log.info("Response: " + JSON.stringify(response.data));
 
-            const tokenData = {
-                access_token: response.data.access_token,
-                token_type: response.data.token_type,
-                refresh_token: response.data.refresh_token,
-                expires_in: response.data.expires_in,
-                expires_at_utc: new Date(Date.now() + (response.data.expires_in * 1000))
-            };
+                const tokenData = {
+                    access_token: response.data.access_token,
+                    token_type: response.data.token_type,
+                    refresh_token: response.data.refresh_token,
+                    expires_in: response.data.expires_in,
+                    expires_at_utc: new Date(Date.now() + (response.data.expires_in * 1000))
+                };
 
-            log.info("Got token data: " + JSON.stringify(tokenData));
+                log.info("Got token data: " + JSON.stringify(tokenData));
 
-            db.setClientData(request.session.userId, canvas.providerEnvironment, tokenData.access_token, tokenData.refresh_token, tokenData.expires_at_utc)
-            .then(() => {
-                resolve(tokenData);
+                db.setClientData(request.session.userId, canvas.providerEnvironment, tokenData.access_token, tokenData.refresh_token, tokenData.expires_at_utc)
+                .then(() => {
+                    resolve(tokenData);
+                })
+                .catch((error) => {
+                    reject(error);
+                })
             })
             .catch((error) => {
-                reject(error);
-            })
-        })
-        .catch((error) => {
-            reject(new Error("Error during POST: " + error));
-        });
+                reject(new Error("HTTP error: " + error));
+            });
+        }
+        else {
+            reject(new Error("Session is not valid; third-party cookies must be allowed."));
+        }
     }
     else {
-        reject(new Error("Session is not valid; third-party cookies must be allowed."));
+        reject(new Error("OAuth token missing from Canvas."));
     }
 });
 

@@ -111,7 +111,9 @@ exports.handleLaunch = (page) => function(req, res, next) {
           }
         }
         else {
-          req.session.regenerate(err => {
+          log.info("[Session] Regenerating session.");
+
+          await req.session.regenerate(err => {
             if (err) next(err);
             req.session.contextId = provider.context_id;
             req.session.contextTitle = provider.context_title;
@@ -178,7 +180,7 @@ exports.handleLaunch = (page) => function(req, res, next) {
           })
           .catch((error) => {
             log.error(error);
-            log.info("(afterDB_CATCH) No token data in db for user_id '" + provider.userId + "', forcing OAuth flow.");
+            log.info("[Session] No token data in db for user_id '" + provider.userId + "', forcing OAuth flow.");
             res.redirect('/oauth');
           });
         }

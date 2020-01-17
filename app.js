@@ -72,8 +72,8 @@ app.get('/oauth/redirect', async (request, response, next) => {
     response.redirect('/groups');
   }
   catch (error) {
-    log.error("Error during token exchange in app.js: " + error);
-    response.redirect('/error/text/Error during token exchange: ' + error);
+    log.error("During OAuth token exchange: " + error);
+    response.redirect('/error/text/During OAuth token exchange: ' + error);
   }
 });
 
