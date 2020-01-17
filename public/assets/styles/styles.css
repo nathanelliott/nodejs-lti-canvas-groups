@@ -58,7 +58,10 @@ img.avatar {
     float: right;
 }
 
-progress {
+progress, progress::-webkit-progress-bar {
     width: 690px;
-    background-color: rgb(230, 230, 230);
+    height: 16px;
+    background-color: #ddd;
+    border: none;
+    color: #003366;
 }
