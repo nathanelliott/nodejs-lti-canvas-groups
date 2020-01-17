@@ -13,7 +13,7 @@ const apiPath = providerBaseUri + "/api/v1";
 const isTest = providerBaseUri.indexOf("test.in") > 0 ? true : false;
 const isBeta = providerBaseUri.indexOf("beta.in") > 0 ? true : false;
 const isProduction = isTest == false && isBeta == false ? true : false;
-const providerEnvironment = isTest ? "test" : (isbeta ? "beta" : "production");
+const providerEnvironment = isTest ? "test" : (isBeta ? "beta" : "production");
 
 const CACHE_TTL = (parseInt(process.env.canvasApiCacheSecondsTTL) > 0 ? parseInt(process.env.canvasApiCacheSecondsTTL) : 180);
 const CACHE_CHECK_EXPIRE = 200;
