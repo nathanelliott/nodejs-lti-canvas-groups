@@ -108,10 +108,30 @@ exports.providerRefreshToken = async (request) => new Promise(function(resolve, 
                 reject(error);
             })
         })
-        .catch((error) => {
-            log.info("Error during token Refresh POST: " + error);
-            log.error(JSON.stringify(error));
+        .catch(async (error) => {
+            await providerDeleteToken(request);
+            log.error("Refreshing existing token: " + error);
             reject(error);
         }); 
     }
 });
+
+exports.providerDeleteToken = async (request) => new Promise(function(resolve, reject) {
+    if (request.session.userId) {
+        log.info("[Token delete] Deleting approved access token in Canvas for user_id " + request.session.userId);
+        
+        axios({
+            method: "delete",
+            url: providerBaseUri + "/login/oauth2/token"
+        })
+        .then((response) => {
+            log.info("API Response: " + JSON.stringify(response));
+            resolve(response);
+        })
+        .catch(async (error) => {
+            log.error("Deleting approved access token: " + JSON.stringify(error));
+            reject(error)
+        }); 
+    }
+});
+

@@ -64,6 +64,8 @@ exports.handleLaunch = (page) => function(req, res, next) {
 
     const provider = new lti.Provider(consumerKey, consumerSecret, nonceStore, lti.HMAC_SHA1);
     
+    log.info("LTI Data: " + JSON.stringify(provider));
+
     provider.valid_request(req, async (err, isValid) => {
       if (err) {
         return next(err);
@@ -94,7 +96,14 @@ exports.handleLaunch = (page) => function(req, res, next) {
             })
             .catch((error) => {
               log.error(error);
-              res.redirect('/error/text/Token+expired+below+but+error+during+refresh+session+exists');
+
+              if (error.toLowerCase().includes("failed with status code 400")) {
+                log.info("[Session] Token refresh failed with http error 400, access token deleted on server, redirect to OAuth flow.")
+                res.redirect("/oauth");
+              }
+              else {
+                res.redirect('/error/text/Token+expired+below+but+error+during+refresh+session+exists');
+              }
             });
           }
           else if (expiry == now) {
@@ -105,7 +114,14 @@ exports.handleLaunch = (page) => function(req, res, next) {
             })
             .catch((error) => {
               log.error(error);
-              res.redirect('/error/text/Token+expired+equal+but+error+during+refresh+session+exists');
+
+              if (error.toLowerCase().includes("failed with status code 400")) {
+                log.info("[Session] Token refresh failed with http error 400, access token deleted on server, redirect to OAuth flow.")
+                res.redirect("/oauth");
+              }
+              else {
+                res.redirect('/error/text/Token+expired+equal+but+error+during+refresh+session+exists');
+              }
             });
           }
           else {
@@ -160,7 +176,14 @@ exports.handleLaunch = (page) => function(req, res, next) {
               })
               .catch((error) => {
                 log.error(error);
-                res.redirect('/error/text/Token+expired+below+but+error+during+refresh+session+regenerated');
+ 
+                if (error.toLowerCase().includes("failed with status code 400")) {
+                  log.info("Token refresh failed with http error 400, access token deleted on server, redirect to OAuth flow.")
+                  res.redirect("/oauth");
+                }
+                else {
+                  res.redirect('/error/text/Token+expired+below+but+error+during+refresh+session+exists');
+                }
               });
             }
             else if (expiry == now) {
@@ -171,7 +194,14 @@ exports.handleLaunch = (page) => function(req, res, next) {
               })
               .catch((error) => {
                 log.error(error);
-                res.redirect('/error/text/Token+expired+equal+but+error+during+refresh+session+regenerated');
+
+                if (error.toLowerCase().includes("failed with status code 400")) {
+                  log.info("Token refresh failed with http error 400, access token deleted on server, redirect to OAuth flow.")
+                  res.redirect("/oauth");
+                }
+                else {
+                  res.redirect('/error/text/Token+expired+equal+but+error+during+refresh+session+regenerated');
+                }
               });
             }
             else {
