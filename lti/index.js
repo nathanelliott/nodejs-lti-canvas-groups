@@ -66,13 +66,13 @@ exports.handleLaunch = (page) => function(req, res, next) {
 
     const provider = new lti.Provider(consumerKey, consumerSecret, nonceStore, lti.HMAC_SHA1);
     
-    log.info("LTI Data:" + util.inspect(provider));
-
     provider.valid_request(req, async (err, isValid) => {
       if (err) {
         return next(err);
       }
       if (isValid) {
+        log.info("LTI Data:" + JSON.stringify(provider.body)
+
         if (typeof req.session !== 'undefined' && typeof req.session.token !== 'undefined' && typeof req.session.token.expires_at_utc !== 'undefined') {
           req.session.contextId = provider.context_id;
           req.session.contextTitle = provider.context_title;
