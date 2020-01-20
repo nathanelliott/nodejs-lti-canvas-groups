@@ -68,8 +68,8 @@ app.get('/oauth/redirect', async (request, response, next) => {
   try {
     request.session.token = await oauth.providerRequestToken(request);
     log.info("Written data to session: " + JSON.stringify(request.session.token));
-    log.info("Redirecting to /groups");
-    response.redirect('/groups');
+    log.info("Redirecting to /loading/groups");
+    response.redirect('/loading/groups');
   }
   catch (error) {
     log.error("During OAuth token exchange: " + error);
