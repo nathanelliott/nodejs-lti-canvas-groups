@@ -100,7 +100,7 @@ exports.handleLaunch = (page) => function(req, res, next) {
               log.error(error);
 
               if (error.toString().toLowerCase().includes("failed with status code 400")) {
-                log.info("[Session] Token refresh failed with http error 400, access token deleted on server, redirect to OAuth flow.")
+                log.info("[Session] Token refresh failed with http error 400, redirect to OAuth flow.")
                 res.redirect("/oauth");
               }
               else {
@@ -118,7 +118,7 @@ exports.handleLaunch = (page) => function(req, res, next) {
               log.error(error);
 
               if (error.toString().toLowerCase().includes("failed with status code 400")) {
-                log.info("[Session] Token refresh failed with http error 400, access token deleted on server, redirect to OAuth flow.")
+                log.info("[Session] Token refresh failed with http error 400, redirect to OAuth flow.")
                 res.redirect("/oauth");
               }
               else {
@@ -182,7 +182,7 @@ exports.handleLaunch = (page) => function(req, res, next) {
                 log.error(error);
  
                 if (error.toString().toLowerCase().includes("failed with status code 400")) {
-                  log.info("Token refresh failed with http error 400, access token deleted on server, redirect to OAuth flow.")
+                  log.info("Token refresh failed with http error 400, redirect to OAuth flow.")
                   res.redirect("/oauth");
                 }
                 else {
@@ -200,7 +200,7 @@ exports.handleLaunch = (page) => function(req, res, next) {
                 log.error(error);
 
                 if (error.toString().toLowerCase().includes("failed with status code 400")) {
-                  log.info("Token refresh failed with http error 400, access token deleted on server, redirect to OAuth flow.")
+                  log.info("Token refresh failed with http error 400, redirect to OAuth flow.")
                   res.redirect("/oauth");
                 }
                 else {
