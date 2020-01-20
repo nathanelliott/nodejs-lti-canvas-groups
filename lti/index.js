@@ -8,6 +8,8 @@ const oauth = require('../oauth');
 const log = require('../log');
 const db = require('../db');
 
+const util = require('util');
+
 const myCache = new NodeCache();
 const nonceStore = new nodeCacheNonceStore(myCache);
 
@@ -64,7 +66,7 @@ exports.handleLaunch = (page) => function(req, res, next) {
 
     const provider = new lti.Provider(consumerKey, consumerSecret, nonceStore, lti.HMAC_SHA1);
     
-    log.info("LTI Data: " + JSON.stringify(provider));
+    log.info("LTI Data:" + util.inspect(provider));
 
     provider.valid_request(req, async (err, isValid) => {
       if (err) {
