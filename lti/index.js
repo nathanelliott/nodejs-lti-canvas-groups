@@ -76,6 +76,8 @@ exports.handleLaunch = (page) => function(req, res, next) {
           req.session.contextTitle = provider.context_title;
           req.session.canvasCourseId = provider.body.custom_canvas_course_id;
           req.session.canvasEnrollmentState = provider.body.custom_canvas_enrollment_state;
+          req.session.canvasLocale = provider.body.launch_presentation_locale;
+          req.session.canvasApiDomain = provider.body.custom_canvas_api_domain;
 
           log.info("[Session] Context is " + req.session.contextId + ", course id " + req.session.canvasCourseId + ", " + req.session.contextTitle);
 
@@ -97,7 +99,7 @@ exports.handleLaunch = (page) => function(req, res, next) {
             .catch((error) => {
               log.error(error);
 
-              if (error.toLowerCase().includes("failed with status code 400")) {
+              if (error.toString().toLowerCase().includes("failed with status code 400")) {
                 log.info("[Session] Token refresh failed with http error 400, access token deleted on server, redirect to OAuth flow.")
                 res.redirect("/oauth");
               }
@@ -115,7 +117,7 @@ exports.handleLaunch = (page) => function(req, res, next) {
             .catch((error) => {
               log.error(error);
 
-              if (error.toLowerCase().includes("failed with status code 400")) {
+              if (error.toString().toLowerCase().includes("failed with status code 400")) {
                 log.info("[Session] Token refresh failed with http error 400, access token deleted on server, redirect to OAuth flow.")
                 res.redirect("/oauth");
               }
@@ -153,6 +155,8 @@ exports.handleLaunch = (page) => function(req, res, next) {
             req.session.canvasUserId = provider.body.custom_canvas_user_id;
             req.session.canvasCourseId = provider.body.custom_canvas_course_id;
             req.session.canvasEnrollmentState = provider.body.custom_canvas_enrollment_state;
+            req.session.canvasLocale = provider.body.launch_presentation_locale;
+            req.session.canvasApiDomain = provider.body.custom_canvas_api_domain;
           });
 
           log.info("[Session] Regenerated session id: " + req.session.id);
@@ -177,7 +181,7 @@ exports.handleLaunch = (page) => function(req, res, next) {
               .catch((error) => {
                 log.error(error);
  
-                if (error.toLowerCase().includes("failed with status code 400")) {
+                if (error.toString().toLowerCase().includes("failed with status code 400")) {
                   log.info("Token refresh failed with http error 400, access token deleted on server, redirect to OAuth flow.")
                   res.redirect("/oauth");
                 }
@@ -195,7 +199,7 @@ exports.handleLaunch = (page) => function(req, res, next) {
               .catch((error) => {
                 log.error(error);
 
-                if (error.toLowerCase().includes("failed with status code 400")) {
+                if (error.toString().toLowerCase().includes("failed with status code 400")) {
                   log.info("Token refresh failed with http error 400, access token deleted on server, redirect to OAuth flow.")
                   res.redirect("/oauth");
                 }
