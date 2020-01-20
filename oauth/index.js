@@ -14,7 +14,7 @@ const providerLoginUri = providerBaseUri + "/login/oauth2/auth?client_id=" + cli
 
 exports.providerLogin = () => {
     if (providerLoginUri) {
-        log.info("Redirecting to OAuth URI: " + providerLoginUri);
+        log.info("[OAuth] Redirecting to OAuth URI: " + providerLoginUri);
         return providerLoginUri;
     }
     else {
@@ -24,11 +24,12 @@ exports.providerLogin = () => {
 
 exports.providerRequestToken = async (request) => new Promise(function(resolve, reject) {
     const requestToken = request.query.code;
-    log.info("Request token: " + requestToken);
+    log.info("[OAuth] Request token: " + requestToken);
 
     if (requestToken !== 'undefined') {
         if (request.session.userId && request.session.canvasCourseId) {
-            log.info("POST to get OAuth Token.");
+            log.info("[OAuth] POST to get OAuth Token.");
+
             axios({
                 method: 'post',
                 url: providerBaseUri + "/login/oauth2/token",
@@ -40,7 +41,7 @@ exports.providerRequestToken = async (request) => new Promise(function(resolve, 
                 }
             })
             .then(async (response) => {
-                log.info("Response: " + JSON.stringify(response.data));
+                log.info("[OAuth] Response: " + JSON.stringify(response.data));
 
                 const tokenData = {
                     access_token: response.data.access_token,
@@ -50,7 +51,7 @@ exports.providerRequestToken = async (request) => new Promise(function(resolve, 
                     expires_at_utc: new Date(Date.now() + (response.data.expires_in * 1000))
                 };
 
-                log.info("Got token data: " + JSON.stringify(tokenData));
+                log.info("[OAuth] Got token data: " + JSON.stringify(tokenData));
 
                 db.setClientData(request.session.userId, canvas.providerEnvironment, tokenData.access_token, tokenData.refresh_token, tokenData.expires_at_utc)
                 .then(() => {
@@ -75,7 +76,7 @@ exports.providerRequestToken = async (request) => new Promise(function(resolve, 
 
 exports.providerRefreshToken = async (request) => new Promise(function(resolve, reject) {
     if (request.session.userId && request.session.canvasCourseId) {
-        log.info("[Token refresh] Refresh token data: client_id: " + clientId + "client_secret: " + clientSecret + "refresh_token: " + request.session.token.refresh_token);
+        log.info("[OAuth] Refresh token data: client_id: " + clientId + "client_secret: " + clientSecret + "refresh_token: " + request.session.token.refresh_token);
         
         axios({
             method: "post",
@@ -100,17 +101,16 @@ exports.providerRefreshToken = async (request) => new Promise(function(resolve, 
                 request.session.token.expires_at_utc
             )
             .then(() => {
-                log.info("Refreshed token: " + JSON.stringify(request.session.token) + ", expires: " + request.session.token.expires_at_utc);
+                log.info("[OAuth] Refreshed token: " + JSON.stringify(request.session.token) + ", expires: " + request.session.token.expires_at_utc);
                 resolve();
             })
             .catch((error) => {
-                log.info("Error during token database store: " + error);
+                log.error("[OAuth] Error during token database store: " + error);
                 reject(error);
             })
         })
         .catch(async (error) => {
-            await providerDeleteToken(request);
-            log.error("Refreshing existing token: " + error);
+            log.error("[OAuth] Refreshing existing token: " + error);
             reject(error);
         }); 
     }
