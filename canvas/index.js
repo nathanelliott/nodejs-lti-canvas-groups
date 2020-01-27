@@ -80,7 +80,7 @@ userCache.on('expired', function(key) {
 
 exports.providerEnvironment = (request) => {
   try {
-    const providerBaseUri = apiPath(request);
+    const providerBaseUri = exports.apiPath(request);
     const isTest = providerBaseUri.indexOf("test.in") > 0 ? true : false;
     const isBeta = providerBaseUri.indexOf("beta.in") > 0 ? true : false;
     const isProduction = isTest == false && isBeta == false ? true : false;
