@@ -90,7 +90,7 @@ exports.providerEnvironment = (request) => {
   catch (error) {
     throw(new Error(error));
   }
-});
+};
 
 /* Extract the Canvas API domain from current session LTI information. */
 /* As safety, use environment as backup.                               */
@@ -110,7 +110,7 @@ exports.apiPath = (request) => {
   catch (error) {
     throw(new Error(error));
   }
-});
+};
 
 exports.cacheStat = async () => new Promise(async function (resolve, reject) {
   for (const cache of caches) {

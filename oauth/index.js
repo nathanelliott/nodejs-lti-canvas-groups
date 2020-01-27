@@ -62,8 +62,7 @@ exports.providerRequestToken = async (request) => new Promise(function(resolve, 
                         canvas.providerEnvironment(request), 
                         tokenData.access_token, 
                         tokenData.refresh_token, 
-                        tokenData.expires_at_utc
-                    )
+                        tokenData.expires_at_utc)
                     .then(() => {
                         resolve(tokenData);
                     })
@@ -74,7 +73,6 @@ exports.providerRequestToken = async (request) => new Promise(function(resolve, 
                 .catch((error) => {
                     reject(new Error("HTTP error: " + error));
                 });
-
             }
             else {
                 reject(new Error("Not a valid request, state is not correct."));
