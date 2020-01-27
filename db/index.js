@@ -4,6 +4,10 @@ const sqlite3 = require('sqlite3').verbose();
 const log = require('../log');
 const dbPath = './db/token.db';
 
+exports.upgradeDatabase = () => new Promise(async function(resolve, reject) {
+    resolve();
+});
+
 exports.setupDatabase = () => new Promise(async function(resolve, reject) {
     let db = new sqlite3.Database(dbPath, (error) => {
         if (error) {
