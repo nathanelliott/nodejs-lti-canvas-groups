@@ -57,7 +57,13 @@ exports.providerRequestToken = async (request) => new Promise(function(resolve, 
 
                     log.info("[OAuth] Got token data: " + JSON.stringify(tokenData));
 
-                    db.setClientData(request.session.userId, canvas.providerEnvironment, tokenData.access_token, tokenData.refresh_token, tokenData.expires_at_utc)
+                    db.setClientData(
+                        request.session.userId, 
+                        canvas.providerEnvironment(request), 
+                        tokenData.access_token, 
+                        tokenData.refresh_token, 
+                        tokenData.expires_at_utc
+                    )
                     .then(() => {
                         resolve(tokenData);
                     })
@@ -107,7 +113,7 @@ exports.providerRefreshToken = async (request) => new Promise(function(resolve, 
 
             db.setClientData(
                 request.session.userId, 
-                canvas.providerEnvironment, 
+                canvas.providerEnvironment(request), 
                 request.session.token.access_token, 
                 request.session.token.refresh_token, 
                 request.session.token.expires_at_utc

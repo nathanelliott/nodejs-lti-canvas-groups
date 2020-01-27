@@ -78,37 +78,37 @@ userCache.on('expired', function(key) {
 
 /* The running Canvas environment as a simple string, used for DB information. */
 
-exports.providerEnvironment = async (request) => new Promise(function (resolve, reject) {
+exports.providerEnvironment = (request) => {
   try {
     const providerBaseUri = apiPath(request);
     const isTest = providerBaseUri.indexOf("test.in") > 0 ? true : false;
     const isBeta = providerBaseUri.indexOf("beta.in") > 0 ? true : false;
     const isProduction = isTest == false && isBeta == false ? true : false;
     
-    resolve (isTest ? 'test' : (isBeta ? 'beta' : 'production'));
+    return (isTest ? 'test' : (isBeta ? 'beta' : 'production'));
   }
   catch (error) {
-    reject(error);
+    throw(new Error(error));
   }
 });
 
 /* Extract the Canvas API domain from current session LTI information. */
 /* As safety, use environment as backup.                               */
 
-exports.apiPath = async (request) => new Promise(function(resolve, reject) {
+exports.apiPath = (request) => {
   try {
     if (request.session.canvasApiDomain) {
-      resolve('https://' + request.session.canvasApiDomain + canvasApiPath);
+      return('https://' + request.session.canvasApiDomain + canvasApiPath);
     }
     else if (process.env.canvasBaseUri) {
-      resolve(process.env.canvasBaseUri + canvasApiPath);
+      return(process.env.canvasBaseUri + canvasApiPath);
     }
     else {
-      resolve(canvasApiPath);
+      return(canvasApiPath);
     }
   }
   catch (error) {
-    reject(error);
+    throw(new Error(error));
   }
 });
 

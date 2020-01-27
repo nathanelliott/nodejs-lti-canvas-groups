@@ -161,7 +161,7 @@ exports.handleLaunch = (page) => function(req, res, next) {
 
           log.info("[Session] Regenerated session id: " + req.session.id);
 
-          await db.getClientData(provider.userId, canvas.providerEnvironment)
+          await db.getClientData(provider.userId, canvas.providerEnvironment(req))
           .then((value) => {
             req.session.token = value;
 
