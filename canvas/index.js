@@ -8,27 +8,19 @@ const log = require('../log');
 
 /* This module handles communication between LTI Application and Canvas, using Canvas API V1. */
 
-const providerBaseUri = typeof process.env.canvasBaseUri !== 'undefined' && process.env.canvasBaseUri ? process.env.canvasBaseUri : "https://chalmers.test.instructure.com";
-const apiPath = providerBaseUri + "/api/v1";
-const isTest = providerBaseUri.indexOf("test.in") > 0 ? true : false;
-const isBeta = providerBaseUri.indexOf("beta.in") > 0 ? true : false;
-const isProduction = isTest == false && isBeta == false ? true : false;
-const providerEnvironment = isTest ? "test" : (isBeta ? "beta" : "production");
-
+const canvasApiPath = "/api/v1";
 const CACHE_TTL = (parseInt(process.env.canvasApiCacheSecondsTTL) > 0 ? parseInt(process.env.canvasApiCacheSecondsTTL) : 180);
 const CACHE_CHECK_EXPIRE = 200;
 const API_PER_PAGE = 50;
 
-module.exports = {
+/* module.exports = {
   providerBaseUri: providerBaseUri,
   apiPath: apiPath,
   isTest: isTest,
   isBeta: isBeta,
   isProduction: isProduction,
   providerEnvironment: providerEnvironment
-}
-
-log.info("canvas.providerBaseUri=" + providerBaseUri);
+} */
 
 /* Cache the results of API calls for a shorter period, to ease the load on API servers */
 /* and make load time bearable for the user.                                            */
@@ -82,6 +74,42 @@ memberCache.on('expired', function(key) {
 });
 userCache.on('expired', function(key) {
   log.info("[Cache] Expired NodeCache entry for userCachekey '" + key + "'.");
+});
+
+/* The running Canvas environment as a simple string, used for DB information. */
+
+exports.providerEnvironment = (request) => new Promise(function (resolve, reject) {
+  try {
+    const providerBaseUri = exports.apiPath(request);
+    const isTest = providerBaseUri.indexOf("test.in") > 0 ? true : false;
+    const isBeta = providerBaseUri.indexOf("beta.in") > 0 ? true : false;
+    const isProduction = isTest == false && isBeta == false ? true : false;
+    
+    resolve (isTest ? 'test' : (isBeta ? 'beta' : 'production'));
+  }
+  catch (error) {
+    reject(error);
+  }
+});
+
+/* Extract the Canvas API domain from current session LTI information. */
+/* As safety, use environment as backup.                               */
+
+exports.apiPath = (request) => new Promise(function(resolve, reject) {
+  try {
+    if (request.session.canvasApiDomain) {
+      resolve('https://' + request.session.canvasApiDomain + canvasApiPath);
+    }
+    else if (process.env.canvasBaseUri) {
+      resolve(process.env.canvasBaseUri + canvasApiPath);
+    }
+    else {
+      resolve(canvasApiPath);
+    }
+  }
+  catch (error) {
+    reject(error);
+  }
 });
 
 exports.cacheStat = async () => new Promise(async function (resolve, reject) {
@@ -310,7 +338,7 @@ exports.getCourseGroups = async (courseId, request) => new Promise(async functio
     resolve(cachedData);
   }
   catch (err) {
-    var thisApiPath = apiPath + "/courses/" + courseId + "/groups?per_page=" + API_PER_PAGE;
+    var thisApiPath = exports.apiPath(request) + "/courses/" + courseId + "/groups?per_page=" + API_PER_PAGE;
     var apiData = [];
     var returnedApiData = [];
     var errorCount = 0;
@@ -392,7 +420,7 @@ exports.getGroupCategories = async (courseId, request) => new Promise(async func
     resolve(cachedData);
   }
   catch {
-    var thisApiPath = apiPath + "/courses/" + courseId + "/group_categories?per_page=" + API_PER_PAGE;
+    var thisApiPath = exports.apiPath(request) + "/courses/" + courseId + "/group_categories?per_page=" + API_PER_PAGE;
     var apiData = new Array();
     var returnedApiData = new Array();
     var errorCount = 0;
@@ -474,7 +502,7 @@ exports.getCategoryGroups = async (categoryId, request) => new Promise(async fun
     resolve(cachedData);
   }
   catch {
-    var thisApiPath = apiPath + "/group_categories/" + categoryId + "/groups?per_page=" + API_PER_PAGE;
+    var thisApiPath = exports.apiPath(request) + "/group_categories/" + categoryId + "/groups?per_page=" + API_PER_PAGE;
     var apiData = [];
     var returnedApiData = [];
     var errorCount = 0;
@@ -557,7 +585,7 @@ exports.getGroupUsers = async (groupId, request) => new Promise(async function(r
     resolve(cachedData);
   }
   catch {
-    var thisApiPath = apiPath + "/groups/" + groupId + "/users?include[]=avatar_url&include[]=email&per_page=" + API_PER_PAGE;
+    var thisApiPath = exports.apiPath(request) + "/groups/" + groupId + "/users?include[]=avatar_url&include[]=email&per_page=" + API_PER_PAGE;
     var apiData = [];
     var returnedApiData = [];
     var errorCount = 0;
@@ -640,7 +668,7 @@ exports.getGroupMembers = async (groupId, request) => new Promise(async function
     resolve(cachedData);
   }
   catch {
-    var thisApiPath = apiPath + "/groups/" + groupId + "/memberships?per_page=" + API_PER_PAGE;
+    var thisApiPath = exports.apiPath(request) + "/groups/" + groupId + "/memberships?per_page=" + API_PER_PAGE;
     var apiData = [];
     var returnedApiData = [];
     var errorCount = 0;
@@ -720,7 +748,7 @@ exports.getUser = async (userId, request) => new Promise(async function(resolve,
     resolve(cachedData);
   }
   catch {
-    var thisApiPath = apiPath + "/users/" + userId;
+    var thisApiPath = exports.apiPath(request) + "/users/" + userId;
     var apiData = [];
     var errorCount = 0;
 
