@@ -46,7 +46,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   rolling: true,
-  cookie: { secure: true, httpOnly: false, maxAge: cookieMaxAge }
+  cookie: { sameSite: 'none', secure: true, httpOnly: false, maxAge: cookieMaxAge }
 }));
 
 // parse application/x-www-form-urlencoded
