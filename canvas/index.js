@@ -78,7 +78,7 @@ userCache.on('expired', function(key) {
 
 /* The running Canvas environment as a simple string, used for DB information. */
 
-module.exports.providerEnvironment = async (request) => new Promise(async function (resolve, reject) {
+exports.providerEnvironment = async (request) => new Promise(function (resolve, reject) {
   try {
     const providerBaseUri = apiPath(request);
     const isTest = providerBaseUri.indexOf("test.in") > 0 ? true : false;
@@ -95,7 +95,7 @@ module.exports.providerEnvironment = async (request) => new Promise(async functi
 /* Extract the Canvas API domain from current session LTI information. */
 /* As safety, use environment as backup.                               */
 
-module.exports.apiPath = async (request) => new Promise(async function(resolve, reject) {
+exports.apiPath = async (request) => new Promise(function(resolve, reject) {
   try {
     if (request.session.canvasApiDomain) {
       resolve('https://' + request.session.canvasApiDomain + canvasApiPath);
