@@ -69,7 +69,7 @@ exports.handleLaunch = (page) => function(req, res, next) {
         return next(err);
       }
       if (isValid) {
-        log.info("LTI Data:" + JSON.stringify(provider.body));
+        // log.info("LTI Data:" + JSON.stringify(provider.body));
 
         if (typeof req.session !== 'undefined' && typeof req.session.token !== 'undefined' && typeof req.session.token.expires_at_utc !== 'undefined') {
           req.session.contextId = provider.context_id;
