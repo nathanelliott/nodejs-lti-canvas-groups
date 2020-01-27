@@ -24,7 +24,7 @@ exports.setupDatabase = () => new Promise(async function(resolve, reject) {
             });
 
             db.close();
-            log.info("[DB] Database initialized with data table 'tokens'.");
+            log.info("[DB] Database main table 'tokens' ready.");
 
             resolve();
         }
@@ -101,14 +101,7 @@ exports.setClientData = (userId, env, token, refresh, expires) => new Promise(fu
 exports.getClientData = (userId, env) => new Promise(function(resolve, reject) {
     let db = new sqlite3.Database(dbPath, (error) => {
         if (error) {
-            log.error(error.message);
-
-            if (error.message.toString().toLowerCase().includes("no such table")) {
-                log.info("[DB] Main table missing, setting up database again (probably deleted to trigger this).");
-                
-                exports.setupDatabase();
-            }
-            reject();
+            reject(error);
         }
         else {
             log.info("[DB] Querying token for user_id '" + userId + "', environment '" + env + "'.");
@@ -116,15 +109,17 @@ exports.getClientData = (userId, env) => new Promise(function(resolve, reject) {
             var tokenData = {};
         
             db.get("SELECT DISTINCT user_id, user_env, api_token, refresh_token, expires_at_utc FROM tokens WHERE user_id = ? AND user_env = ?", [userId, env], function(error, row) {
-                if (error) {
-                    log.error(error);
+                if (error) {                    
+                    if (error.message.toString().toLowerCase().includes("no such table")) {
+                        log.info("[DB] Main table is missing, setting up database again (probably deleted to trigger this).");
+                        exports.setupDatabase();
+                    }
 
                     db.close();
                     reject(error);
                 }
                 else {
                     if (row) {
-                        // log.info("(DB) Raw row: " + JSON.stringify(row));
                         tokenData.access_token = row.api_token;
                         tokenData.token_type = "Bearer";
                         tokenData.refresh_token = row.refresh_token;
