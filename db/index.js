@@ -24,6 +24,8 @@ exports.setupDatabase = () => new Promise(async function(resolve, reject) {
             });
 
             db.close();
+            log.info("[DB] Database initialized with data table 'tokens'.");
+
             resolve();
         }
     });
@@ -36,7 +38,7 @@ exports.getAllClientsData = () => new Promise(async function(resolve, reject) {
             reject();
         }
         else {
-            log.info("(DB) Query all data for clients.");
+            log.info("[DB] Querying all data for all clients.");
 
             var clientData = [];
         
@@ -76,7 +78,7 @@ exports.setClientData = (userId, env, token, refresh, expires) => new Promise(fu
             reject();
         }
         else {
-            log.info("INSERT OR REPLACE INTO tokens (user_id, user_env, api_token, refresh_token, expires_at_utc) VALUES (" + userId + ", " + env + ", " + token + ", " + refresh + ", " + expires + ")");
+            log.info("[DB] INSERT OR REPLACE INTO tokens (user_id, user_env, api_token, refresh_token, expires_at_utc) VALUES (" + userId + ", " + env + ", " + token + ", " + refresh + ", " + expires + ")");
 
             db.run("INSERT OR REPLACE INTO tokens (user_id, user_env, api_token, refresh_token, expires_at_utc) VALUES (?, ?, ?, ?, ?)", [userId, env, token, refresh, expires], function(error) {
                 if (error) {
@@ -86,7 +88,7 @@ exports.setClientData = (userId, env, token, refresh, expires) => new Promise(fu
                     reject();
                 }
                 else {
-                    log.info("Replaced token data for user_id '" + userId + "'");
+                    log.info("[DB] Replaced token data for user_id '" + userId + "'");
 
                     db.close();
                     resolve();               
@@ -100,10 +102,16 @@ exports.getClientData = (userId, env) => new Promise(function(resolve, reject) {
     let db = new sqlite3.Database(dbPath, (error) => {
         if (error) {
             log.error(error.message);
+
+            if (error.message.toString().toLowerCase().includes("no such table")) {
+                log.info("[DB] Main table missing, setting up database again (probably deleted to trigger this).");
+                
+                exports.setupDatabase();
+            }
             reject();
         }
         else {
-            log.info("(DB) Query db for tokens for user_id '" + userId + "', env '" + env + "'");
+            log.info("[DB] Querying token for user_id '" + userId + "', environment '" + env + "'.");
 
             var tokenData = {};
         
@@ -116,19 +124,19 @@ exports.getClientData = (userId, env) => new Promise(function(resolve, reject) {
                 }
                 else {
                     if (row) {
-                        log.info("(DB) Raw row: " + JSON.stringify(row));
+                        // log.info("(DB) Raw row: " + JSON.stringify(row));
                         tokenData.access_token = row.api_token;
                         tokenData.token_type = "Bearer";
                         tokenData.refresh_token = row.refresh_token;
                         tokenData.expires_in = 3600;
                         tokenData.expires_at_utc = new Date(row.expires_at_utc);
-                        log.info("(DB) Read data from DB: " + JSON.stringify(tokenData));
+                        log.info("[DB] Object set from database: " + JSON.stringify(tokenData));
 
                         db.close();
                         resolve(tokenData);
                     }
                     else {
-                        log.info("(DB) No data in db for userId '" + userId + "'");
+                        log.info("[DB] No data in db for userId '" + userId + "'.");
 
                         db.close();
                         reject("No data.");
