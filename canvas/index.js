@@ -80,7 +80,7 @@ userCache.on('expired', function(key) {
 
 exports.providerEnvironment = (request) => {
   try {
-    const providerBaseUri = exports.apiPath(request);
+    const providerBaseUri = exports.providerBaseUri(request);
     const isTest = providerBaseUri.indexOf("test.in") > 0 ? true : false;
     const isBeta = providerBaseUri.indexOf("beta.in") > 0 ? true : false;
     const isProduction = isTest == false && isBeta == false ? true : false;
@@ -92,8 +92,22 @@ exports.providerEnvironment = (request) => {
   }
 };
 
-/* Extract the Canvas API domain from current session LTI information. */
-/* As safety, use environment as backup.                               */
+exports.providerBaseUri = (request) => {
+  try {
+    if (request.session.canvasApiDomain) {
+      return('https://' + request.session.canvasApiDomain);
+    }
+    else if (process.env.canvasBaseUri) {
+      return(process.env.canvasBaseUri);
+    }
+    else {
+      return('//');
+    }
+  }
+  catch (error) {
+    throw(new Error(error));
+  }
+};
 
 exports.apiPath = (request) => {
   try {
