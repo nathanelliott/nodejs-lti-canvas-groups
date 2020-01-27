@@ -23,54 +23,66 @@ exports.providerLogin = () => {
 };
 
 exports.providerRequestToken = async (request) => new Promise(function(resolve, reject) {
-    const requestToken = request.query.code;
-    log.info("[OAuth] Request token: " + requestToken);
+    const requestCode = request.query.code;
+    const requestState = request.query.state;
+    const requestError = request.query.error;
 
-    if (requestToken !== 'undefined') {
+    log.info("[OAuth] Request token: '" + requestCode + "', state: '" + requestState + "', error: '" + requestError + "'");
+
+    if (requestCode !== 'undefined') {
         if (request.session.userId && request.session.canvasCourseId) {
-            log.info("[OAuth] POST to get OAuth Token.");
+            if (requestState == clientState) {
+                log.info("[OAuth] POST to get OAuth Token.");
 
-            axios({
-                method: 'post',
-                url: providerBaseUri + "/login/oauth2/token",
-                data: {
-                    grant_type: "authorization_code",
-                    client_id: clientId,
-                    client_secret: clientSecret,
-                    code: requestToken
-                }
-            })
-            .then(async (response) => {
-                log.info("[OAuth] Response: " + JSON.stringify(response.data));
+                axios({
+                    method: 'post',
+                    url: providerBaseUri + "/login/oauth2/token",
+                    data: {
+                        grant_type: "authorization_code",
+                        client_id: clientId,
+                        client_secret: clientSecret,
+                        code: requestCode
+                    }
+                })
+                .then(async (response) => {
+                    log.info("[OAuth] Response: " + JSON.stringify(response.data));
 
-                const tokenData = {
-                    access_token: response.data.access_token,
-                    token_type: response.data.token_type,
-                    refresh_token: response.data.refresh_token,
-                    expires_in: response.data.expires_in,
-                    expires_at_utc: new Date(Date.now() + (response.data.expires_in * 1000))
-                };
+                    const tokenData = {
+                        access_token: response.data.access_token,
+                        token_type: response.data.token_type,
+                        refresh_token: response.data.refresh_token,
+                        expires_in: response.data.expires_in,
+                        expires_at_utc: new Date(Date.now() + (response.data.expires_in * 1000))
+                    };
 
-                log.info("[OAuth] Got token data: " + JSON.stringify(tokenData));
+                    log.info("[OAuth] Got token data: " + JSON.stringify(tokenData));
 
-                db.setClientData(request.session.userId, canvas.providerEnvironment, tokenData.access_token, tokenData.refresh_token, tokenData.expires_at_utc)
-                .then(() => {
-                    resolve(tokenData);
+                    db.setClientData(request.session.userId, canvas.providerEnvironment, tokenData.access_token, tokenData.refresh_token, tokenData.expires_at_utc)
+                    .then(() => {
+                        resolve(tokenData);
+                    })
+                    .catch((error) => {
+                        reject(error);
+                    })
                 })
                 .catch((error) => {
-                    reject(error);
-                })
-            })
-            .catch((error) => {
-                reject(new Error("HTTP error: " + error));
-            });
+                    reject(new Error("HTTP error: " + error));
+                });
+
+            }
+            else {
+                reject(new Error("Not a valid request, state is not correct."));
+            }
         }
         else {
             reject(new Error("Session is not valid; third-party cookies must be allowed."));
         }
     }
+    else if (requestError == 'access_denied') {
+        reject(new Error("Access Denied from OAuth in Canvas."));
+    }
     else {
-        reject(new Error("OAuth token missing from Canvas."));
+        reject(new Error("Unknown error from OAuth in Canvas."));
     }
 });
 
