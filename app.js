@@ -57,7 +57,7 @@ app.enable('trust proxy');
 
 app.get('/oauth', (request, response, next) => {
   try {
-    return response.redirect(oauth.providerLogin());    
+    return response.redirect(oauth.providerLogin(request));    
   }
   catch (error) {
     next(error);

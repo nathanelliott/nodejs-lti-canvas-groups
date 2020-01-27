@@ -9,16 +9,17 @@ const clientRedirectUri = "https://" + process.env.WEBSITE_HOSTNAME + "/oauth/re
 const clientId = process.env.oauthClientId ? process.env.oauthClientId : "125230000000000040";
 const clientSecret = process.env.oauthClientSecret ? process.env.oauthClientSecret : "UyNraHQO8sTho8lMddO03Fl1QCKjObwgy500ligLnZXiFTa6FjAlLqksEOpB3uz9";
 const clientState = process.env.oauthClientState ? process.env.oauthClientState : (process.env.COMPUTERNAME ? process.env.COMPUTERNAME : "C2D7938F027A5FD7A7076CA7");
-const providerBaseUri = canvas.providerBaseUri;
-const providerLoginUri = providerBaseUri + "/login/oauth2/auth?client_id=" + clientId + "&response_type=code&state=" + clientState + "&redirect_uri=" + clientRedirectUri;
+const providerLoginUri = "/login/oauth2/auth?client_id=" + clientId + "&response_type=code&state=" + clientState + "&redirect_uri=" + clientRedirectUri;
 
-exports.providerLogin = () => {
-    if (providerLoginUri) {
-        log.info("[OAuth] Redirecting to OAuth URI: " + providerLoginUri);
-        return providerLoginUri;
+exports.providerLogin = (request) => {
+    if (providerLoginUri && request) {
+        const thisProviderLoginUri = canvas.apiPath(request) + providerLoginUri;
+        log.info("[OAuth] Redirecting to OAuth URI: " + thisProviderLoginUri);
+
+        return thisProviderLoginUri;
     }
     else {
-        throw(new Error("No configured URI for OAuth provider login."));
+        throw(new Error("Can't construct URI for OAuth provider login."));
     }
 };
 
@@ -32,11 +33,11 @@ exports.providerRequestToken = async (request) => new Promise(function(resolve, 
     if (requestCode !== 'undefined') {
         if (request.session.userId && request.session.canvasCourseId) {
             if (requestState == clientState) {
-                log.info("[OAuth] POST to get OAuth Token.");
+                log.info("[OAuth] POST to get OAuth Token (" + canvas.apiPath(request) + "/login/oauth2/token)");
 
                 axios({
                     method: 'post',
-                    url: providerBaseUri + "/login/oauth2/token",
+                    url: canvas.apiPath(request) + "/login/oauth2/token",
                     data: {
                         grant_type: "authorization_code",
                         client_id: clientId,
@@ -93,10 +94,11 @@ exports.providerRequestToken = async (request) => new Promise(function(resolve, 
 exports.providerRefreshToken = async (request) => new Promise(function(resolve, reject) {
     if (request.session.userId && request.session.canvasCourseId) {
         log.info("[OAuth] Refresh token data: client_id: " + clientId + "client_secret: " + clientSecret + "refresh_token: " + request.session.token.refresh_token);
-        
+        log.info("[OAuth] Api path: " + canvas.apiPath(request) + "/login/oauth2/token");
+
         axios({
             method: "post",
-            url: providerBaseUri + "/login/oauth2/token",
+            url: canvas.apiPath(request) + "/login/oauth2/token",
             data: {
                 grant_type: "refresh_token",
                 client_id: clientId,
@@ -138,7 +140,7 @@ exports.providerDeleteToken = async (request) => new Promise(function(resolve, r
         
         axios({
             method: "delete",
-            url: providerBaseUri + "/login/oauth2/token"
+            url: canvas.apiPath(request) + "/login/oauth2/token"
         })
         .then((response) => {
             log.info("API Response: " + JSON.stringify(response));
