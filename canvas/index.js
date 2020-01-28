@@ -13,15 +13,6 @@ const CACHE_TTL = (parseInt(process.env.canvasApiCacheSecondsTTL) > 0 ? parseInt
 const CACHE_CHECK_EXPIRE = 200;
 const API_PER_PAGE = 50;
 
-/* module.exports = {
-  providerBaseUri: providerBaseUri,
-  apiPath: apiPath,
-  isTest: isTest,
-  isBeta: isBeta,
-  isProduction: isProduction,
-  providerEnvironment: providerEnvironment
-} */
-
 /* Cache the results of API calls for a shorter period, to ease the load on API servers */
 /* and make load time bearable for the user.                                            */
 
@@ -76,14 +67,14 @@ userCache.on('expired', function(key) {
   log.info("[Cache] Expired NodeCache entry for userCachekey '" + key + "'.");
 });
 
-/* The running Canvas environment as a simple string, used for DB information. */
-
+/**
+ * Canvas environment.
+ */
 exports.providerEnvironment = (request) => {
   try {
     const providerBaseUri = exports.providerBaseUri(request);
     const isTest = providerBaseUri.indexOf("test.in") > 0 ? true : false;
     const isBeta = providerBaseUri.indexOf("beta.in") > 0 ? true : false;
-    const isProduction = isTest == false && isBeta == false ? true : false;
     
     return (isTest ? 'test' : (isBeta ? 'beta' : 'production'));
   }
@@ -92,6 +83,9 @@ exports.providerEnvironment = (request) => {
   }
 };
 
+/**
+ * Canvas base uri.
+ */
 exports.providerBaseUri = (request) => {
   try {
     if (request.session.canvasApiDomain) {
@@ -109,6 +103,9 @@ exports.providerBaseUri = (request) => {
   }
 };
 
+/**
+ * Complete Canvas uri before API endpoint.
+ */
 exports.apiPath = (request) => {
   try {
     if (request.session.canvasApiDomain) {
@@ -181,7 +178,9 @@ module.exports.getCacheStat = async () => new Promise(async function (resolve, r
   resolve(cacheList);
 });
 
-// Compile category groups data for CSV export.
+/**
+ * Compile category groups data for CSV export.
+ */
 module.exports.compileCategoryGroupsData = async (categoryId, request) => new Promise(async function(resolve, reject) {
   var hrstart = process.hrtime();
   var categoriesWithGroups = new Array();
@@ -256,7 +255,9 @@ module.exports.compileCategoryGroupsData = async (categoryId, request) => new Pr
   resolve(data);
 });
 
-// Compile groups data for web view.
+/** 
+ * Compile groups data for web view.
+ */
 module.exports.compileGroupsData = async (canvasCourseId, request) => new Promise(async function(resolve, reject) {
   var hrstart = process.hrtime();
   var categoriesWithGroups = new Array();

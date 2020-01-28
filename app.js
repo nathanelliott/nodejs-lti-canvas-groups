@@ -214,7 +214,7 @@ app.get('/csv/category/:id/:name', async (request, result, next) => {
 app.post('/launch_lti', lti.handleLaunch('loading/groups'));
 app.post('/launch_lti_stats', lti.handleLaunch('loading/stats'));
 
-app.listen(port, () => log.info(`[Main] Example app listening on port ${port}!`));
+app.listen(port, () => log.info(`[Main] Example app listening on port ${port}.`));
 
 process.on('uncaughtException', (err) => {
   console.error('[Main] There was an uncaught error', err);
