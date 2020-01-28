@@ -55,6 +55,13 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.set('json spaces', 2);
 app.enable('trust proxy');
 
+app.get('/', (request, response) => {
+  return response.send({
+    status: 'up',
+    version: pkg.version
+  });
+});
+
 app.get('/oauth', (request, response, next) => {
   try {
     return response.redirect(oauth.providerLogin(request));    
@@ -64,16 +71,15 @@ app.get('/oauth', (request, response, next) => {
   }
 });
 
-app.get('/oauth/redirect', async (request, response, next) => {
+app.get('/oauth/redirect', async (request, response) => {
   try {
     request.session.token = await oauth.providerRequestToken(request);
     log.info("[Main] Written data to session: " + JSON.stringify(request.session.token));
     log.info("[Main] Redirecting to /loading/groups");
     response.redirect('/loading/groups');
-    JSON.stringify()
   }
   catch (error) {
-    log.error("[Main] During OAuth token exchange: " + error);
+    log.error("During OAuth token exchange: " + error);
     response.redirect('/error/text/During OAuth token exchange: ' + error);
   }
 });
@@ -95,7 +101,7 @@ app.get('/error/code/:id', async (request, response, next) => {
   });
 });
 
-app.get('/error/text/:text', (request, response, next) => {
+app.get('/error/text/:text', (request, response) => {
   return response.render('error', {
     error: {
       text: request.params.text
@@ -112,8 +118,8 @@ app.get('/error/text/:text', (request, response, next) => {
   });
 });
 
-app.get('/stats', async (request, response, next) => {
-  if (request.session.userId ) {
+app.get('/stats', async (request, response) => {
+  if (request.session.userId) {
     if (adminUserIds.length && adminUserIds.includes(request.session.userId)) {
       const authorizedUsers = await db.getAllClientsData();
       const cacheContents = await canvas.getCacheStat();
@@ -134,33 +140,35 @@ app.get('/stats', async (request, response, next) => {
       });
     }
     else {
-      return result.redirect('/error/code/42'); // Admin level needed
+      log.error("Not in admin list.");
+      return response.redirect('/error/code/42'); // Admin level needed
     }
   }
   else {
-    return result.redirect('/error/code/41'); // Third-party cookies
+    log.error("No session found.");
+    return response.redirect('/error/code/41'); // Third-party cookies
   }
 });
 
-app.get('/loading/:page', async (request, result, next) => {
-      return result.render('loading', { page: request.params.page });  
+app.get('/loading/:page', async (request, response) => {
+      return response.render('loading', { page: request.params.page });  
 });
 
-app.get('/groups', async (request, result, next) => { 
+app.get('/groups', async (request, response, next) => { 
   if (request.session.userId && request.session.canvasCourseId) {
     try {
       const data = await canvas.compileGroupsData(request.session.canvasCourseId, request);
       data.statistics.name = pkg.name;
       data.statistics.version = pkg.version;
       
-      return result.render('groups', data);  
+      return response.render('groups', data);  
     }
     catch (error) {
       log.error(error);
 
       if (error.response.status == 401) {
         try {
-          return result.redirect(oauth.providerLogin());    
+          return response.redirect(oauth.providerLogin());    
         }
         catch (error) {
           next(error);
@@ -172,11 +180,12 @@ app.get('/groups', async (request, result, next) => {
     }
   }
   else {
-    return result.redirect('/error/code/41'); // Third-party cookies
+    log.error("No session found.");
+    return response.redirect('/error/code/41'); // Third-party cookies
   }
 });
 
-app.get('/csv/category/:id/:name', async (request, result, next) => {
+app.get('/csv/category/:id/:name', async (request, response, next) => {
   if (request.session.userId && request.session.canvasCourseId) {
     try {
       const id = request.params.id;
@@ -185,8 +194,8 @@ app.get('/csv/category/:id/:name', async (request, result, next) => {
       if (id > 0) {
         const data = await canvas.compileCategoryGroupsData(id, request);
       
-        result.setHeader("Content-Disposition", "attachment; filename=Canvas Groups " + name.replace(/[^a-zA-Z0-9\s]+/g, "-").replace(/[\-]+$/, "") + ".csv");
-        result.set("Content-Type", "text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=Canvas Groups " + name.replace(/[^a-zA-Z0-9\s]+/g, "-").replace(/[\-]+$/, "") + ".csv");
+        response.set("Content-Type", "text/csv");
   
         let csvData = "\ufeffGroup;Student;Email address\r\n";
   
@@ -196,7 +205,7 @@ app.get('/csv/category/:id/:name', async (request, result, next) => {
           }
         }
   
-        return result.status(200).end(csvData);
+        return response.status(200).end(csvData);
       }
       else {
         throw(new Error("Category id missing."));
@@ -207,7 +216,7 @@ app.get('/csv/category/:id/:name', async (request, result, next) => {
     }
   }
   else {
-    return result.redirect('/error/code/41'); // Third-party cookies
+    return response.redirect('/error/code/41'); // Third-party cookies
   }
 });
 
