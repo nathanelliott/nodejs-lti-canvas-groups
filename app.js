@@ -23,7 +23,7 @@ const NODE_MAJOR_VERSION = process.versions.node.split('.')[0];
 const NODE_MINOR_VERSION = process.versions.node.split('.')[1];
 
 // Setup database
-db.setupDatabase().then(log.info("Database initialized.")).catch(function(error) { log.error("Setting up database: " + error)});
+db.setupDatabase().catch(function(error) { log.error("[Main] Setting up database: " + error)});
 
 // this express server should be secured/hardened for production use
 const app = express();
@@ -35,7 +35,7 @@ app.use(helmet({
 
 app.disable('X-Powered-By');
 
-// set view engine∏
+// set view engine
 app.set('view engine', 'pug');
 
 // memory store shouldn't be used in production
@@ -67,12 +67,13 @@ app.get('/oauth', (request, response, next) => {
 app.get('/oauth/redirect', async (request, response, next) => {
   try {
     request.session.token = await oauth.providerRequestToken(request);
-    log.info("Written data to session: " + JSON.stringify(request.session.token));
-    log.info("Redirecting to /loading/groups");
+    log.info("[Main] Written data to session: " + JSON.stringify(request.session.token));
+    log.info("[Main] Redirecting to /loading/groups");
     response.redirect('/loading/groups');
+    JSON.stringify()
   }
   catch (error) {
-    log.error("During OAuth token exchange: " + error);
+    log.error("[Main] During OAuth token exchange: " + error);
     response.redirect('/error/text/During OAuth token exchange: ' + error);
   }
 });
@@ -183,9 +184,7 @@ app.get('/csv/category/:id/:name', async (request, result, next) => {
 
       if (id > 0) {
         const data = await canvas.compileCategoryGroupsData(id, request);
-  
-        log.info("[JSON Result] " + JSON.stringify(data));
-    
+      
         result.setHeader("Content-Disposition", "attachment; filename=Canvas Groups " + name.replace(/[^a-zA-Z0-9\s]+/g, "-").replace(/[\-]+$/, "") + ".csv");
         result.set("Content-Type", "text/csv");
   
@@ -215,9 +214,9 @@ app.get('/csv/category/:id/:name', async (request, result, next) => {
 app.post('/launch_lti', lti.handleLaunch('loading/groups'));
 app.post('/launch_lti_stats', lti.handleLaunch('loading/stats'));
 
-app.listen(port, () => log.info(`Example app listening on port ${port}!`));
+app.listen(port, () => log.info(`[Main] Example app listening on port ${port}!`));
 
 process.on('uncaughtException', (err) => {
-  console.error('There was an uncaught error', err);
+  console.error('[Main] There was an uncaught error', err);
   process.exit(1); //mandatory (as per the Node docs)
 });

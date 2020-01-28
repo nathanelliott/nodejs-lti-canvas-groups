@@ -11,6 +11,9 @@ const clientSecret = process.env.oauthClientSecret ? process.env.oauthClientSecr
 const clientState = process.env.oauthClientState ? process.env.oauthClientState : (process.env.COMPUTERNAME ? process.env.COMPUTERNAME : "C2D7938F027A5FD7A7076CA7");
 const providerLoginUri = "/login/oauth2/auth?client_id=" + clientId + "&response_type=code&state=" + clientState + "&redirect_uri=" + clientRedirectUri;
 
+/**
+ * Returns the correct OAuth login uri. 
+ */
 exports.providerLogin = (request) => {
     if (providerLoginUri && request) {
         const thisProviderLoginUri = canvas.providerBaseUri(request) + providerLoginUri;
@@ -23,6 +26,9 @@ exports.providerLogin = (request) => {
     }
 };
 
+/**
+ * Requests a token from OAuth service.
+ */
 exports.providerRequestToken = async (request) => new Promise(function(resolve, reject) {
     const requestCode = request.query.code;
     const requestState = request.query.state;
@@ -91,6 +97,9 @@ exports.providerRequestToken = async (request) => new Promise(function(resolve, 
     }
 });
 
+/**
+ * Refreshes a token from OAuth server.
+ */
 exports.providerRefreshToken = async (request) => new Promise(function(resolve, reject) {
     if (request.session.userId && request.session.canvasCourseId) {
         log.info("[OAuth] Refresh token data: client_id: " + clientId + "client_secret: " + clientSecret + "refresh_token: " + request.session.token.refresh_token);
