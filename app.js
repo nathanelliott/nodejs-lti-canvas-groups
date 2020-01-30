@@ -84,7 +84,7 @@ app.get('/oauth/redirect', async (request, response) => {
   }
 });
 
-app.get('/error/code/:id', async (request, response, next) => {
+app.get('/error/code/:id', async (request, response) => {
   return response.render('error', {
     error: {
       text: await error.errorDescription(request.params.id)
