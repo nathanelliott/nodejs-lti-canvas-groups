@@ -191,6 +191,8 @@ module.exports.getCacheStat = async () => new Promise(async function (resolve, r
 
     var cacheData = {
       name: cache.name,
+      reads: cache.reads,
+      writes: cache.writes,
       keys: cacheKeys
     };
 
