@@ -62,6 +62,27 @@ app.get('/', (request, response) => {
   });
 });
 
+app.get('/json/stats', async (request, response) => {
+  const authorizedUsers = await db.getAllClientsData();
+  // const authorizedUsers = await db.getAllClientsDataMocked();
+  const cacheContents = await canvas.getCacheStat();
+  let now = new Date();
+  var activeUsersToday = 0;
+
+  authorizedUsers.forEach(user => {
+    if (user.updated_at.substr(0, 10) == now.toISOString().substr(0, 10)) {
+      activeUsersToday++;
+    }
+  });
+
+  return response.send({
+    version: pkg.version,
+    authorized_users: authorizedUsers.length,
+    active_users_today: activeUsersToday,
+    cache_buckets: cacheContents.length
+  });
+});
+
 app.get('/oauth', (request, response, next) => {
   try {
     return response.redirect(oauth.providerLogin(request));    

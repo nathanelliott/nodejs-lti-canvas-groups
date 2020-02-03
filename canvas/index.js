@@ -23,30 +23,42 @@ const categoryGroupsCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_T
 const memberCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkperiod: CACHE_CHECK_EXPIRE });
 const userCache = new NodeCache({ errorOnMissing:true, stdTTL: CACHE_TTL, checkperiod: CACHE_CHECK_EXPIRE });
 
-const caches = [
+let caches = [
   {
     name: "courseGroupsCache",
+    writes: 0,
+    reads: 0,
     bucket: courseGroupsCache
   },
   {
     name: "groupCategoriesCache",
+    writes: 0,
+    reads: 0,
     bucket: groupCategoriesCache
   },
   {
     name: "groupUsersCache",
+    writes: 0,
+    reads: 0,
     bucket: groupUsersCache
   },
   {
     name: "categoryGroupsCache",
+    writes: 0,
+    reads: 0,
     bucket: categoryGroupsCache
   },
   {
     name: "memberCache",
+    writes: 0,
+    reads: 0,
     bucket: memberCache
   }
   ,
   {
     name: "userCache",
+    writes: 0,
+    reads: 0,
     bucket: userCache
   }
 ];
@@ -142,6 +154,16 @@ exports.cacheStat = async () => new Promise(async function (resolve, reject) {
 
   resolve(true);
 });
+
+exports.addCacheRead = (cacheName) => {
+  let cache = caches.find(({ name }) => name === cacheName);
+  cache.reads++;
+};
+
+exports.addCacheWrite = (cacheName) => {
+  let cache = caches.find(({ name }) => name === cacheName);
+  cache.writes++;
+};
 
 module.exports.getCacheStat = async () => new Promise(async function (resolve, reject) {
   var cacheList = [];
@@ -432,6 +454,8 @@ exports.getGroupCategories = async (courseId, request) => new Promise(async func
     log.info("[Cache] Using found NodeCache entry for courseId " + courseId + ".");
     log.info("[Cache] Statistics: " + JSON.stringify(groupCategoriesCache.getStats()));
 
+    addCacheRead('groupCategoriesCache');
+
     resolve(cachedData);
   }
   catch {
@@ -497,7 +521,8 @@ exports.getGroupCategories = async (courseId, request) => new Promise(async func
 
     // Store in cache.
     groupCategoriesCache.set(courseId, returnedApiData);
-  
+    addCacheWrite('groupCategoriesCache');
+
     log.info("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(returnedApiData));
     log.info("[Cache] Statistics: " + JSON.stringify(groupCategoriesCache.getStats()));
     log.info("[Cache] Keys: " + groupCategoriesCache.keys());

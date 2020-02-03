@@ -71,6 +71,25 @@ exports.getAllClientsData = () => new Promise(async function(resolve, reject) {
     });
 });
 
+exports.getAllClientsDataMocked = () => new Promise(async function(resolve, reject) {
+    log.info("[DB] Mocking up data for all clients.");
+
+    var clientData = [];
+
+    var thisData1 = { user_id: "abcdef_123456", user_env: "test", api_token: "api_token_1", refresh_token: "refresh_token_1",
+    expires_at: new Date("2020-02-03T01:30:00Z").toISOString(), updated_at: new Date("2020-02-03T00:30:00Z").toISOString()};
+    var thisData2 = { user_id: "abcdef_746343", user_env: "test", api_token: "api_token_2", refresh_token: "refresh_token_2",
+    expires_at: new Date("2020-02-03T03:30:00Z").toISOString(), updated_at: new Date("2020-02-03T02:30:00Z").toISOString()};
+    var thisData3 = { user_id: "bavads_746343", user_env: "test", api_token: "api_token_3", refresh_token: "refresh_token_3",
+    expires_at: new Date("2020-02-02T21:30:00Z").toISOString(), updated_at: new Date("2020-02-02T20:30:00Z").toISOString()};
+
+    clientData.push(thisData1);    
+    clientData.push(thisData2);
+    clientData.push(thisData3);
+
+    resolve(clientData);
+});
+
 exports.setClientData = (userId, env, token, refresh, expires) => new Promise(function(resolve, reject) {
     let db = new sqlite3.Database(dbPath, (error) => {
         if (error) {
