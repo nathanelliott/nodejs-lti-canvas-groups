@@ -470,7 +470,7 @@ exports.getGroupCategories = async (courseId, request) => new Promise(async func
     log.info("[Cache] Using found NodeCache entry for courseId " + courseId + ".");
     log.info("[Cache] Statistics: " + JSON.stringify(groupCategoriesCache.getStats()));
 
-    await addCacheRead('groupCategoriesCache');
+    await exports.addCacheRead('groupCategoriesCache');
 
     resolve(cachedData);
   }
@@ -537,7 +537,7 @@ exports.getGroupCategories = async (courseId, request) => new Promise(async func
 
     // Store in cache.
     groupCategoriesCache.set(courseId, returnedApiData);
-    await addCacheWrite('groupCategoriesCache');
+    await exports.addCacheWrite('groupCategoriesCache');
 
     log.info("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(returnedApiData));
     log.info("[Cache] Statistics: " + JSON.stringify(groupCategoriesCache.getStats()));
