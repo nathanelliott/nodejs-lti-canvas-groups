@@ -159,7 +159,6 @@ exports.cacheStat = async () => new Promise(async function (resolve, reject) {
  * The current cache buckets for Canvas API.
  */
 exports.cacheBuckets = () => {
-  log.info("[Canvas] " + caches.length);
   return caches;
 };
 
@@ -182,9 +181,7 @@ exports.addCacheWrite = (cacheName) => {
 module.exports.getCacheStat = async () => new Promise(async function (resolve, reject) {
   var cacheList = [];
 
-  for (const cache of caches) {    
-    log.info("[Stats] Cache statistics for " + cache.name);
-
+  for (const cache of caches) {
     var cacheKeys = [];
 
     cache.bucket.keys(function(err, keys){
@@ -386,7 +383,7 @@ exports.getCourseGroups = async (courseId, request) => new Promise(async functio
     const cachedData = courseGroupsCache.get(courseId);
 
     log.info("[Cache] Using found NodeCache entry for courseId " + courseId + ".");
-    log.info("[Cache] Statistics: " + JSON.stringify(courseGroupsCache.getStats()));
+    log.debug("[Cache] Statistics: " + JSON.stringify(courseGroupsCache.getStats()));
 
     await exports.addCacheRead('courseGroupsCache');
 
@@ -456,9 +453,9 @@ exports.getCourseGroups = async (courseId, request) => new Promise(async functio
     // Store in cache.
     courseGroupsCache.set(userId, returnedApiData);
 
-    log.info("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(returnedApiData));
-    log.info("[Cache] Statistics: " + JSON.stringify(courseGroupsCache.getStats()));
-    log.info("[Cache] Keys: " + courseGroupsCache.keys());
+    log.debug("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(returnedApiData));
+    log.debug("[Cache] Statistics: " + JSON.stringify(courseGroupsCache.getStats()));
+    log.debug("[Cache] Keys: " + courseGroupsCache.keys());
 
     await exports.addCacheWrite('courseGroupsCache');
 
@@ -472,7 +469,7 @@ exports.getGroupCategories = async (courseId, request) => new Promise(async func
     const cachedData = groupCategoriesCache.get(courseId);
 
     log.info("[Cache] Using found NodeCache entry for courseId " + courseId + ".");
-    log.info("[Cache] Statistics: " + JSON.stringify(groupCategoriesCache.getStats()));
+    log.debug("[Cache] Statistics: " + JSON.stringify(groupCategoriesCache.getStats()));
 
     await exports.addCacheRead('groupCategoriesCache');
 
@@ -543,9 +540,9 @@ exports.getGroupCategories = async (courseId, request) => new Promise(async func
     groupCategoriesCache.set(courseId, returnedApiData);
     await exports.addCacheWrite('groupCategoriesCache');
 
-    log.info("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(returnedApiData));
-    log.info("[Cache] Statistics: " + JSON.stringify(groupCategoriesCache.getStats()));
-    log.info("[Cache] Keys: " + groupCategoriesCache.keys());
+    log.debug("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(returnedApiData));
+    log.debug("[Cache] Statistics: " + JSON.stringify(groupCategoriesCache.getStats()));
+    log.debug("[Cache] Keys: " + groupCategoriesCache.keys());
 
     resolve(returnedApiData);
   }
@@ -557,7 +554,7 @@ exports.getCategoryGroups = async (categoryId, request) => new Promise(async fun
     const cachedData = categoryGroupsCache.get(categoryId);
 
     log.info("[Cache] Using found NodeCache entry for categoryId " + categoryId + ".");
-    log.info("[Cache] Statistics: " + JSON.stringify(categoryGroupsCache.getStats()));
+    log.debug("[Cache] Statistics: " + JSON.stringify(categoryGroupsCache.getStats()));
 
     await exports.addCacheRead('categoryGroupsCache');
 
@@ -628,9 +625,9 @@ exports.getCategoryGroups = async (categoryId, request) => new Promise(async fun
     // Store in cache.
     categoryGroupsCache.set(categoryId, returnedApiData);
   
-    log.info("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(returnedApiData));
-    log.info("[Cache] Statistics: " + JSON.stringify(categoryGroupsCache.getStats()));
-    log.info("[Cache] Keys: " + categoryGroupsCache.keys());
+    log.debug("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(returnedApiData));
+    log.debug("[Cache] Statistics: " + JSON.stringify(categoryGroupsCache.getStats()));
+    log.debug("[Cache] Keys: " + categoryGroupsCache.keys());
 
     await exports.addCacheWrite('categoryGroupsCache');
 
@@ -644,7 +641,7 @@ exports.getGroupUsers = async (groupId, request) => new Promise(async function(r
     const cachedData = groupUsersCache.get(groupId);
 
     log.info("[Cache] Using found NodeCache entry for groupId " + groupId + ".");
-    log.info("[Cache] Statistics: " + JSON.stringify(groupUsersCache.getStats()));
+    log.debug("[Cache] Statistics: " + JSON.stringify(groupUsersCache.getStats()));
 
     await exports.addCacheRead('groupUsersCache');
 
@@ -715,9 +712,9 @@ exports.getGroupUsers = async (groupId, request) => new Promise(async function(r
     // Store in cache.
     groupUsersCache.set(groupId, returnedApiData);
   
-    log.info("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(returnedApiData));
-    log.info("[Cache] Statistics: " + JSON.stringify(groupUsersCache.getStats()));
-    log.info("[Cache] Keys: " + groupUsersCache.keys());
+    log.debug("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(returnedApiData));
+    log.debug("[Cache] Statistics: " + JSON.stringify(groupUsersCache.getStats()));
+    log.debug("[Cache] Keys: " + groupUsersCache.keys());
 
     await exports.addCacheWrite('groupUsersCache');
 
@@ -731,7 +728,7 @@ exports.getGroupMembers = async (groupId, request) => new Promise(async function
     const cachedData = memberCache.get(groupId);
 
     log.info("[Cache] Using found NodeCache entry for groupId " + groupId + ".");
-    log.info("[Cache] Statistics: " + JSON.stringify(memberCache.getStats()));
+    log.debug("[Cache] Statistics: " + JSON.stringify(memberCache.getStats()));
 
     await exports.addCacheRead('memberCache');
 
@@ -802,9 +799,9 @@ exports.getGroupMembers = async (groupId, request) => new Promise(async function
     // Store in cache.
     memberCache.set(groupId, returnedApiData);
   
-    log.info("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(returnedApiData));
-    log.info("[Cache] Statistics: " + JSON.stringify(memberCache.getStats()));
-    log.info("[Cache] Keys: " + memberCache.keys());
+    log.debug("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(returnedApiData));
+    log.debug("[Cache] Statistics: " + JSON.stringify(memberCache.getStats()));
+    log.debug("[Cache] Keys: " + memberCache.keys());
 
     await exports.addCacheWrite('memberCache');
 
@@ -876,9 +873,9 @@ exports.getUser = async (userId, request) => new Promise(async function(resolve,
 
     userCache.set(userId, apiData[0]);
 
-    log.info("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(apiData[0]));
-    log.info("[Cache] Statistics: " + JSON.stringify(userCache.getStats()));
-    log.info("[Cache] Keys: " + userCache.keys());
+    log.debug("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(apiData[0]));
+    log.debug("[Cache] Statistics: " + JSON.stringify(userCache.getStats()));
+    log.debug("[Cache] Keys: " + userCache.keys());
 
     await exports.addCacheWrite('userCache');
 

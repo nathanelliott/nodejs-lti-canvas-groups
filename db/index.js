@@ -97,8 +97,6 @@ exports.setClientData = (userId, env, token, refresh, expires) => new Promise(fu
             reject();
         }
         else {
-            log.info("[DB] INSERT OR REPLACE INTO tokens (user_id, user_env, api_token, refresh_token, expires_at_utc) VALUES (" + userId + ", " + env + ", " + token + ", " + refresh + ", " + expires + ")");
-
             db.run("INSERT OR REPLACE INTO tokens (user_id, user_env, api_token, refresh_token, expires_at_utc) VALUES (?, ?, ?, ?, ?)", [userId, env, token, refresh, expires], function(error) {
                 if (error) {
                     log.error(error);
@@ -107,7 +105,7 @@ exports.setClientData = (userId, env, token, refresh, expires) => new Promise(fu
                     reject();
                 }
                 else {
-                    log.info("[DB] Replaced token data for user_id '" + userId + "'");
+                    log.info("[DB] Created/replaced token data for user_id '" + userId + "'");
 
                     db.close();
                     resolve();               
@@ -144,7 +142,6 @@ exports.getClientData = (userId, env) => new Promise(function(resolve, reject) {
                         tokenData.refresh_token = row.refresh_token;
                         tokenData.expires_in = 3600;
                         tokenData.expires_at_utc = new Date(row.expires_at_utc);
-                        log.info("[DB] Object set from database: " + JSON.stringify(tokenData));
 
                         db.close();
                         resolve(tokenData);
