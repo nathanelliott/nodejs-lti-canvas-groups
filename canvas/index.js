@@ -388,6 +388,8 @@ exports.getCourseGroups = async (courseId, request) => new Promise(async functio
     log.info("[Cache] Using found NodeCache entry for courseId " + courseId + ".");
     log.info("[Cache] Statistics: " + JSON.stringify(courseGroupsCache.getStats()));
 
+    await exports.addCacheRead('courseGroupsCache');
+
     resolve(cachedData);
   }
   catch (err) {
@@ -457,6 +459,8 @@ exports.getCourseGroups = async (courseId, request) => new Promise(async functio
     log.info("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(returnedApiData));
     log.info("[Cache] Statistics: " + JSON.stringify(courseGroupsCache.getStats()));
     log.info("[Cache] Keys: " + courseGroupsCache.keys());
+
+    await exports.addCacheWrite('courseGroupsCache');
 
     resolve(returnedApiData);
   }
@@ -555,6 +559,8 @@ exports.getCategoryGroups = async (categoryId, request) => new Promise(async fun
     log.info("[Cache] Using found NodeCache entry for categoryId " + categoryId + ".");
     log.info("[Cache] Statistics: " + JSON.stringify(categoryGroupsCache.getStats()));
 
+    await exports.addCacheRead('categoryGroupsCache');
+
     resolve(cachedData);
   }
   catch {
@@ -626,6 +632,8 @@ exports.getCategoryGroups = async (categoryId, request) => new Promise(async fun
     log.info("[Cache] Statistics: " + JSON.stringify(categoryGroupsCache.getStats()));
     log.info("[Cache] Keys: " + categoryGroupsCache.keys());
 
+    await exports.addCacheWrite('categoryGroupsCache');
+
     resolve(returnedApiData);
   }
 });
@@ -637,6 +645,8 @@ exports.getGroupUsers = async (groupId, request) => new Promise(async function(r
 
     log.info("[Cache] Using found NodeCache entry for groupId " + groupId + ".");
     log.info("[Cache] Statistics: " + JSON.stringify(groupUsersCache.getStats()));
+
+    await exports.addCacheRead('groupUsersCache');
 
     resolve(cachedData);
   }
@@ -709,6 +719,8 @@ exports.getGroupUsers = async (groupId, request) => new Promise(async function(r
     log.info("[Cache] Statistics: " + JSON.stringify(groupUsersCache.getStats()));
     log.info("[Cache] Keys: " + groupUsersCache.keys());
 
+    await exports.addCacheWrite('groupUsersCache');
+
     resolve(returnedApiData);
   }
 });
@@ -720,6 +732,8 @@ exports.getGroupMembers = async (groupId, request) => new Promise(async function
 
     log.info("[Cache] Using found NodeCache entry for groupId " + groupId + ".");
     log.info("[Cache] Statistics: " + JSON.stringify(memberCache.getStats()));
+
+    await exports.addCacheRead('memberCache');
 
     resolve(cachedData);
   }
@@ -792,6 +806,8 @@ exports.getGroupMembers = async (groupId, request) => new Promise(async function
     log.info("[Cache] Statistics: " + JSON.stringify(memberCache.getStats()));
     log.info("[Cache] Keys: " + memberCache.keys());
 
+    await exports.addCacheWrite('memberCache');
+
     resolve(returnedApiData);
   }
 });
@@ -801,6 +817,8 @@ exports.getUser = async (userId, request) => new Promise(async function(resolve,
   try {
     const cachedData = userCache.get(userId);
     log.info("[Cache] Using found NodeCache entry for userId " + userId + ".");
+    await exports.addCacheRead('userCache');
+
     resolve(cachedData);
   }
   catch {
@@ -861,6 +879,8 @@ exports.getUser = async (userId, request) => new Promise(async function(resolve,
     log.info("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(apiData[0]));
     log.info("[Cache] Statistics: " + JSON.stringify(userCache.getStats()));
     log.info("[Cache] Keys: " + userCache.keys());
+
+    await exports.addCacheWrite('userCache');
 
     resolve(apiData[0]);
   }
