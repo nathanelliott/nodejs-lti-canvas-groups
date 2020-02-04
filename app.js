@@ -64,10 +64,11 @@ app.get('/', (request, response) => {
 
 app.get('/json/stats', async (request, response) => {
   const authorizedUsers = await db.getAllClientsData();
-  // const authorizedUsers = await db.getAllClientsDataMocked();
   const cacheContents = await canvas.getCacheStat();
+
   let now = new Date();
   var activeUsersToday = 0;
+  let cacheStats = [];
 
   authorizedUsers.forEach(user => {
     if (user.updated_at.substr(0, 10) == now.toISOString().substr(0, 10)) {
@@ -75,11 +76,15 @@ app.get('/json/stats', async (request, response) => {
     }
   });
 
+  cacheContents.forEach(cache => {
+    cacheStats.push({ name: cache.name, reads: cache.reads, writes: cache.writes });
+  });
+
   return response.send({
     version: pkg.version,
     authorized_users: authorizedUsers.length,
     active_users_today: activeUsersToday,
-    cache_buckets: cacheContents.length
+    cache_stats: cacheStats
   });
 });
 
