@@ -83,6 +83,37 @@ app.get('/json/stats', async (request, response) => {
   });
 });
 
+app.get('/test/cache/reads', async (request, response) => {
+  let caches1 = canvas.cacheBuckets();
+  log.info("Before adding cache read: " + caches1.find(obj => obj.name === 'groupCategoriesCache').reads);
+  canvas.addCacheRead('groupCategoriesCache');
+
+  let caches2 = canvas.cacheBuckets();
+  log.info("After adding cache read: " + caches2.find(obj => obj.name === 'groupCategoriesCache').reads);
+
+  return response.send({
+    success: true
+  });
+});
+
+app.get('/test/cache/writes', async (request, response) => {
+  let caches1 = canvas.cacheBuckets();
+  const caches1_writes = caches1.find(obj => obj.name === 'groupCategoriesCache').writes;
+  log.info("Before adding cache write: " + caches1_writes);
+
+  await canvas.addCacheWrite('groupCategoriesCache');
+
+  let caches2 = canvas.cacheBuckets();
+  const caches2_writes = caches2.find(obj => obj.name === 'groupCategoriesCache').writes;
+  log.info("After adding cache write: " + caches2_writes);
+
+  return response.send({
+    success: true,
+    before_write: caches1_writes,
+    after_write: caches2_writes
+  });
+});
+
 app.get('/oauth', (request, response, next) => {
   try {
     return response.redirect(oauth.providerLogin(request));    
