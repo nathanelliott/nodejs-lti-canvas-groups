@@ -1,7 +1,7 @@
 {
   "name": "nodejs-lti-canvas-groups",
-  "version": "1.2.1",
-  "description": "LTI Application with OAuth for listing and exporting groups and group members in Canvas, using the API.",
+  "version": "1.2.2",
+  "description": "Canvas LTI Application for listing and exporting groups and group members in groupsets.",
   "main": "app.js",
   "scripts": {
     "start": "node app",
