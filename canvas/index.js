@@ -155,14 +155,28 @@ exports.cacheStat = async () => new Promise(async function (resolve, reject) {
   resolve(true);
 });
 
+/**
+ * The current cache buckets for Canvas API.
+ */
+exports.cacheBuckets = () => {
+  log.info("[Canvas] " + caches.length);
+  return caches;
+};
+
 exports.addCacheRead = (cacheName) => {
-  let cache = caches.find(({ name }) => name === cacheName);
-  cache.reads++;
+  caches.filter(cache => {
+    if (cache.name == cacheName) {
+      cache.reads++;
+    }
+  })
 };
 
 exports.addCacheWrite = (cacheName) => {
-  let cache = caches.find(({ name }) => name === cacheName);
-  cache.writes++;
+  caches.filter(cache => {
+    if (cache.name == cacheName) {
+      cache.writes++;
+    }
+  })
 };
 
 module.exports.getCacheStat = async () => new Promise(async function (resolve, reject) {
@@ -456,7 +470,7 @@ exports.getGroupCategories = async (courseId, request) => new Promise(async func
     log.info("[Cache] Using found NodeCache entry for courseId " + courseId + ".");
     log.info("[Cache] Statistics: " + JSON.stringify(groupCategoriesCache.getStats()));
 
-    addCacheRead('groupCategoriesCache');
+    await addCacheRead('groupCategoriesCache');
 
     resolve(cachedData);
   }
@@ -523,7 +537,7 @@ exports.getGroupCategories = async (courseId, request) => new Promise(async func
 
     // Store in cache.
     groupCategoriesCache.set(courseId, returnedApiData);
-    addCacheWrite('groupCategoriesCache');
+    await addCacheWrite('groupCategoriesCache');
 
     log.info("[Cache] Data cached for " + CACHE_TTL / 60 + " minutes: " + JSON.stringify(returnedApiData));
     log.info("[Cache] Statistics: " + JSON.stringify(groupCategoriesCache.getStats()));
