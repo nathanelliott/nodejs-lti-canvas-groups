@@ -69,6 +69,9 @@ courseGroupsCache.on('expired', function(key) {
 groupCategoriesCache.on('expired', function(key) {
   log.info("[Cache] Expired NodeCache entry for groupCategoriesCache key '" + key + "'.");
 });
+groupUsersCache.on('expired', function(key) {
+  log.info("[Cache] Expired NodeCache entry for groupUsersCache key '" + key + "'.");
+});
 categoryGroupsCache.on('expired', function(key) {
   log.info("[Cache] Expired NodeCache entry for categoryGroupsCache key '" + key + "'.");
 });
@@ -116,7 +119,7 @@ exports.providerBaseUri = (request) => {
 };
 
 /**
- * Complete Canvas uri before API endpoint.
+ * Complete Canvas uri up to API endpoint.
  */
 exports.apiPath = (request) => {
   try {
