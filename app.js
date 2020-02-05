@@ -66,43 +66,67 @@ app.get('/', (request, response) => {
 });
 
 app.get('/json/stats', async (request, response) => {
-  const authorizedUsers = await db.getAllClientsData();
-  const cacheContents = await canvas.getCacheStat();
+  if (request.session.userId) {
+    if (adminUserIds.length && adminUserIds.includes(request.session.userId)) {
+      const authorizedUsers = await db.getAllClientsData();
+      const cacheContents = await canvas.getCacheStat();
 
-  let now = new Date();
-  var activeUsersToday = 0;
-  let cacheStats = [];
+      let now = new Date();
+      var activeUsersToday = 0;
+      let cacheStats = [];
 
-  authorizedUsers.forEach(user => {
-    if (user.updated_at.substr(0, 10) == now.toISOString().substr(0, 10)) {
-      activeUsersToday++;
+      authorizedUsers.forEach(user => {
+        if (user.updated_at.substr(0, 10) == now.toISOString().substr(0, 10)) {
+          activeUsersToday++;
+        }
+      });
+
+      cacheContents.forEach(cache => {
+        cacheStats.push({ name: cache.name, reads: cache.reads, writes: cache.writes });
+      });
+
+      return response.send({
+        version: pkg.version,
+        authorized_users: authorizedUsers.length,
+        active_users_today: activeUsersToday,
+        cache_stats: cacheStats
+      });
     }
-  });
-
-  cacheContents.forEach(cache => {
-    cacheStats.push({ name: cache.name, reads: cache.reads, writes: cache.writes });
-  });
-
-  return response.send({
-    version: pkg.version,
-    authorized_users: authorizedUsers.length,
-    active_users_today: activeUsersToday,
-    cache_stats: cacheStats
-  });
+    else {
+      log.error("Not in admin list.");
+      return response.redirect('/error/code/42'); // Admin level needed
+    }
+  }
+  else {
+    log.error("No session found.");
+    return response.redirect('/error/code/41'); // Third-party cookies
+  }
 });
 
 app.get('/dashboard', async (request, response) => {
-  return response.render('dashboard', {
-    statistics: {
-      name: pkg.name,
-      version: pkg.version,
-      node: process.version,
-      pid: process.pid,
-      ppid: process.ppid,
-      resourceUsage: NODE_MAJOR_VERSION >= 12 && NODE_MINOR_VERSION >= 6 ? JSON.stringify(process.resourceUsage(), null, 2) : 'Needs node 12.6',
-      versions: JSON.stringify(process.versions, null, 2)
+  if (request.session.userId) {
+    if (adminUserIds.length && adminUserIds.includes(request.session.userId)) {
+      return response.render('dashboard', {
+        statistics: {
+          name: pkg.name,
+          version: pkg.version,
+          node: process.version,
+          pid: process.pid,
+          ppid: process.ppid,
+          resourceUsage: NODE_MAJOR_VERSION >= 12 && NODE_MINOR_VERSION >= 6 ? JSON.stringify(process.resourceUsage(), null, 2) : 'Needs node 12.6',
+          versions: JSON.stringify(process.versions, null, 2)
+        }
+      });
     }
-  });
+    else {
+      log.error("Not in admin list.");
+      return response.redirect('/error/code/42'); // Admin level needed
+    }
+  }
+  else {
+    log.error("No session found.");
+    return response.redirect('/error/code/41'); // Third-party cookies
+  }
 });
 
 app.get('/test/cache/reads', async (request, response) => {
@@ -225,7 +249,7 @@ app.get('/stats', async (request, response) => {
 });
 
 app.get('/loading/:page', async (request, response) => {
-      return response.render('loading', { page: request.params.page });  
+  return response.render('loading', { page: request.params.page });  
 });
 
 app.get('/groups', async (request, response, next) => { 
