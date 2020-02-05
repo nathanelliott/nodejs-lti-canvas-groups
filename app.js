@@ -295,7 +295,7 @@ app.get('/csv/category/:id/:name', async (request, response, next) => {
 });
 
 app.post('/launch_lti', lti.handleLaunch('loading/groups'));
-app.post('/launch_lti_stats', lti.handleLaunch('loading/stats'));
+app.post('/launch_lti_stats', lti.handleLaunch('loading/dashboard'));
 
 app.listen(port, () => log.info(`[Main] Example app listening on port ${port}.`));
 
