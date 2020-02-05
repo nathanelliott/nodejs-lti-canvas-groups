@@ -55,6 +55,9 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.set('json spaces', 2);
 app.enable('trust proxy');
 
+// Development, in Azure it's set via XML config?
+app.use("/assets", express.static(__dirname + '/public/assets'));
+
 app.get('/', (request, response) => {
   return response.send({
     status: 'up',
@@ -85,6 +88,20 @@ app.get('/json/stats', async (request, response) => {
     authorized_users: authorizedUsers.length,
     active_users_today: activeUsersToday,
     cache_stats: cacheStats
+  });
+});
+
+app.get('/dashboard', async (request, response) => {
+  return response.render('dashboard', {
+    statistics: {
+      name: pkg.name,
+      version: pkg.version,
+      node: process.version,
+      pid: process.pid,
+      ppid: process.ppid,
+      resourceUsage: NODE_MAJOR_VERSION >= 12 && NODE_MINOR_VERSION >= 6 ? JSON.stringify(process.resourceUsage(), null, 2) : 'Needs node 12.6',
+      versions: JSON.stringify(process.versions, null, 2)
+    }
   });
 });
 

@@ -8,6 +8,19 @@ h1, h2, h3 {
     font-weight: 700;
 }
 
+.dashboard h1.card-title {
+    font-weight: bold;
+    font-size: 5rem;
+}
+
+.dashboard {
+    margin-top: 28px;
+}
+
+.dashboard .card {
+    margin-bottom: 28px;
+}
+
 pre {
     white-space: pre-wrap;
     font-size: 0.8em;
