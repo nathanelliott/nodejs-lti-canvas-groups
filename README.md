@@ -1,45 +1,74 @@
+# Canvas Group Tool
 
-<h1 align="center">
-  <br>
-  nodejs-lti-canvas-groups
-  <br>
-</h1>
+An LTI Application for working with Canvas groups, groupsets and users using Node.js.
 
-<h4 align="center">A LTI Application for working with Canvas groups, using Node.js.</h4>
 
 ## Overview
 
 This project is forked from https://github.com/js-kyle/nodejs-lti-provider which is the template for a minimal LTI provider
 application written in Node.js by Kyle Martin.
 
-**Note: This project does not include security and production best practices, and is intended for demo of LTI flow only.**
 
 ## Installation
 
 ```
-# install dependencies using npm
+# Install dependencies using npm
 $ npm install
 
 # Run the app
 $ npm start
+
+# Access from browser
+http://localhost:3000
 ```
+
+## Running in Azure App Service
+
+Connect with Github or Bitbucket to your repository. When syncing, the build and install process should kick in and the app should be
+available on the App Service URI shortly.
+
+
+## Environment variables / Azure application settings
+
+`canvasApiCacheSecondsTTL` number of seconds to cache responses from Canvas API.
+
+`canvasBaseUri` used as fallback if API Domain can not be read from LTI. Example: "https://school.instructure.com".
+
+`oauthClientId` the client id in Canvas Developer Keys, under Details.
+
+`oauthClientSecret` the client key in Canvas Developer Keys.
+
+`ltiConsumerKeys` consumer keys in format "key:secret[,key:secret]". Example: "canvas:abc123,protools:bnn625". Used in the app integration in Canvas.
+
+`adminCanvasUserIds` comma-separated list of Canvas user ids that should have admin access. Long format id.
+
 
 ## Usage
 
-`GET /` check the application is available
+`GET /` check the application is available, JSON data.
 
-`GET /application` this is a demo of a protected page, which will display the name and some information about the logged in user
+`GET /json/stats` get statistics about authorized users and caches, JSON data.
 
-`POST /launch_lti` LTI launch URL. This receives a `application/x-www-form-urlencoded` POST request, with the parameters passed according to the LTI specification. This will redirect the user to `/application` once logged in successfully
+`POST /launch_lti` LTI launch URL. This receives a `application/x-www-form-urlencoded` POST request, with the parameters passed according to the LTI specification. This will redirect the user to `/loading/groups` once logged in successfully.
 
-## Demo consumer secret and keys
+`POST /launch_lti_stats` LTI launch URL. This receives a `application/x-www-form-urlencoded` POST request, with the parameters passed according to the LTI specification. This will redirect the user to `/loading/dashboard` once logged in successfully.
 
-This application uses demo consumer key and secrets. In production, these should be stored securely, rather than inside source code.
+The view `loading` is a proxy for displaying a progress bar until next page loads, as courses with many groupsets and groups can take
+some time to load.
 
-| Consumer key  | Consumer secret  | 
-| --- | --- |
-| demo | xzc342AScx |
-| demo2 | dh43fvL-ew |
+
+## Storage and session cookies
+
+This app uses `Sqlite3` for storing user's access tokens for Canvas API, once they have authorized the app in Canvas. For connecting this
+data the module `express-session` is used to set session cookies, where the data is stored in the file system. Remember that the user needs 
+to accept third-party cookies as the app is loaded inline in Canvas.
+
+
+## Special tricks
+
+If you for some reason want to clear all sessions and authorized users, first delete all session files and then delete the database file
+in the `db/` folder. When the system detects an error in Sqlite query, the main table will be created again.
+
 
 ## About LTI
 
