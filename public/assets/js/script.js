@@ -13,6 +13,8 @@ function renderDashboard() {
         $.getJSON('/json/stats').done(function(data) {
             $.each(data.cache_stats, function(index, value) {
                 data_labels.push(value.name);
+                data_reads.push(value.reads);
+                data_writes.push(value.writes);
                 data_reads_total = data_reads_total + value.reads;
                 data_writes_total = data_writes_total + value.writes;
             });
