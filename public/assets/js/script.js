@@ -23,7 +23,8 @@ function renderDashboard() {
             $('#total_users').text(data.authorized_users);
             $('#total_reads').text(data_reads_total);
             $('#total_writes').text(data_writes_total);
-
+            $('span.percent').text(' (' + Math.round((data_reads_total/data_writes_total)*100) + '%)');
+            
             var ctx = document.getElementById('chartContainer').getContext('2d');
             
             var myChart = new Chart(ctx, {
