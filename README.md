@@ -1,6 +1,6 @@
 # Canvas Group Tool
 
-An LTI Application for working with Canvas groups, groupsets and users using Node.js.
+LTI Application for working with Canvas groups, groupsets and users using Node.js.
 
 
 ## Overview
@@ -30,31 +30,30 @@ available on the App Service URI shortly.
 
 ## Environment variables / Azure application settings
 
-`canvasApiCacheSecondsTTL` number of seconds to cache responses from Canvas API.
+`canvasApiCacheSecondsTTL` number of seconds to cache responses from Canvas API. (Optional)
 
-`canvasBaseUri` used as fallback if API Domain can not be read from LTI. Example: "https://school.instructure.com".
+`canvasBaseUri` used as fallback if API Domain can not be read from LTI. Example: "https://school.instructure.com". (Optional)
 
-`oauthClientId` the client id in Canvas Developer Keys, under Details.
+`oauthClientId` the client id in Canvas Developer Keys, under Details. (Required)
 
-`oauthClientSecret` the client key in Canvas Developer Keys.
+`oauthClientSecret` the client key in Canvas Developer Keys. (Required)
 
-`ltiConsumerKeys` consumer keys in format "key:secret[,key:secret]". Example: "canvas:abc123,protools:bnn625". Used in the app integration in Canvas.
+`ltiConsumerKeys` consumer keys in format "key:secret[,key:secret]". Example: "canvas:abc123,protools:bnn625". Used in the app integration in Canvas. (Required)
 
-`adminCanvasUserIds` comma-separated list of Canvas user ids that should have admin access. Long format id.
+`adminCanvasUserIds` comma-separated list of Canvas user ids that should have admin access. Long format id. (Optional)
 
 
 ## Usage
 
-`GET /` check the application is available, JSON data.
-
-`GET /json/stats` get statistics about authorized users and caches, JSON data.
+`GET /` check the application availability and version, JSON data.
 
 `POST /launch_lti` LTI launch URL. This receives a `application/x-www-form-urlencoded` POST request, with the parameters passed according to the LTI specification. This will redirect the user to `/loading/groups` once logged in successfully.
 
-`POST /launch_lti_stats` LTI launch URL. This receives a `application/x-www-form-urlencoded` POST request, with the parameters passed according to the LTI specification. This will redirect the user to `/loading/dashboard` once logged in successfully.
+`POST /launch_lti_stats` This will redirect the user to `/loading/dashboard` once logged in successfully via LTI and OAuth. The LTI user id needs to be in the `adminCanvasUserIds` string.
 
-The view `loading` is a proxy for displaying a progress bar until next page loads, as courses with many groupsets and groups can take
-some time to load.
+`GET /json/stats` get statistics about authorized users and caches, JSON data. This data is used in the dashboard view.
+
+The view `loading` is a proxy web page for displaying a progress bar until next page loads, as courses with many groupsets and groups can take some time to load. This page uses a html head http-equiv redirect.
 
 
 ## Storage and session cookies
