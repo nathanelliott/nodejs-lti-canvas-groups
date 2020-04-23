@@ -1,10 +1,12 @@
 body {
-    font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 300;
     font-size: 1.0em;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
     font-weight: 700;
 }
 
@@ -34,7 +36,7 @@ pre {
 }
 
 .error {
-    color: rgb(140,20,20);
+    color: rgb(140, 20, 20);
     font-weight: bold;
 }
 
@@ -43,18 +45,21 @@ small {
     font-size: 70%;
 }
 
-table, td, th {  
+table,
+td,
+th {
     border: 1px solid #ddd;
     text-align: left;
 }
-  
+
 table {
     border-collapse: collapse;
     width: 100%;
     margin-bottom: 16px;
 }
-  
-th, td {
+
+th,
+td {
     padding: 8px;
 }
 
@@ -66,12 +71,17 @@ th {
     margin-bottom: 32px;
 }
 
+.button-bar button {
+    margin-right: 8pxpx;
+}
+
 img.avatar {
     max-height: 50px;
     float: right;
 }
 
-progress, progress::-webkit-progress-bar {
+progress,
+progress::-webkit-progress-bar {
     width: 690px;
     height: 16px;
     background-color: #ddd;
