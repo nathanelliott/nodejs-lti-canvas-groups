@@ -338,7 +338,7 @@ app.get('/csv/zoom/category/:id/:name', async(request, response, next) => {
 app.post('/launch_lti', lti.handleLaunch('loading/groups'));
 app.post('/launch_lti_stats', lti.handleLaunch('loading/dashboard'));
 
-app.listen(port, () => log.info(`[Main] Example app listening on port ${port}.`));
+app.listen(port, () => log.info(`[Main] Application listening on port ${port}.`));
 
 process.on('uncaughtException', (err) => {
     console.error('[Main] There was an uncaught error', err);

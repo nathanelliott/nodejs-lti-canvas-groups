@@ -65,6 +65,8 @@ function renderDashboard() {
 }
 
 $(document).ready(function() {
-    renderDashboard()
-    setInterval(renderDashboard, 600000); // Every 10 mins
+    if (document.location.href.indexOf("/dashboard") > -1) {
+        renderDashboard()
+        setInterval(renderDashboard, 600000); // Every 10 mins
+    }
 });
