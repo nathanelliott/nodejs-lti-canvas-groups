@@ -56,7 +56,7 @@ th {
 table {
     border-collapse: collapse;
     width: 100%;
-    margin-bottom: 16px;
+    margin-bottom: 32px;
 }
 
 th,
@@ -69,7 +69,7 @@ th {
 }
 
 .button-bar {
-    margin-bottom: 32px;
+    margin-bottom: 12px;
 }
 
 .button-bar button {
